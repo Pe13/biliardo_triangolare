@@ -30,6 +30,7 @@ void App::draw() {
 void App::run() {
   while (window_.isOpen()) {
     handleEvent();
+    draw();
   }
 }
 
