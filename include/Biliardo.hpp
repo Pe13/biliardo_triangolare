@@ -15,9 +15,11 @@ class Biliardo {
   double r1_;
   double r2_;
 
-  // Matrici per riflettere il vettore direzione
-  Eigen::Matrix2d simmetriaSuperiore_{};
-  Eigen::Matrix2d simmetriaInferiore_{};
+  double theta_{};
+
+  void collideTop(double& angle) const { angle += 2 * theta_; }
+  void collideBottom(double& angle) const { angle = -(2 * theta_ + angle); }
+  void collideLeft(double& angle) const { angle = -angle; }
 
  public:
   Biliardo(double l, double r1, double r2);
@@ -25,9 +27,8 @@ class Biliardo {
   // Questo metodo è in grado di lanciare una sola particella e restituisce un
   // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
   // biliardo
-  std::vector<double> launchForDrawing(Eigen::Vector2d const& initialPosition,
-                                       Eigen::Vector2d const& initialDirection,
-                                       std::vector<double>& output) const;
+  bool launchForDrawing(double const& initialX, double const& initialY, double const& initialDirection,
+                        std::vector<double>& output) const;
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
