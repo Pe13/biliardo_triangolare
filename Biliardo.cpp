@@ -6,12 +6,17 @@
 
 #include <cmath>
 #include <vector>
+#include <stdexcept>
 
 namespace bt {
 
-Biliardo::Biliardo(double l, double r1, double r2) : l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)} {}
+Biliardo::Biliardo(double l, double r1, double r2) : l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)} {
+  if (r1 <= 0 || r2 <= 0) {
+    throw std::runtime_error("r1 e r2 devono essere maggiori di 0");
+  }
+}
 
-bool Biliardo::launchForDrawing(const double& initialX, const double& initialY, const double& initialDirection,
+void Biliardo::launchForDrawing(const double& initialX, const double& initialY, const double& initialDirection,
                                 std::vector<double>& output) const {
   enum LastHit { left, top, bottom };
   double x = initialX;
@@ -25,7 +30,6 @@ bool Biliardo::launchForDrawing(const double& initialX, const double& initialY, 
   // ad ogni iterazione vengono aggiunti due elementi al vettore ma nell'ultima viene aggiunto alla fine anche l'angolo
   // di uscita, quindi il vettore alla fine dell'ultima iterazione avrà un numero di elementi dispari
   while (output.size() % 2 == 0) {
-
     // retta direttrice passante per il punto: ax + c
     double a = std::tan(dir);
     double c = y - std::tan(dir) * x;
@@ -71,7 +75,7 @@ bool Biliardo::launchForDrawing(const double& initialX, const double& initialY, 
             collideBottom(dir);
             lastHit = bottom;
           } else {
-           particleOut();
+            particleOut();
           }
         }
         break;
