@@ -6,6 +6,7 @@
 #define BILIARDO_TRIANGOLARE_BILIARDO_HPP_
 
 #include <vector>
+#include <random>
 
 namespace bt {
 
@@ -14,7 +15,10 @@ class Biliardo {
   double r1_;
   double r2_;
 
-  double theta_{};
+  double theta_;
+
+  std::default_random_engine rng_;
+  std::uniform_real_distribution<double> dist_{0, 1};
 
   void collideTop(double& angle) const { angle += 2 * theta_; }
   void collideBottom(double& angle) const { angle = -(2 * theta_ + angle); }
@@ -31,9 +35,9 @@ class Biliardo {
   // Questo metodo è in grado di lanciare una sola particella e restituisce un
   // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
   // biliardo
-  void launchForDrawing(double const& initialX, double const& initialY, double const& initialDirection,
+  void launchForDrawing(double const& initialY, double const& initialDirection,
                         std::vector<double>& output) const;
-
+  void launchForDrawing(std::vector<double>& output); //non const perché l'rng ha bisogno di "cambiare" per funzionare
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle

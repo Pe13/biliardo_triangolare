@@ -4,22 +4,29 @@
 
 #include "Biliardo.hpp"
 
+#include <chrono>
 #include <cmath>
-#include <vector>
+#include <iostream>
+#include <random>
 #include <stdexcept>
+#include <vector>
 
 namespace bt {
 
-Biliardo::Biliardo(double l, double r1, double r2) : l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)} {
+Biliardo::Biliardo(double l, double r1, double r2)
+    : l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)},
+      rng_(std::chrono::system_clock::now().time_since_epoch().count()) {
   if (r1 <= 0 || r2 <= 0) {
     throw std::runtime_error("r1 e r2 devono essere maggiori di 0");
   }
 }
 
-void Biliardo::launchForDrawing(const double& initialX, const double& initialY, const double& initialDirection,
+// void Biliardo::launchForDrawing() const { lau }
+
+void Biliardo::launchForDrawing(const double& initialY, const double& initialDirection,
                                 std::vector<double>& output) const {
   enum LastHit { left, top, bottom };
-  double x = initialX;
+  double x = 0;
   double y = initialY;
   double dir = initialDirection;
   LastHit lastHit = left;
@@ -112,6 +119,12 @@ void Biliardo::launchForDrawing(const double& initialX, const double& initialY, 
         break;
     }
   }
+}
+
+void Biliardo::launchForDrawing(std::vector<double>& output) {
+  double initialY = (2 * dist_(rng_) - 1) * r1_;
+  double initialDirection = (2 * dist_(rng_) - 1) * M_PI / 2;
+  launchForDrawing(initialY, initialDirection, output);
 }
 
 }  // namespace bt
