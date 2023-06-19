@@ -10,11 +10,12 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <array>
+#include <vector>
 
 namespace bt {
 
 class App {
-  sf::RenderWindow window_;
+  sf::RenderWindow window_{{1280, 720}, "Biliardo trinagolare", sf::Style::Titlebar | sf::Style::Close};
   sf::Event event_{};
 
   Biliardo biliardo_;
@@ -25,17 +26,17 @@ class App {
 
   std::array<sf::Vertex, 4> bordiBiliardo_{};
 
+  std::vector<std::vector<double>> singleLaunches_{1};
+
+  bool isDrawing = true;
 
  public:
   App(double l, double r1, double r2);
-
   void handleEvent();
-
   void draw();
-
   void run();
 
-  void drawBiliardo();
+  void calcBordiBiliardo(double l, double r1, double r2);
 };
 
 }  // namespace bt
