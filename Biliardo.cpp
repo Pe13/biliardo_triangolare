@@ -7,7 +7,6 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
-#include <random>
 #include <stdexcept>
 #include <vector>
 
@@ -20,8 +19,6 @@ Biliardo::Biliardo(double l, double r1, double r2)
     throw std::runtime_error("r1 e r2 devono essere maggiori di 0");
   }
 }
-
-// void Biliardo::launchForDrawing() const { lau }
 
 void Biliardo::launchForDrawing(const double& initialY, const double& initialDirection,
                                 std::vector<double>& output) const {
@@ -44,7 +41,7 @@ void Biliardo::launchForDrawing(const double& initialY, const double& initialDir
     // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
     // meno): bx + d
     double b = std::tan(theta_);
-    double d = -r1_;
+    double d = r1_;
 
     // queste lambda mi permettono di avere un codice più snello nello switch
     auto commitX = [&]() {
@@ -124,6 +121,8 @@ void Biliardo::launchForDrawing(const double& initialY, const double& initialDir
 void Biliardo::launchForDrawing(std::vector<double>& output) {
   double initialY = (2 * dist_(rng_) - 1) * r1_;
   double initialDirection = (2 * dist_(rng_) - 1) * M_PI / 2;
+  std::cout << "y: " << initialY << "\n";
+  std::cout << "theta: " << initialDirection << "\n";
   launchForDrawing(initialY, initialDirection, output);
 }
 

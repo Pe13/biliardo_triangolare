@@ -3,7 +3,7 @@
 #include "App.hpp"
 
 int main() {
-  bt::App app{10, 30, 40};
-  app.run();
-  return 0;
+    bt::App app{100, 30, 10};
+    app.run();
+    return 0;
 }
