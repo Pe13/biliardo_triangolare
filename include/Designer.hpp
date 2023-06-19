@@ -22,11 +22,12 @@ class Designer {
 
   bool isDrawing_{false};
   bool hasCleared_{false};
+  bool isPaused_{false};
 
   size_t pointIndex_{0};
   float pathFraction_{0};
   float step_{0};
-  float speed_{50};  // pixel / s
+  float speed_{100};  // pixel / s
 
   std::array<double, 100> contrail_{};
 
@@ -40,6 +41,7 @@ class Designer {
 
   void setPoints(std::vector<double>* points);
   void reRun();
+  void pause();
 
   void operator()(sf::RenderWindow& window);
 

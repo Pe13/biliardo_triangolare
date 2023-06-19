@@ -7,7 +7,6 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
 namespace bt {
 
@@ -43,13 +42,13 @@ void Designer::calcStep() {
   // speedx = step * ratio * 30
   // step = speedx / (ratio * 30)
   // frac = step / dist = speedx / (ratio * 30 * dist)
-  step_ = static_cast<float>(static_cast<double>(speed_) / (distance * ratio_ * 30));
-  std::cout << "step: " << step_ << "\n";
+  step_ = static_cast<float>(static_cast<double>(speed_) / (distance * ratio_ * 15));
 }
 
 Designer::Designer(double l, double r1, double r2) {
   calcBordiBiliardo(l, r1, r2);
   particle_.setFillColor(sf::Color::Black);
+  particle_.setPointCount(10);
 }
 
 void Designer::setPoints(std::vector<double>* points) {
@@ -63,26 +62,42 @@ void Designer::setPoints(std::vector<double>* points) {
 }
 
 void Designer::reRun() {
-  if (points_ != nullptr) {
-    isDrawing_ = true;
+  if (points_ == nullptr) {
+    return;
   }
+  isDrawing_ = true;
+  pointIndex_ = 0;
+  pathFraction_ = 0;
+  calcStep();
+}
+
+void Designer::pause() {
+  if (points_ == nullptr) {
+    return;
+  }
+  isPaused_ = !isPaused_;
 }
 
 void Designer::operator()(sf::RenderWindow& window) {
+  if (isPaused_) {
+    return;
+  }
   if (isDrawing_) {
     window.clear(sf::Color::White);
     window.draw(bordiBiliardo_.data(), 4, sf::LineStrip);
 
     particle_.setPosition(
         toSfmlCord((*points_)[pointIndex_] * (1 - pathFraction_) + (*points_)[pointIndex_ + 2] * pathFraction_,
-                   (*points_)[pointIndex_ + 1] * (1 - pathFraction_) + (*points_)[pointIndex_ + 3] * pathFraction_));
+                   (*points_)[pointIndex_ + 1] * (1 - pathFraction_) + (*points_)[pointIndex_ + 3] * pathFraction_) -
+        sf::Vector2f(5, 5));
     window.draw(particle_);
 
     pathFraction_ += step_;
     if (pathFraction_ > 1) {
       pathFraction_ = 0;
-      pointIndex_ += 4;
-      if (pointIndex_ > points_->size() - 2) {
+      pointIndex_ += 2;
+      calcStep();
+      if (pointIndex_ > points_->size() - 4) {
         pointIndex_ = 0;
         isDrawing_ = false;
         hasCleared_ = false;
