@@ -20,7 +20,7 @@ class Biliardo {
   std::default_random_engine rng_;
   std::uniform_real_distribution<double> dist_{0, 1};
 
-  void collideTop(double& angle) const { angle += 2 * theta_; }
+  void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
   void collideBottom(double& angle) const { angle = -(2 * theta_ + angle); }
   void collideLeft(double& angle) const { angle = -angle; }
 
@@ -38,6 +38,7 @@ class Biliardo {
   void launchForDrawing(double const& initialY, double const& initialDirection,
                         std::vector<double>& output) const;
   void launchForDrawing(std::vector<double>& output); //non const perché l'rng ha bisogno di "cambiare" per funzionare
+
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle

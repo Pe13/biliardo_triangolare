@@ -4,23 +4,19 @@
 
 #include "App.hpp"
 
-#include <iostream>
-
 namespace bt {
 
 App::App(double l, double r1, double r2) : biliardo_(l, r1, r2), designer_(l, r1, r2) {
   window_.setPosition(sf::Vector2i(100, 100));
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
-  window_.setFramerateLimit(60);
+  window_.setFramerateLimit(120);
+
+  window_.setVerticalSyncEnabled(false);
+
+  window_.clear(sf::Color::White);
 
   biliardo_.launchForDrawing(singleLaunches_[0]);
-
-  for (auto const& e : singleLaunches_[0]) {
-    std::cout << e << "\n";
-  }
-
-  std::cout << "\n\n\n";
 
   designer_.setPoints(&singleLaunches_[0]);
 }
@@ -41,6 +37,25 @@ void App::handleEvent() {
           case sf::Keyboard::P:
             designer_.pause();
             break;
+
+          case sf::Keyboard::N:
+            singleLaunches_.emplace_back();
+            biliardo_.launchForDrawing(singleLaunches_.back());
+            designer_.setPoints(&singleLaunches_.back());
+            designer_.reRun();
+            break;
+
+          case sf::Keyboard::Right:
+            if (designer_.nextLaunch(&singleLaunches_.back())) {
+              designer_.reRun();
+            }
+            break ;
+
+          case sf::Keyboard::Left:
+            if (designer_.previousLaunch(&singleLaunches_.front())) {
+              designer_.reRun();
+            }
+            break ;
 
           default:
             break;

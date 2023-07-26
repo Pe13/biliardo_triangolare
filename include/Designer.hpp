@@ -6,8 +6,9 @@
 #define BILIARDO_TRIANGOLARE__DRAWER_HPP_
 
 #include <SFML/Graphics.hpp>
-#include <array>
+#include <boost/circular_buffer.hpp>
 #include <vector>
+#include <array>
 
 namespace bt {
 
@@ -18,18 +19,21 @@ class Designer {
   double xOffset_{};
   double yOffset_{};
 
-  std::array<sf::Vertex, 4> bordiBiliardo_{};
+  sf::VertexBuffer bordiBiliardo_{sf::LineStrip, sf::VertexBuffer::Usage::Static};
 
   bool isDrawing_{false};
   bool hasCleared_{false};
   bool isPaused_{false};
 
-  size_t pointIndex_{0};
+  std::size_t pointIndex_{0};
   float pathFraction_{0};
   float step_{0};
-  float speed_{100};  // pixel / s
+  float speed_{10};  // pixel / s
 
-  std::array<double, 100> contrail_{};
+  boost::circular_buffer<sf::Vertex> contrail_ {100};
+
+//  std::array<sf::Vertex, 100> {};
+//  int contrailIndex_{0};
 
   sf::CircleShape particle_{5};
 
@@ -40,6 +44,8 @@ class Designer {
   Designer(double l, double r1, double r2);
 
   void setPoints(std::vector<double>* points);
+  bool previousLaunch(std::vector<double>* first);
+  bool nextLaunch(std::vector<double>* last);
   void reRun();
   void pause();
 
