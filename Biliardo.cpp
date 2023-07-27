@@ -12,17 +12,23 @@
 
 namespace bt {
 
-Biliardo::Biliardo(double l, double r1, double r2)
-    : l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)},
+Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
+    : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)},
       rng_(std::chrono::system_clock::now().time_since_epoch().count()) {
   if (r1 <= 0 || r2 <= 0) {
     throw std::runtime_error("r1 e r2 devono essere maggiori di 0");
   }
 }
 
-void Biliardo::launchForDrawing(const double& initialY, const double& initialDirection,
-                                std::vector<double>& output) const {
-  enum LastHit { left, top, bottom };
+void Biliardo::registerTopBottomCollision(const double &x, double &y, const double &a, const double &c,
+                                          std::vector<double> &output) const {
+  y = a * x + c;
+  output.push_back(x);
+  output.push_back(y);
+}
+
+void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection,
+                                std::vector<double> &output) const {
   double x = 0;
   double y = initialY;
   double dir = initialDirection;
@@ -43,74 +49,52 @@ void Biliardo::launchForDrawing(const double& initialY, const double& initialDir
     double b = std::tan(theta_);
     double d = r1_;
 
-    // queste lambda mi permettono di avere un codice più snello nello switch
-    auto commitX = [&]() {
-      y = a * x + c;
-      output.push_back(x);
-      output.push_back(y);
-    };
-
-    auto commitY = [&]() {
-      collideLeft(dir);
-      x = 0;
-      y = c;
-      output.push_back(x);
-      output.push_back(y);
-      lastHit = left;
-    };
-
-    auto particleOut = [&]() {
-      output.push_back(l_);
-      output.push_back(a * l_ + c);
-      output.push_back(dir);
-    };
-
     switch (lastHit) {
       case left:
         x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
         if (x > 0 && x < l_) {
-          commitX();
+          registerTopBottomCollision(x, y, a, c, output);
           collideTop(dir);
           lastHit = top;
         } else {
           x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
           if (x > 0 && x < l_) {
-            commitX();
+            registerTopBottomCollision(x, y, a, c, output);
             collideBottom(dir);
             lastHit = bottom;
           } else {
-            particleOut();
+            registerRightCollision(x, y, a, c, dir, output);
           }
         }
         break;
 
       case top:
         if (std::abs(c) < r1_) {
-          commitY();
+          registerLeftCollision(x, y, c, dir, lastHit, output);
           break;
         } else {
           x = (-d - c) / (a + b);
           if (x > 0 && x < l_) {
-            commitX();
+            registerTopBottomCollision(x, y, a, c, output);
             collideBottom(dir);
             lastHit = bottom;
           } else {
-            particleOut();
+            registerRightCollision(x, y, a, c, dir, output);
           }
         }
         break;
       case bottom:
         if (std::abs(c) < r1_) {
-          commitY();
+          registerLeftCollision(x, y, c, dir, lastHit, output);
           break;
         } else {
           x = (d - c) / (a - b);
           if (x > 0 && x < l_) {
-            commitX();
+            registerTopBottomCollision(x, y, a, c, output);
             collideTop(dir);
             lastHit = top;
           } else {
-            particleOut();
+            registerRightCollision(x, y, a, c, dir, output);
           }
         }
         break;
@@ -118,7 +102,7 @@ void Biliardo::launchForDrawing(const double& initialY, const double& initialDir
   }
 }
 
-void Biliardo::launchForDrawing(std::vector<double>& output) {
+void Biliardo::launchForDrawing(std::vector<double> &output) {
   double initialY = (2 * dist_(rng_) - 1) * r1_;
   double initialDirection = (2 * dist_(rng_) - 1) * M_PI / 2;
   std::cout << "y: " << initialY << "\n";

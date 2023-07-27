@@ -2,13 +2,15 @@
 // Created by paolo on 19/06/2023.
 //
 
-#ifndef BILIARDO_TRIANGOLARE__DRAWER_HPP_
-#define BILIARDO_TRIANGOLARE__DRAWER_HPP_
+#ifndef BILIARDO_TRIANGOLARE_INCLUDE_DRAWER_HPP_
+#define BILIARDO_TRIANGOLARE_INCLUDE_DRAWER_HPP_
 
 #include <SFML/Graphics.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 #include <array>
+
+#include "Biliardo.hpp"
 
 namespace bt {
 
@@ -19,7 +21,7 @@ class Designer {
   double xOffset_{};
   double yOffset_{};
 
-  sf::VertexBuffer bordiBiliardo_{sf::LineStrip, sf::VertexBuffer::Usage::Static};
+  sf::VertexBuffer bordiBiliardo_{sf::VertexBuffer::Usage::Static};
 
   bool isDrawing_{false};
   bool hasCleared_{false};
@@ -37,15 +39,15 @@ class Designer {
 
   sf::CircleShape particle_{5};
 
-  void calcBordiBiliardo(double l, double r1, double r2);
+  void calcBordiBiliardo(Biliardo const& biliardo);
   void calcStep();
 
  public:
-  Designer(double l, double r1, double r2);
+  Designer(Biliardo const& biliardo);
 
   void setPoints(std::vector<double>* points);
-  bool previousLaunch(std::vector<double>* first);
-  bool nextLaunch(std::vector<double>* last);
+  void previousLaunch(std::vector<double>* first);
+  void nextLaunch(std::vector<double>* last);
   void reRun();
   void pause();
 
@@ -60,4 +62,4 @@ class Designer {
 
 }  // namespace bt
 
-#endif  // BILIARDO_TRIANGOLARE__DRAWER_HPP_
+#endif  // BILIARDO_TRIANGOLARE_INCLUDE_DRAWER_HPP_

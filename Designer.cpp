@@ -14,32 +14,55 @@
 
 namespace bt {
 
-void Designer::calcBordiBiliardo(double l, double r1, double r2) {
+void Designer::calcBordiBiliardo(Biliardo const& biliardo) {
   // calcolo il rapporto (pixel / unità di misura della simulazione) ottimale
-  ratio_ = std::min(1280. * 0.8 / l, 720. * 0.4 / std::max(r1, r2));
+  ratio_ = std::min(1280. * 0.8 / biliardo.l(), 720. * 0.4 / std::max(biliardo.r1(), biliardo.r2()));
 
   // calcolo l'offset verticale e orizzontale per centrare il biliardo nella finestra
-  double width = l * ratio_;
+  double width = biliardo.l() * ratio_;
   double horizontalFraction = width / 1280;
   xOffset_ = (1 - horizontalFraction) / 2 * 1280;
 
-  //  double height = std::max(r1, r2) * ratio_ * 2;
+  //  double height = std::max(biliardo.r1(), biliardo.r2()) * ratio_ * 2;
   //  double verticalFraction = height / 720;
   //  yOffset_ = (1 - verticalFraction) / 2 * 720;
 
   // calcolo le effettive posizioni dei vertici
   bordiBiliardo_.create(4);
-  bordiBiliardo_.update(
-      (std::array<sf::Vertex, 4>{
-           sf::Vertex(sf::Vector2f(static_cast<float>(l * ratio_ + xOffset_), static_cast<float>(360 - r2 * ratio_)),
-                      sf::Color::Black),
-           sf::Vertex(sf::Vector2f(static_cast<float>(xOffset_), static_cast<float>(360 - r1 * ratio_)),
-                      sf::Color::Black),
-           sf::Vertex(sf::Vector2f(static_cast<float>(xOffset_), static_cast<float>(360 + r1 * ratio_)),
-                      sf::Color::Black),
-           sf::Vertex(sf::Vector2f(static_cast<float>(l * ratio_ + xOffset_), static_cast<float>(360 + r2 * ratio_)),
-                      sf::Color::Black)})
-          .data());
+
+  // ordino i Vertex nel buffer in base all'ordine in cui devono essere disegnati
+  if (biliardo.type() == rightBounded) {
+    bordiBiliardo_.setPrimitiveType(sf::LineStrip);
+    bordiBiliardo_.update(
+        (std::array<sf::Vertex, 4>{
+             sf::Vertex(sf::Vector2f(static_cast<float>(xOffset_), static_cast<float>(360 - biliardo.r1() * ratio_)),
+                        sf::Color::Black),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + xOffset_), static_cast<float>(360 - biliardo.r2() * ratio_)),
+                        sf::Color::Black),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + xOffset_), static_cast<float>(360 + biliardo.r2() * ratio_)),
+                        sf::Color::Black),
+             sf::Vertex(sf::Vector2f(static_cast<float>(xOffset_), static_cast<float>(360 + biliardo.r1() * ratio_)),
+                        sf::Color::Black)})
+            .data());
+  } else {
+    if (biliardo.type() == open) {
+      bordiBiliardo_.setPrimitiveType(sf::Lines);
+    } else {
+      bordiBiliardo_.setPrimitiveType(sf::LineStrip);
+    }
+    bordiBiliardo_.update(
+        (std::array<sf::Vertex, 4>{
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + xOffset_), static_cast<float>(360 - biliardo.r2() * ratio_)),
+                        sf::Color::Black),
+             sf::Vertex(sf::Vector2f(static_cast<float>(xOffset_), static_cast<float>(360 - biliardo.r1() * ratio_)),
+                        sf::Color::Black),
+             sf::Vertex(sf::Vector2f(static_cast<float>(xOffset_), static_cast<float>(360 + biliardo.r1() * ratio_)),
+                        sf::Color::Black),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + xOffset_), static_cast<float>(360 + biliardo.r2() * ratio_)),
+                        sf::Color::Black)})
+            .data());
+  }
+
 }
 
 void Designer::calcStep() {
@@ -54,8 +77,8 @@ void Designer::calcStep() {
   step_ = static_cast<float>(static_cast<double>(speed_) / (distance * ratio_));
 }
 
-Designer::Designer(double l, double r1, double r2) {
-  calcBordiBiliardo(l, r1, r2);
+Designer::Designer(Biliardo const& biliardo) {
+  calcBordiBiliardo(biliardo);
   particle_.setFillColor(sf::Color::Black);
   particle_.setPointCount(10);
 }
@@ -64,26 +87,24 @@ void Designer::setPoints(std::vector<double>* points) {
   if (points != nullptr) {
     points_ = points;
     calcStep();
-    isDrawing_ = true;
+    reRun();
   } else {
     throw std::runtime_error("nullptr passed to setPoints");
   }
 }
 
-bool Designer::previousLaunch(std::vector<double>* first) {
+void Designer::previousLaunch(std::vector<double>* first) {
   if (points_ > first){
     points_--;
-    return true;
+    reRun();
   }
-  return false;
 }
 
-bool Designer::nextLaunch(std::vector<double>* last) {
+void Designer::nextLaunch(std::vector<double>* last) {
   if (points_ < last) {
     points_++;
-    return true;
+    reRun();
   }
-  return false;
 }
 
 void Designer::reRun() {

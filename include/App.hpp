@@ -9,7 +9,7 @@
 #include <array>
 #include <vector>
 
-#include "Biliardo.hpp"
+#include "BiliardoAperto.hpp"
 #include "Designer.hpp"
 
 namespace bt {
@@ -18,7 +18,7 @@ class App {
   sf::RenderWindow window_{{1280, 720}, "Biliardo trinagolare", sf::Style::Titlebar | sf::Style::Close};
   sf::Event event_{};
 
-  Biliardo biliardo_;
+  BiliardoAperto biliardo_;
 
   std::vector<std::vector<double>> singleLaunches_{1};
 
@@ -27,7 +27,6 @@ class App {
  public:
   App(double l, double r1, double r2);
   void handleEvent();
-  void draw();
   void run();
 };
 
