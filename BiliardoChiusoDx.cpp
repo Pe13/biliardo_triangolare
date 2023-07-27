@@ -23,6 +23,11 @@ void BiliardoChiusoDx::registerRightCollision(double& x, double& y, const double
   lastHit = right;
 }
 
+bool BiliardoChiusoDx::isOut(const LastHit lastHit) const {
+  if (lastHit == left) {return true;}
+  return false;
+}
+
 BiliardoChiusoDx::BiliardoChiusoDx(double l, double r1, double r2) : Biliardo(l, r1, r2, rightBounded) {}
 
 BiliardoChiusoDx::BiliardoChiusoDx(const Biliardo& biliardo) : Biliardo(biliardo, rightBounded) {}

@@ -26,5 +26,9 @@ void BiliardoAperto::registerRightCollision(double& x, double& y, const double& 
   output.push_back(dir);
 }
 
+bool BiliardoAperto::isOut(const bt::LastHit lastHit) const {
+  return true;
+}
+
 BiliardoType BiliardoAperto::type() const { return open; }
 }  // namespace bt

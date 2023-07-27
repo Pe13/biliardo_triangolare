@@ -24,5 +24,11 @@ void BiliardoChiusoSx::registerRightCollision(double& x, double& y, const double
   output.push_back(a * l_ + c);
   output.push_back(dir);
 }
+
+bool BiliardoChiusoSx::isOut(const LastHit lastHit) const {
+  if (lastHit == right) { return true;}
+  return false;
+}
+
 BiliardoType BiliardoChiusoSx::type() const { return leftBounded; }
 }  // namespace bt

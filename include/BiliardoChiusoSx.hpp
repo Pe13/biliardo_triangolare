@@ -18,6 +18,7 @@ class BiliardoChiusoSx : public Biliardo {
   void registerRightCollision(double& x, double& y, const double& a, const double& c,
                               double& dir, LastHit& lastHit, std::vector<double>& output) const override;
 
+  bool isOut(const LastHit lastHit) const override;
 
  public:
   BiliardoChiusoSx(double l, double r1, double r2);

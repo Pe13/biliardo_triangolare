@@ -14,9 +14,11 @@ class BiliardoAperto : public Biliardo {
 //  void registerLeftCollision(const double& x, const double& y, const double& c, const double& dir,
 //                             const LastHit& lastHit, std::vector<double>& output) const override;
   void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                                     std::vector<double>& output) const;
+                                     std::vector<double>& output) const override;
   void registerRightCollision(double& x, double& y, const double& a, const double& c,
                               double& dir, LastHit& lastHit, std::vector<double>& output) const override;
+
+  bool isOut(const LastHit lastHit) const override;
 
  public:
   BiliardoAperto(double l, double r1, double r2);

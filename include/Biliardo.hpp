@@ -24,7 +24,9 @@ class Biliardo {
   double theta_;
 
   std::default_random_engine rng_;
-  std::uniform_real_distribution<double> dist_{0, 1};
+  std::uniform_real_distribution<double> uniformDist_{0, 1};
+  std::normal_distribution<double> yNormalDist_;
+  std::normal_distribution<double> thetaNormalDist_{0, M_PI / 8};
 
   void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
   void collideBottom(double& angle) const { angle = -(2 * theta_ + angle); }
@@ -32,15 +34,17 @@ class Biliardo {
   void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
                                   std::vector<double>& output) const;
 
-//  virtual void registerLeftCollision(const double& x, const double& y, const double& c, const double& dir,
-//                                     const LastHit& lastHit, std::vector<double>& output) const;
+  //  virtual void registerLeftCollision(const double& x, const double& y, const double& c, const double& dir,
+  //                                     const LastHit& lastHit, std::vector<double>& output) const;
   virtual void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
                                      std::vector<double>& output) const = 0;
 
-//  virtual void registerRightCollision(const double& x, const double& y, const double& a, const double& c,
-//                                      const double& dir, const LastHit& lastHit, std::vector<double>& output) const;
-  virtual void registerRightCollision(double& x, double& y, const double& a, const double& c,
-                                      double& dir, LastHit& lastHit, std::vector<double>& output) const = 0;
+  //  virtual void registerRightCollision(const double& x, const double& y, const double& a, const double& c,
+  //                                      const double& dir, const LastHit& lastHit, std::vector<double>& output) const;
+  virtual void registerRightCollision(double& x, double& y, const double& a, const double& c, double& dir,
+                                      LastHit& lastHit, std::vector<double>& output) const = 0;
+
+  virtual bool isOut(const LastHit lastHit) const = 0;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
@@ -63,7 +67,7 @@ class Biliardo {
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  std::vector<double> launch;
+  void launch(long long N, std::vector<double>& output);
 };
 
 }  // namespace bt
