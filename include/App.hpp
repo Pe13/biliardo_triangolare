@@ -18,16 +18,20 @@ class App {
   sf::RenderWindow window_{{1280, 720}, "Biliardo trinagolare", sf::Style::Titlebar | sf::Style::Close};
   sf::Event event_{};
 
-  BiliardoAperto biliardo_;
+  Biliardo* biliardo_;
 
-  std::vector<std::vector<double>> singleLaunches_{1};
+  std::array<std::vector<std::vector<double>>, 3> singleLaunches_;
 
   Designer designer_;
 
  public:
   App(double l, double r1, double r2);
+  ~App();
+
   void handleEvent();
   void run();
+
+  void changeBiliardo(BiliardoType type);
 };
 
 }  // namespace bt

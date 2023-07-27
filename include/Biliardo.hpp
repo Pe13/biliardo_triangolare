@@ -11,7 +11,7 @@
 namespace bt {
 
 enum LastHit { left, top, bottom };
-enum BiliardoType { open, rightBounded, leftBounded };
+enum BiliardoType { open = 0, rightBounded = 1, leftBounded = 2 };
 
 class Biliardo {
  protected:
@@ -39,6 +39,7 @@ class Biliardo {
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
+  virtual ~Biliardo() = default;
 
   virtual BiliardoType type() const = 0;
 

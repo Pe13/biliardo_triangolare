@@ -6,9 +6,9 @@
 #define BILIARDO_TRIANGOLARE_INCLUDE_DRAWER_HPP_
 
 #include <SFML/Graphics.hpp>
+#include <array>
 #include <boost/circular_buffer.hpp>
 #include <vector>
-#include <array>
 
 #include "Biliardo.hpp"
 
@@ -32,19 +32,19 @@ class Designer {
   float step_{0};
   float speed_{10};  // pixel / s
 
-  boost::circular_buffer<sf::Vertex> contrail_ {100};
+  boost::circular_buffer<sf::Vertex> contrail_{100};
 
-//  std::array<sf::Vertex, 100> {};
-//  int contrailIndex_{0};
+  //  std::array<sf::Vertex, 100> {};
+  //  int contrailIndex_{0};
 
   sf::CircleShape particle_{5};
 
-  void calcBordiBiliardo(Biliardo const& biliardo);
   void calcStep();
 
  public:
   Designer(Biliardo const& biliardo);
 
+  void calcBordiBiliardo(Biliardo const& biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
   void nextLaunch(std::vector<double>* last);
