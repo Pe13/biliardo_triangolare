@@ -5,7 +5,8 @@
 #include "App.hpp"
 
 #include "BiliardoAperto.hpp"
-#include "BiliardoChiuso.hpp"
+#include "BiliardoChiusoSx.hpp"
+#include "BiliardoChiusoDx.hpp"
 
 namespace bt {
 
@@ -17,7 +18,7 @@ App::App(double l, double r1, double r2) : biliardo_{new BiliardoAperto(l, r1, r
   window_.setVerticalSyncEnabled(false);
   window_.clear(sf::Color::White);
 
-  for (auto& v: singleLaunches_) {
+  for (auto& v : singleLaunches_) {
     v.emplace_back();
     biliardo_->launchForDrawing(v[0]);
   }
@@ -39,8 +40,12 @@ void App::handleEvent() {
             changeBiliardo(open);
             break;
 
-          case sf::Keyboard::C:
+          case sf::Keyboard::S:
             changeBiliardo(leftBounded);
+            break;
+
+          case sf::Keyboard::D:
+            changeBiliardo(rightBounded);
             break;
 
           case sf::Keyboard::R:
@@ -89,9 +94,10 @@ void App::changeBiliardo(BiliardoType type) {
       biliardo = new BiliardoAperto(*biliardo_);
       break;
     case leftBounded:
-      biliardo = new BiliardoChiuso(*biliardo_);
+      biliardo = new BiliardoChiusoSx(*biliardo_);
       break;
     case rightBounded:
+      biliardo = new BiliardoChiusoDx(*biliardo_);
       break;
   }
   delete biliardo_;

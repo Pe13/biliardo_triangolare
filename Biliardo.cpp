@@ -20,6 +20,10 @@ Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
   }
 }
 
+Biliardo::Biliardo(const bt::Biliardo &biliardo, bt::BiliardoType type)
+    : type_{type}, l_{biliardo.l()}, r1_{biliardo.r1()}, r2_{biliardo.r2()}, theta_{std::atan((r2_ - r1_) / l_)},
+      rng_(std::chrono::system_clock::now().time_since_epoch().count()) {}
+
 void Biliardo::registerTopBottomCollision(const double &x, double &y, const double &a, const double &c,
                                           std::vector<double> &output) const {
   y = a * x + c;
@@ -63,7 +67,27 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideBottom(dir);
             lastHit = bottom;
           } else {
-            registerRightCollision(x, y, a, c, dir, output);
+            registerRightCollision(x, y, a, c, dir, lastHit, output);
+            break;
+          }
+        }
+        break;
+
+      case right:
+        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
+        if (x > 0 && x < l_) {
+          registerTopBottomCollision(x, y, a, c, output);
+          collideTop(dir);
+          lastHit = top;
+        } else {
+          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
+          if (x > 0 && x < l_) {
+            registerTopBottomCollision(x, y, a, c, output);
+            collideBottom(dir);
+            lastHit = bottom;
+          } else {
+            registerLeftCollision(x, y, c, dir, lastHit, output);
+            break;
           }
         }
         break;
@@ -79,7 +103,8 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideBottom(dir);
             lastHit = bottom;
           } else {
-            registerRightCollision(x, y, a, c, dir, output);
+            registerRightCollision(x, y, a, c, dir, lastHit, output);
+            break;
           }
         }
         break;
@@ -94,7 +119,8 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideTop(dir);
             lastHit = top;
           } else {
-            registerRightCollision(x, y, a, c, dir, output);
+            registerRightCollision(x, y, a, c, dir, lastHit, output);
+            break;
           }
         }
         break;

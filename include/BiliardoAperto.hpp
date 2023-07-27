@@ -11,15 +11,17 @@ namespace bt {
 
 class BiliardoAperto : public Biliardo {
  protected:
+//  void registerLeftCollision(const double& x, const double& y, const double& c, const double& dir,
+//                             const LastHit& lastHit, std::vector<double>& output) const override;
   void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                             std::vector<double>& output) const override;
-  void registerRightCollision(double const& x, double const& y, double const& a, double const& c, double const& dir,
-                              std::vector<double>& output) const override;
+                                     std::vector<double>& output) const;
+  void registerRightCollision(double& x, double& y, const double& a, const double& c,
+                              double& dir, LastHit& lastHit, std::vector<double>& output) const override;
 
  public:
   BiliardoAperto(double l, double r1, double r2);
   BiliardoAperto(Biliardo const& biliardo);
-  ~BiliardoAperto() = default;
+  //  ~BiliardoAperto() = default;
 
   BiliardoType type() const override;
 };

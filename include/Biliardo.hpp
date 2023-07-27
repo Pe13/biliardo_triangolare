@@ -10,12 +10,11 @@
 
 namespace bt {
 
-enum LastHit { left, top, bottom };
+enum LastHit { left, right, top, bottom };
 enum BiliardoType { open = 0, rightBounded = 1, leftBounded = 2 };
 
 class Biliardo {
  protected:
-
   BiliardoType type_;
 
   double l_;
@@ -31,14 +30,21 @@ class Biliardo {
   void collideBottom(double& angle) const { angle = -(2 * theta_ + angle); }
 
   void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
-                                          std::vector<double>& output) const;
+                                  std::vector<double>& output) const;
+
+//  virtual void registerLeftCollision(const double& x, const double& y, const double& c, const double& dir,
+//                                     const LastHit& lastHit, std::vector<double>& output) const;
   virtual void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
                                      std::vector<double>& output) const = 0;
-  virtual void registerRightCollision(double const& x, double const& y, double const& a, double const& c, double const& dir,
-                                      std::vector<double>& output) const = 0;
+
+//  virtual void registerRightCollision(const double& x, const double& y, const double& a, const double& c,
+//                                      const double& dir, const LastHit& lastHit, std::vector<double>& output) const;
+  virtual void registerRightCollision(double& x, double& y, const double& a, const double& c,
+                                      double& dir, LastHit& lastHit, std::vector<double>& output) const = 0;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
+  Biliardo(const Biliardo& biliardo, BiliardoType type);
   virtual ~Biliardo() = default;
 
   virtual BiliardoType type() const = 0;
@@ -50,8 +56,7 @@ class Biliardo {
   // Questo metodo è in grado di lanciare una sola particella e restituisce un
   // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
   // biliardo
-  void launchForDrawing(double const& initialY, double const& initialDirection,
-                                std::vector<double>& output) const;
+  void launchForDrawing(double const& initialY, double const& initialDirection, std::vector<double>& output) const;
   void launchForDrawing(std::vector<double>& output);  // non const perché l'rng ha bisogno di "cambiare" per funzionare
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
