@@ -143,10 +143,11 @@ void Biliardo::launch(long long N, std::vector<double>& output) {
     double y, direction;
     do {
       y = yNormalDist_(rng_);
-    } while (y >= -r1_ && y <= r1_);
+    } while (y <= -r1_ && y >= r1_);
     do {
       direction = thetaNormalDist_(rng_);
-    } while (direction >= -M_PI / 2 && direction <= M_PI / 2);
+    } while (direction <= -M_PI / 2 && direction >= M_PI / 2);
+
     LastHit lastHit = left;
 
     bool out = false;

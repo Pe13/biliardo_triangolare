@@ -15,13 +15,34 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
 
 # abilita l'address sanitizer e l'undefined-behaviour sanitizer in debug mode
-string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
-string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+#string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+#string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
 
-find_package(ROOT 6.20 COMPONENTS CONFIG REQUIRED)
+find_package(ROOT 6.26 COMPONENTS CONFIG REQUIRED)
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(Boost 1.35 COMPONENTS container REQUIRED)
 
-add_executable(biliardo_triangolare main.cpp App.cpp include/App.hpp)
+add_executable(biliardo_triangolare
+        main.cpp App.cpp
+        Biliardo.cpp Designer.cpp
+        BiliardoAperto.cpp
+        BiliardoChiusoSx.cpp
+        BiliardoChiusoDx.cpp
+        Statistics.cpp)
 
 target_include_directories(biliardo_triangolare PRIVATE include)
-target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics sfml-graphics)
+target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics ROOT::Gpad sfml-graphics)
+
+# se il testing e' abilitato...
+#   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
+if (BUILD_TESTING)
+
+    add_executable(test_biliardo tests/BiliardoTest.cpp Biliardo.cpp)
+
+    target_include_directories(test_biliardo PRIVATE include)
+    target_link_libraries(test_biliardo PRIVATE ROOT::Core ROOT::Hist ROOT::Physics sfml-graphics)
+
+    # aggiungi l'eseguibile test_biliardo alla lista dei test
+    add_test(NAME test_biliardo COMMAND test_biliardo)
+
+endif ()

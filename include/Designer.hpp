@@ -15,13 +15,29 @@
 namespace bt {
 
 class Designer {
+  friend void graph(int width, int height, double r1, const std::vector<double> &input, Designer &designer);
+
   std::vector<double>* points_{nullptr};
 
-  double ratio_{};
-  double xOffset_{};
-  double yOffset_{};
+  const float widthLeftFraction_{.3};
+  const float heightTopFraction_{.5};
+  float rightOffset_;
+  float topOffset_;
 
+  float simulationWidth_;
+  float simulationHeight_;
+
+  float ratio_{};
+  float simulationXOffset_{};
+  float simulationYOffset_{};
+
+  sf::VertexBuffer frame_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer bordiBiliardo_{sf::VertexBuffer::Usage::Static};
+  sf::VertexBuffer clearBiliardo_{sf::VertexBuffer::Usage::Static};
+  sf::VertexBuffer clearHisto_{sf::VertexBuffer::Usage::Static};
+
+  sf::Texture histoTexture_;
+  sf::Sprite histoSprite_{histoTexture_};
 
   bool isDrawing_{false};
   bool hasCleared_{false};
@@ -30,20 +46,26 @@ class Designer {
   std::size_t pointIndex_{0};
   float pathFraction_{0};
   float step_{0};
-  float speed_{10};  // pixel / s
+  const float speed_{10};  // pixel / s
 
   boost::circular_buffer<sf::Vertex> contrail_{100};
 
   //  std::array<sf::Vertex, 100> {};
   //  int contrailIndex_{0};
 
-  sf::CircleShape particle_{5};
+  sf::CircleShape particle_{4};
 
+  void calcFrame(const sf::Vector2u& size);
+  void calcClearBiliardo(const Biliardo& biliardo);
+  void calcClearHisto(const sf::Vector2u &size);
   void calcStep();
 
  public:
-  Designer(Biliardo const& biliardo);
+  Designer(Biliardo const& biliardo, const sf::Vector2u& size);
 
+  sf::Vector2f screenFraction() const { return {widthLeftFraction_, heightTopFraction_}; }
+
+  void changeSize(const Biliardo& biliardo, const sf::Vector2u &size);
   void calcBordiBiliardo(Biliardo const& biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
@@ -51,12 +73,15 @@ class Designer {
   void reRun();
   void pause();
 
+  void initWindow(sf::RenderWindow& window);
+  void updateHisto(sf::RenderWindow& window);
   void operator()(sf::RenderWindow& window);
 
   template <typename num>
   sf::Vector2f toSfmlCord(num x, num y) const {
     static_assert(std::is_arithmetic<num>::value);
-    return {static_cast<float>(xOffset_ + x * ratio_), static_cast<float>(360 - y * ratio_)};
+    return {static_cast<float>(simulationXOffset_ + x * ratio_),
+            static_cast<float>(simulationHeight_ / 2 - y * ratio_)};
   }
 };
 
