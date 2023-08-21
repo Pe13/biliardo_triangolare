@@ -159,6 +159,7 @@ void Designer::calcBordiBiliardo(Biliardo const* biliardo) {
             .data());
   }
 }
+
 void Designer::setPoints(std::vector<double>* points) {
   if (points != nullptr) {
     points_ = points;
@@ -227,10 +228,6 @@ void Designer::operator()(sf::RenderWindow& window) {
     contrail_.front().color = sf::Color::White;
     window.draw(&contrail_.front(), 1, sf::Points);
 
-    //    std::memmove(contrail_.data(), contrail_.data() + 1, (contrail_.size() - 1) * sizeof(sf::Vertex));
-
-    //    contrail_.back() = sf::Vertex(particle_.getPosition() + sf::Vector2f(5, 5), sf::Color::Blue);
-
     contrail_.push_back(sf::Vertex(particle_.getPosition() + sf::Vector2f(5, 5), sf::Color::Blue));
 
     particle_.setFillColor(sf::Color::White);
@@ -245,8 +242,6 @@ void Designer::operator()(sf::RenderWindow& window) {
     window.draw(&contrail_.back(), 1, sf::Points);
     //    t2 = std::chrono::high_resolution_clock::now();
 
-    //    contrailIndex_ =
-    //        (contrailIndex_ == static_cast<int>(contrail_.size() - 1)) ? contrailIndex_ = 0 : contrailIndex_ += 1;
     window.draw(bordiBiliardo_);
 
     pathFraction_ += step_;
