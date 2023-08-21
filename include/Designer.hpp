@@ -15,7 +15,7 @@
 namespace bt {
 
 class Designer {
-  friend void graph(int width, int height, double r1, const std::vector<double>& input, Designer& designer);
+  friend void graph(const int width, const int height, double r1, const std::vector<double>& input, Designer& designer);
 
   std::vector<double>* points_{nullptr};
 
@@ -49,9 +49,6 @@ class Designer {
   const float speed_{10};  // pixel / s
 
   boost::circular_buffer<sf::Vertex> contrail_{100};
-
-  //  std::array<sf::Vertex, 100> {};
-  //  int contrailIndex_{0};
 
   sf::CircleShape particle_{4};
 

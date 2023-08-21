@@ -45,11 +45,12 @@ inline void saveCanvasOnImage(sf::Image &image, TCanvas *canvas) {
 
 inline void graph(const int width, const int height, double r1, const std::vector<double> &input, Designer &designer) {
   auto *canvas = new TCanvas("canvas", "canvas", width, height);
-  canvas->SetCanvasSize(width, height);
+  canvas->SetCanvasSize(width, height);  // va settata manualmente perché il costruttore setta solo la size della window
+                                         // e non quella della canvas
   canvas->Divide(2);
 
-  TH1D yHisto("yhisto", "yHisto", 1000, -r1, r1);
-  TH1D thetaHisto("thetaHisto", "thetaHisto", 1000, -M_PI / 2, M_PI / 2);
+  TH1D yHisto("yhisto", "Istogramma delle y di uscita", 1000, -r1, r1);
+  TH1D thetaHisto("thetaHisto", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
 
   for (size_t i = 0; i < input.size(); i += 2) {
     yHisto.Fill(input[i]);

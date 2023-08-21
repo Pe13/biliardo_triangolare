@@ -34,13 +34,9 @@ class Biliardo {
   void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
                                   std::vector<double>& output) const;
 
-  //  virtual void registerLeftCollision(const double& x, const double& y, const double& c, const double& dir,
-  //                                     const LastHit& lastHit, std::vector<double>& output) const;
   virtual void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
                                      std::vector<double>& output) const = 0;
 
-  //  virtual void registerRightCollision(const double& x, const double& y, const double& a, const double& c,
-  //                                      const double& dir, const LastHit& lastHit, std::vector<double>& output) const;
   virtual void registerRightCollision(double& x, double& y, const double& a, const double& c, double& dir,
                                       LastHit& lastHit, std::vector<double>& output) const = 0;
 
@@ -55,9 +51,9 @@ class Biliardo {
 
   Biliardo* changeType(const BiliardoType type);
 
-  double const& l() const { return l_; }
-  double const& r1() const { return r1_; }
-  double const& r2() const { return r2_; }
+  const double & l() const { return l_; }
+  const double & r1() const { return r1_; }
+  const double & r2() const { return r2_; }
 
   // Questo metodo è in grado di lanciare una sola particella e restituisce un
   // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
