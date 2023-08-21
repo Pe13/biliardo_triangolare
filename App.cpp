@@ -54,6 +54,7 @@ void App::handleEvent() {
             graph(static_cast<int>((1.f - frac.x) * size.x), static_cast<int>((1.f - frac.y) * size.y), biliardo_->r1(),
                   multipleLaunches_[biliardo_->type()], designer_);
             designer_.updateHisto(window_);
+            designer_.reRun();
             break;
           }
           case sf::Keyboard::N:

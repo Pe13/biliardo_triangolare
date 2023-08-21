@@ -88,6 +88,7 @@ Designer::Designer(Biliardo const& biliardo, const sf::Vector2u& size)
   calcClearHisto(size);
 
   histoSprite_.setPosition(rightOffset_, topOffset_);
+  histoSprite_.setColor(sf::Color::Black);
 
   particle_.setFillColor(sf::Color::Black);
   particle_.setPointCount(10);
@@ -209,6 +210,7 @@ void Designer::updateHisto(sf::RenderWindow& window) {
   window.draw(clearHisto_);
   window.draw(frame_);
   window.draw(histoSprite_);
+  window.display();
 }
 
 void Designer::operator()(sf::RenderWindow& window) {
@@ -218,7 +220,6 @@ void Designer::operator()(sf::RenderWindow& window) {
     return;
   }
   if (!hasCleared_) {
-    //    window.clear(sf::Color::White);
     window.draw(clearBiliardo_);
     window.draw(bordiBiliardo_);
     window.display();
@@ -254,11 +255,12 @@ void Designer::operator()(sf::RenderWindow& window) {
     if (pathFraction_ > 1) {
       pathFraction_ = 0;
       pointIndex_ += 2;
-      calcStep();
       if (pointIndex_ > points_->size() - 4) {
         pointIndex_ = 0;
         isDrawing_ = false;
         hasCleared_ = false;
+      } else {
+        calcStep();
       }
     }
     //    t1 = std::chrono::high_resolution_clock::now();

@@ -38,7 +38,7 @@ inline void saveCanvasOnImage(sf::Image &image, TCanvas *canvas) {
     if (img) {
       img->FromPad(canvas);
     }
-    std::cout << img->Print("immagine.png") << '\n';
+    //    std::cout << img->Print("immagine.png") << '\n';
     image.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8 *>(img->GetRgbaArray()));
     delete img;
   }
@@ -84,8 +84,9 @@ inline void graph(int width, int height, double r1, const std::vector<double> &i
 
   sf::Image histoImage;
   saveCanvasOnImage(histoImage, canvas);
-
   designer.histoTexture_.loadFromImage(histoImage);
+  designer.histoTexture_.setSmooth(true);
+  designer.histoSprite_.setTexture(designer.histoTexture_);
 
   delete canvas;
 }

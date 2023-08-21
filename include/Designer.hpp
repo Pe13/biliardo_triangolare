@@ -37,10 +37,10 @@ class Designer {
   sf::VertexBuffer clearHisto_{sf::VertexBuffer::Usage::Static};
 
   sf::Texture histoTexture_;
-  sf::Sprite histoSprite_{histoTexture_};
+  sf::Sprite histoSprite_;
 
   bool isDrawing_{false};
-  bool hasCleared_{false};
+  bool hasCleared_{true};
   bool isPaused_{false};
 
   std::size_t pointIndex_{0};
