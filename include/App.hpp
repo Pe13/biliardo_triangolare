@@ -24,18 +24,19 @@ class App {
   std::array<std::vector<double>, 3> multipleLaunches_{{}};
   std::array<std::vector<sf::Image>, 3> graphImages{{}};
 
-  const float widthLeftFraction_{.3};
-  const float heightTopFraction_{.5};
+//  const float widthLeftFraction_{.3};
+//  const float heightTopFraction_{.5};
   Designer designer_;
+
+  void handleEvents();
+  void handeKeyboardEvents(const sf::Keyboard::Key key);
+  void changeBiliardo(BiliardoType type);
 
  public:
   App(double l, double r1, double r2);
   ~App();
 
-  void handleEvent();
   void run();
-
-  void changeBiliardo(BiliardoType type);
 };
 
 }  // namespace bt
