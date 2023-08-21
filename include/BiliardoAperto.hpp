@@ -22,7 +22,7 @@ class BiliardoAperto : public Biliardo {
 
  public:
   BiliardoAperto(double l, double r1, double r2);
-  BiliardoAperto(Biliardo const& biliardo);
+  BiliardoAperto(Biliardo const *biliardo);
   //  ~BiliardoAperto() = default;
 
   BiliardoType type() const override;

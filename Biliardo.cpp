@@ -3,6 +3,9 @@
 //
 
 #include "Biliardo.hpp"
+#include "BiliardoAperto.hpp"
+#include "BiliardoChiusoDx.hpp"
+#include "BiliardoChiusoSx.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -20,9 +23,29 @@ Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
   }
 }
 
-Biliardo::Biliardo(const bt::Biliardo &biliardo, bt::BiliardoType type)
-    : type_{type}, l_{biliardo.l()}, r1_{biliardo.r1()}, r2_{biliardo.r2()}, theta_{std::atan((r2_ - r1_) / l_)},
+Biliardo::Biliardo(const bt::Biliardo *biliardo, bt::BiliardoType type)
+    : type_{type}, l_{biliardo->l()}, r1_{biliardo->r1()}, r2_{biliardo->r2()}, theta_{std::atan((r2_ - r1_) / l_)},
       rng_(std::chrono::system_clock::now().time_since_epoch().count()), yNormalDist_(0, r1_ / 5) {}
+
+Biliardo* Biliardo::changeType(const bt::BiliardoType type) {
+  if (this->type_ == type) {
+    return this;
+  }
+  Biliardo* output;
+  switch (type) {
+    case open:
+      output = new BiliardoAperto(this);
+      break;
+    case rightBounded:
+      output = new BiliardoChiusoDx(this);
+      break;
+    case leftBounded:
+      output = new BiliardoChiusoSx(this);
+      break;
+  }
+  delete this;
+  return output;
+}
 
 void Biliardo::registerTopBottomCollision(const double &x, double &y, const double &a, const double &c,
                                           std::vector<double> &output) const {

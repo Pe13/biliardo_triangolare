@@ -163,7 +163,6 @@ void Designer::calcBordiBiliardo(Biliardo const& biliardo) {
 void Designer::setPoints(std::vector<double>* points) {
   if (points != nullptr) {
     points_ = points;
-    calcStep();
     reRun();
   } else {
     throw std::runtime_error("nullptr passed to setPoints");

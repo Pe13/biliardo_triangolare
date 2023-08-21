@@ -48,10 +48,12 @@ class Biliardo {
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
-  Biliardo(const Biliardo& biliardo, BiliardoType type);
+  Biliardo(const Biliardo *biliardo, BiliardoType type);
   virtual ~Biliardo() = default;
 
   virtual BiliardoType type() const = 0;
+
+  Biliardo* changeType(const BiliardoType type);
 
   double const& l() const { return l_; }
   double const& r1() const { return r1_; }

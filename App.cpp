@@ -12,7 +12,7 @@
 namespace bt {
 
 App::App(double l, double r1, double r2)
-    : biliardo_{new BiliardoAperto(l, r1, r2)}, designer_(*biliardo_, window_.getSize()) {
+    : biliardo_{new BiliardoChiusoSx(l, r1, r2)}, designer_(*biliardo_, window_.getSize()) {
   window_.setPosition(sf::Vector2i(100, 100));
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
@@ -20,10 +20,18 @@ App::App(double l, double r1, double r2)
   window_.setVerticalSyncEnabled(false);
   window_.clear(sf::Color::White);
 
-  for (auto& v : singleLaunches_) {
-    v.emplace_back();
-    biliardo_->launchForDrawing(v[0]);
+//  for (auto& v : singleLaunches_) {
+//    v.emplace_back();
+//    biliardo_->launchForDrawing(v[0]);
+//  }
+
+  for (int i = 2; i > -1; i--) {
+    singleLaunches_[i].emplace_back();
+    biliardo_ = biliardo_->changeType(static_cast<BiliardoType>(i));
+    biliardo_->launchForDrawing(singleLaunches_[i][0]);
   }
+
+  designer_.calcBordiBiliardo(*biliardo_);
   designer_.setPoints(&singleLaunches_[open][0]);
 }
 
@@ -102,21 +110,10 @@ void App::run() {
   }
 }
 void App::changeBiliardo(BiliardoType type) {
-  Biliardo* biliardo;
-  switch (type) {
-    case open:
-      biliardo = new BiliardoAperto(*biliardo_);
-      break;
-    case leftBounded:
-      biliardo = new BiliardoChiusoSx(*biliardo_);
-      break;
-    case rightBounded:
-      biliardo = new BiliardoChiusoDx(*biliardo_);
-      break;
+  if (type == biliardo_->type()) {
+    return;
   }
-  delete biliardo_;
-  biliardo_ = biliardo;
-
+  biliardo_ = biliardo_->changeType(type);
   designer_.calcBordiBiliardo(*biliardo_);
   designer_.setPoints(&singleLaunches_[type].back());
 }

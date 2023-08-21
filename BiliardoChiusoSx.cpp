@@ -7,7 +7,7 @@
 namespace bt {
 
 BiliardoChiusoSx::BiliardoChiusoSx(double l, double r1, double r2) : Biliardo(l, r1, r2, leftBounded) {}
-BiliardoChiusoSx::BiliardoChiusoSx(Biliardo const& biliardo) : Biliardo(biliardo, leftBounded) {}
+BiliardoChiusoSx::BiliardoChiusoSx(Biliardo const *biliardo) : Biliardo(biliardo, leftBounded) {}
 
 void BiliardoChiusoSx::registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
                                              std::vector<double>& output) const {

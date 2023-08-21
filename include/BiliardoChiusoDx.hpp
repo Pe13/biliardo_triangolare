@@ -22,7 +22,7 @@ class BiliardoChiusoDx : public Biliardo {
 
  public:
   BiliardoChiusoDx(double l, double r1, double r2);
-  BiliardoChiusoDx(Biliardo const& biliardo);
+  BiliardoChiusoDx(Biliardo const *biliardo);
   //  ~Biliardo
 
   BiliardoType type() const override;
