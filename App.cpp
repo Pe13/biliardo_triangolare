@@ -31,7 +31,7 @@ App::App(double l, double r1, double r2)
     biliardo_->launchForDrawing(singleLaunches_[i][0]);
   }
 
-  designer_.calcBordiBiliardo(*biliardo_);
+  designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[open][0]);
 }
 
@@ -114,7 +114,7 @@ void App::changeBiliardo(BiliardoType type) {
     return;
   }
   biliardo_ = biliardo_->changeType(type);
-  designer_.calcBordiBiliardo(*biliardo_);
+  designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[type].back());
 }
 

@@ -30,7 +30,7 @@ bool BiliardoChiusoDx::isOut(const LastHit lastHit) const {
 
 BiliardoChiusoDx::BiliardoChiusoDx(double l, double r1, double r2) : Biliardo(l, r1, r2, rightBounded) {}
 
-BiliardoChiusoDx::BiliardoChiusoDx(const Biliardo& biliardo) : Biliardo(biliardo, rightBounded) {}
+BiliardoChiusoDx::BiliardoChiusoDx(const Biliardo *biliardo) : Biliardo(biliardo, rightBounded) {}
 
 BiliardoType BiliardoChiusoDx::type() const { return rightBounded; }
 

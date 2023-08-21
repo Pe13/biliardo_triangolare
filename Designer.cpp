@@ -23,20 +23,20 @@ void Designer::calcFrame(const sf::Vector2u& size) {
                     .data());
 }
 
-void Designer::calcClearBiliardo(const bt::Biliardo& biliardo) {
+void Designer::calcClearBiliardo(const bt::Biliardo* biliardo) {
   using namespace sf;
-  auto max = static_cast<float>(std::max(biliardo.r1(), biliardo.r2()));
+  auto max = static_cast<float>(std::max(biliardo->r1(), biliardo->r2()));
   clearBiliardo_.update(
       (std::array<Vertex, 4>{
            sf::Vertex(
-               sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_ + particle_.getRadius()),
+               sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_ + particle_.getRadius()),
                             simulationHeight_ / 2.f - max * ratio_ - particle_.getRadius()),
                sf::Color::White),
            sf::Vertex(sf::Vector2f(simulationXOffset_ - particle_.getRadius(),
                                    simulationHeight_ / 2.f - max * ratio_ - particle_.getRadius()),
                       sf::Color::White),
            sf::Vertex(
-               sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_ + particle_.getRadius()),
+               sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_ + particle_.getRadius()),
                             simulationHeight_ / 2.f + max * ratio_ + particle_.getRadius()),
                sf::Color::White),
            sf::Vertex(sf::Vector2f(simulationXOffset_ - particle_.getRadius(),
@@ -67,7 +67,7 @@ void Designer::calcStep() {
   step_ = static_cast<float>(static_cast<double>(speed_) / (distance * ratio_));
 }
 
-Designer::Designer(Biliardo const& biliardo, const sf::Vector2u& size)
+Designer::Designer(const Biliardo* biliardo, const sf::Vector2u& size)
     : rightOffset_{widthLeftFraction_ * static_cast<float>(size.x)},
       topOffset_{heightTopFraction_ * static_cast<float>(size.y)}, simulationWidth_{(1.f - widthLeftFraction_) *
                                                                                     static_cast<float>(size.x)},
@@ -94,7 +94,7 @@ Designer::Designer(Biliardo const& biliardo, const sf::Vector2u& size)
   particle_.setPointCount(10);
 }
 
-void Designer::changeSize(const Biliardo& biliardo, const sf::Vector2u& size) {
+void Designer::changeSize(const Biliardo* biliardo, const sf::Vector2u& size) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(size.x);
   topOffset_ = heightTopFraction_ * static_cast<float>(size.y);
   simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(size.x);
@@ -104,13 +104,13 @@ void Designer::changeSize(const Biliardo& biliardo, const sf::Vector2u& size) {
   calcBordiBiliardo(biliardo);
 }
 
-void Designer::calcBordiBiliardo(Biliardo const& biliardo) {
+void Designer::calcBordiBiliardo(Biliardo const* biliardo) {
   // calcolo il rapporto (pixel / unità di misura della simulazione) ottimale
-  ratio_ = std::min(simulationWidth_ * 0.8f / static_cast<float>(biliardo.l()),
-                    simulationHeight_ * 0.4f / static_cast<float>(std::max(biliardo.r1(), biliardo.r2())));
+  ratio_ = std::min(simulationWidth_ * 0.8f / static_cast<float>(biliardo->l()),
+                    simulationHeight_ * 0.4f / static_cast<float>(std::max(biliardo->r1(), biliardo->r2())));
 
   // calcolo l'offset verticale e orizzontale per centrare il biliardo nella finestra
-  float width = static_cast<float>(biliardo.l()) * ratio_;
+  float width = static_cast<float>(biliardo->l()) * ratio_;
   float horizontalFraction = width / simulationWidth_;
   simulationXOffset_ = (1.f - horizontalFraction) / 2.f * simulationWidth_ + rightOffset_;
 
@@ -119,47 +119,46 @@ void Designer::calcBordiBiliardo(Biliardo const& biliardo) {
   //  yOffset_ = (1 - verticalFraction) / 2 * simulationHeight_;
 
   // ordino i Vertex nel buffer in base all'ordine in cui devono essere disegnati
-  if (biliardo.type() == rightBounded) {
+  if (biliardo->type() == rightBounded) {
     bordiBiliardo_.setPrimitiveType(sf::LineStrip);
     bordiBiliardo_.update(
         (std::array<sf::Vertex, 4>{
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 - biliardo.r1() * ratio_)),
+                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 - biliardo->r1() * ratio_)),
                  sf::Color::Black),
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 - biliardo.r2() * ratio_)),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_),
+                                     static_cast<float>(simulationHeight_ / 2 - biliardo->r2() * ratio_)),
                         sf::Color::Black),
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 + biliardo.r2() * ratio_)),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_),
+                                     static_cast<float>(simulationHeight_ / 2 + biliardo->r2() * ratio_)),
                         sf::Color::Black),
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 + biliardo.r1() * ratio_)),
+                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 + biliardo->r1() * ratio_)),
                  sf::Color::Black)})
             .data());
   } else {
-    if (biliardo.type() == open) {
+    if (biliardo->type() == open) {
       bordiBiliardo_.setPrimitiveType(sf::Lines);
     } else {
       bordiBiliardo_.setPrimitiveType(sf::LineStrip);
     }
     bordiBiliardo_.update(
         (std::array<sf::Vertex, 4>{
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 - biliardo.r2() * ratio_)),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_),
+                                     static_cast<float>(simulationHeight_ / 2 - biliardo->r2() * ratio_)),
                         sf::Color::Black),
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 - biliardo.r1() * ratio_)),
+                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 - biliardo->r1() * ratio_)),
                  sf::Color::Black),
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 + biliardo.r1() * ratio_)),
+                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 + biliardo->r1() * ratio_)),
                  sf::Color::Black),
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 + biliardo.r2() * ratio_)),
+             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_),
+                                     static_cast<float>(simulationHeight_ / 2 + biliardo->r2() * ratio_)),
                         sf::Color::Black)})
             .data());
   }
 }
-
 void Designer::setPoints(std::vector<double>* points) {
   if (points != nullptr) {
     points_ = points;

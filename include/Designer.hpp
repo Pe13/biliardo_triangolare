@@ -15,7 +15,7 @@
 namespace bt {
 
 class Designer {
-  friend void graph(int width, int height, double r1, const std::vector<double> &input, Designer &designer);
+  friend void graph(int width, int height, double r1, const std::vector<double>& input, Designer& designer);
 
   std::vector<double>* points_{nullptr};
 
@@ -56,17 +56,17 @@ class Designer {
   sf::CircleShape particle_{4};
 
   void calcFrame(const sf::Vector2u& size);
-  void calcClearBiliardo(const Biliardo& biliardo);
-  void calcClearHisto(const sf::Vector2u &size);
+  void calcClearBiliardo(const Biliardo* biliardo);
+  void calcClearHisto(const sf::Vector2u& size);
   void calcStep();
 
  public:
-  Designer(Biliardo const& biliardo, const sf::Vector2u& size);
+  Designer(const Biliardo* biliardo, const sf::Vector2u& size);
 
   sf::Vector2f screenFraction() const { return {widthLeftFraction_, heightTopFraction_}; }
 
-  void changeSize(const Biliardo& biliardo, const sf::Vector2u &size);
-  void calcBordiBiliardo(Biliardo const& biliardo);
+  void changeSize(const Biliardo* biliardo, const sf::Vector2u& size);
+  void calcBordiBiliardo(Biliardo const* biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
   void nextLaunch(std::vector<double>* last);
