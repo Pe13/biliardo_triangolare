@@ -38,14 +38,14 @@ inline void saveCanvasOnImage(sf::Image &image, TCanvas *canvas) {
     if (img) {
       img->FromPad(canvas);
     }
-    //    std::cout << img->Print("immagine.png") << '\n';
     image.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8 *>(img->GetRgbaArray()));
     delete img;
   }
 }
 
-inline void graph(int width, int height, double r1, const std::vector<double> &input, Designer &designer) {
+inline void graph(const int width, const int height, double r1, const std::vector<double> &input, Designer &designer) {
   auto *canvas = new TCanvas("canvas", "canvas", width, height);
+  canvas->SetCanvasSize(width, height);
   canvas->Divide(2);
 
   TH1D yHisto("yhisto", "yHisto", 1000, -r1, r1);
@@ -61,26 +61,6 @@ inline void graph(int width, int height, double r1, const std::vector<double> &i
 
   canvas->cd(2);
   thetaHisto.Draw();
-
-  ////////////////////////////////////////////////////////////////////////
-  /// part of Root library code assuming batch mode to create an image
-  /// from a TPad (lines 1092-1117 TASImage.cxx Root 6.26)
-  //  TVirtualPS *psave = gVirtualPS;
-  //  gVirtualPS = (TVirtualPS *)gROOT->ProcessLineFast("new TImageDump()");
-  //  gVirtualPS->Open(gPad->GetName(), 114);  // in memory
-  //  gVirtualPS->SetBit(BIT(11));             // kPrintingPS
-  //
-  //  auto *itmp = (TASImage *)gVirtualPS->GetStream();
-  //
-  //  TVirtualPad *sav = gPad;
-  //  gPad->Paint();
-  //  gPad = sav;
-  //
-  //  auto yPixelArr = itmp->GetRgbaArray();  // questa è mia
-  //
-  //  delete gVirtualPS;
-  //  gVirtualPS = psave;
-  ////////////////////////////////////////////////////////////////////////
 
   sf::Image histoImage;
   saveCanvasOnImage(histoImage, canvas);
