@@ -4,6 +4,11 @@
 
 #include "Designer.hpp"
 
+#include <TCanvas.h>
+#include <TImage.h>
+#include <TROOT.h>
+#include <TVirtualX.h>
+
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <chrono>
@@ -13,6 +18,30 @@
 #include <stdexcept>
 
 namespace bt {
+
+void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
+  if (gVirtualX->InheritsFrom("TGCocoa") && !gROOT->IsBatch() && canvas.GetCanvas() &&
+      canvas.GetCanvas()->GetCanvasID() != -1) {
+    canvas.Flush();
+
+    const UInt_t w = canvas.GetWw();
+    const UInt_t h = canvas.GetWh();
+
+    const unsigned char* pixelData = gVirtualX->GetColorBits(canvas.GetCanvasID(), 0, 0, w, h);
+
+    if (pixelData) {
+      histoImage.create(w, h, pixelData);
+    }
+    delete pixelData;
+  } else {
+    TImage* img = TImage::Create();
+    if (img) {
+      img->FromPad(&canvas);
+    }
+    histoImage.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8*>(img->GetRgbaArray()));
+    delete img;
+  }
+}
 
 void Designer::calcFrame(const sf::Vector2u& size) {
   using namespace sf;
@@ -88,11 +117,13 @@ Designer::Designer(const Biliardo* biliardo, const sf::Vector2u& size)
   calcClearHisto(size);
 
   histoSprite_.setPosition(rightOffset_, topOffset_);
-  histoSprite_.setColor(sf::Color::Black);
+//  histoSprite_.setColor(sf::Color::Black);
 
   particle_.setFillColor(sf::Color::Black);
   particle_.setPointCount(10);
 }
+
+void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
 
 void Designer::changeSize(const Biliardo* biliardo, const sf::Vector2u& size) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(size.x);
@@ -159,7 +190,6 @@ void Designer::calcBordiBiliardo(Biliardo const* biliardo) {
             .data());
   }
 }
-
 void Designer::setPoints(std::vector<double>* points) {
   if (points != nullptr) {
     points_ = points;
@@ -193,7 +223,6 @@ void Designer::reRun() {
   pathFraction_ = 0;
   calcStep();
   contrail_.clear();
-  //  contrailIndex_ = 0;
 }
 
 void Designer::pause() {
@@ -203,7 +232,35 @@ void Designer::pause() {
   isPaused_ = !isPaused_;
 }
 
-void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
+void Designer::setCanvas(const double& r1, const std::vector<double>& input, sf::RenderWindow& window) {
+  int width = static_cast<int>(static_cast<float>(window.getSize().x) - rightOffset_);
+  int height = static_cast<int>(static_cast<float>(window.getSize().y) - topOffset_);
+  TCanvas canvas = TCanvas("canvas", "canvas", width, height);
+  canvas.SetCanvasSize(width, height);
+
+  TH1D yHisto("yhisto", "Istogramma delle y di uscita", 1000, -r1, r1);
+  TH1D thetaHisto("thetaHisto", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
+
+  for (size_t i = 0; i < input.size(); i += 2) {
+    yHisto.Fill(input[i]);
+    thetaHisto.Fill(input[i + 1]);
+  }
+
+  canvas.Divide(2);
+
+  canvas.cd(1);
+  yHisto.Draw();
+  canvas.cd(2);
+  thetaHisto.Draw();
+
+  sf::Image histoImage;
+  saveCanvasOnImage(histoImage, canvas);
+  histoTexture_.loadFromImage(histoImage);
+  histoSprite_.setTexture(histoTexture_);
+
+  updateHisto(window);
+  reRun();
+}
 
 void Designer::updateHisto(sf::RenderWindow& window) {
   window.draw(clearHisto_);
@@ -227,7 +284,6 @@ void Designer::operator()(sf::RenderWindow& window) {
   } else if (isDrawing_) {
     contrail_.front().color = sf::Color::White;
     window.draw(&contrail_.front(), 1, sf::Points);
-
     contrail_.push_back(sf::Vertex(particle_.getPosition() + sf::Vector2f(5, 5), sf::Color::Blue));
 
     particle_.setFillColor(sf::Color::White);

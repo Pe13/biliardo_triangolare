@@ -5,6 +5,8 @@
 #ifndef BILIARDO_TRIANGOLARE_INCLUDE_DRAWER_HPP_
 #define BILIARDO_TRIANGOLARE_INCLUDE_DRAWER_HPP_
 
+#include <TH1D.h>
+
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <boost/circular_buffer.hpp>
@@ -15,7 +17,6 @@
 namespace bt {
 
 class Designer {
-  friend void graph(const int width, const int height, double r1, const std::vector<double>& input, Designer& designer);
 
   std::vector<double>* points_{nullptr};
 
@@ -59,6 +60,9 @@ class Designer {
 
  public:
   Designer(const Biliardo* biliardo, const sf::Vector2u& size);
+  ~Designer() = default;
+
+  void initWindow(sf::RenderWindow& window);
 
   sf::Vector2f screenFraction() const { return {widthLeftFraction_, heightTopFraction_}; }
 
@@ -70,8 +74,9 @@ class Designer {
   void reRun();
   void pause();
 
-  void initWindow(sf::RenderWindow& window);
+  void setCanvas(const double& r1, const std::vector<double>& input, sf::RenderWindow& window);
   void updateHisto(sf::RenderWindow& window);
+
   void operator()(sf::RenderWindow& window);
 
   template <typename num>

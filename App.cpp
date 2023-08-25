@@ -7,7 +7,6 @@
 #include "BiliardoAperto.hpp"
 #include "BiliardoChiusoDx.hpp"
 #include "BiliardoChiusoSx.hpp"
-#include "Statistics.hpp"
 
 namespace bt {
 
@@ -64,10 +63,10 @@ void App::handeKeyboardEvents(const sf::Keyboard::Key key) {
       biliardo_->launch(1e6, multipleLaunches_[biliardo_->type()]);
       sf::Vector2f frac = designer_.screenFraction();
       auto size = static_cast<sf::Vector2f>(window_.getSize());
-      graph(static_cast<int>((1.f - frac.x) * size.x), static_cast<int>((1.f - frac.y) * size.y), biliardo_->r1(),
-            multipleLaunches_[biliardo_->type()], designer_);
-      designer_.updateHisto(window_);
-      designer_.reRun();
+//      designer_.setCanvas(graph(static_cast<int>((1.f - frac.x) * size.x), static_cast<int>((1.f - frac.y) * size.y),
+//                                biliardo_->r1(), multipleLaunches_[biliardo_->type()]),
+//                          window_);
+      designer_.setCanvas(biliardo_->r1(), multipleLaunches_[biliardo_->type()], window_);
       break;
     }
     case sf::Keyboard::N:
