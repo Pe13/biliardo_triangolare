@@ -22,11 +22,11 @@ class Designer {
 
   const float widthLeftFraction_{.3};
   const float heightTopFraction_{.5};
-  float rightOffset_;
-  float topOffset_;
+  float rightOffset_{};
+  float topOffset_{};
 
-  float simulationWidth_;
-  float simulationHeight_;
+  float simulationWidth_{};
+  float simulationHeight_{};
 
   float ratio_{};
   float simulationXOffset_{};
@@ -59,14 +59,14 @@ class Designer {
   void calcStep();
 
  public:
-  Designer(const Biliardo* biliardo, const sf::Vector2u& size);
+  Designer();
   ~Designer() = default;
 
   void initWindow(sf::RenderWindow& window);
 
   sf::Vector2f screenFraction() const { return {widthLeftFraction_, heightTopFraction_}; }
 
-  void changeSize(const Biliardo* biliardo, const sf::Vector2u& size);
+  void changeSize(const Biliardo* biliardo, const sf::Event::SizeEvent& size, const std::vector<double>& input, sf::RenderWindow& window);
   void calcBordiBiliardo(Biliardo const* biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);

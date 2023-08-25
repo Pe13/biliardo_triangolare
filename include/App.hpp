@@ -15,18 +15,17 @@
 namespace bt {
 
 class App {
-  sf::RenderWindow window_{{1280, 720}, "Biliardo trinagolare", sf::Style::Titlebar | sf::Style::Close};
-  sf::Event event_{};
 
   Biliardo* biliardo_;
+
+  Designer designer_{};
+
+  sf::RenderWindow window_{{1280, 720}, "Biliardo trinagolare", sf::Style::Default};
+  sf::Event event_{};
 
   std::array<std::vector<std::vector<double>>, 3> singleLaunches_;
   std::array<std::vector<double>, 3> multipleLaunches_{{}};
   std::array<std::vector<sf::Image>, 3> graphImages{{}};
-
-//  const float widthLeftFraction_{.3};
-//  const float heightTopFraction_{.5};
-  Designer designer_;
 
   void handleEvents();
   void handeKeyboardEvents(const sf::Keyboard::Key key);

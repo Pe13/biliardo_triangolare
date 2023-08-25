@@ -11,7 +11,7 @@
 namespace bt {
 
 App::App(double l, double r1, double r2)
-    : biliardo_{new BiliardoChiusoSx(l, r1, r2)}, designer_(biliardo_, window_.getSize()) {
+    : biliardo_{new BiliardoChiusoSx(l, r1, r2)} {
   window_.setPosition(sf::Vector2i(100, 100));
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
@@ -42,6 +42,10 @@ void App::handleEvents() {
         handeKeyboardEvents(event_.key.code);
         break;
 
+      case sf::Event::Resized:
+        designer_.changeSize(biliardo_, event_.size, multipleLaunches_[biliardo_->type()], window_);
+        break;
+
       default:
         break;
     }
@@ -61,11 +65,6 @@ void App::handeKeyboardEvents(const sf::Keyboard::Key key) {
     case sf::Keyboard::L: {  // graffe necessarie per dichiarare variabili in un case
       multipleLaunches_[biliardo_->type()].clear();
       biliardo_->launch(1e6, multipleLaunches_[biliardo_->type()]);
-      sf::Vector2f frac = designer_.screenFraction();
-      auto size = static_cast<sf::Vector2f>(window_.getSize());
-//      designer_.setCanvas(graph(static_cast<int>((1.f - frac.x) * size.x), static_cast<int>((1.f - frac.y) * size.y),
-//                                biliardo_->r1(), multipleLaunches_[biliardo_->type()]),
-//                          window_);
       designer_.setCanvas(biliardo_->r1(), multipleLaunches_[biliardo_->type()], window_);
       break;
     }
