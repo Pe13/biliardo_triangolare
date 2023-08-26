@@ -117,18 +117,18 @@ Designer::Designer() {
 
 void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
 
-void Designer::changeSize(const Biliardo* biliardo, const sf::Event::SizeEvent& size, const std::vector<double>& input,
+void Designer::changeSize(const Biliardo* biliardo, const std::vector<double>& input,
                           sf::RenderWindow& window) {
-  rightOffset_ = widthLeftFraction_ * static_cast<float>(size.width);
-  topOffset_ = heightTopFraction_ * static_cast<float>(size.height);
-  simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(size.width);
-  simulationHeight_ = heightTopFraction_ * static_cast<float>(size.height);
+  rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
+  topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
+  simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
+  simulationHeight_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
 
-  window.setView(sf::View(sf::FloatRect(0, 0, size.width, size.height)));
+  window.setView(sf::View(sf::FloatRect(sf::Vector2f(0, 0), static_cast<sf::Vector2f>(window.getSize()))));
 
   calcFrame(window.getSize());
-  calcBordiBiliardo(biliardo);
   calcClearHisto(window.getSize());
+  calcBordiBiliardo(biliardo);
   calcClearBiliardo(biliardo);
 
   window.clear(sf::Color::Black);
@@ -145,14 +145,10 @@ void Designer::calcBordiBiliardo(Biliardo const* biliardo) {
   ratio_ = std::min(simulationWidth_ * 0.8f / static_cast<float>(biliardo->l()),
                     simulationHeight_ * 0.4f / static_cast<float>(std::max(biliardo->r1(), biliardo->r2())));
 
-  // calcolo l'offset verticale e orizzontale per centrare il biliardo nella finestra
+  // calcolo l'offset orizzontale per centrare il biliardo nel riquadro
   float width = static_cast<float>(biliardo->l()) * ratio_;
   float horizontalFraction = width / simulationWidth_;
   simulationXOffset_ = (1.f - horizontalFraction) / 2.f * simulationWidth_ + rightOffset_;
-
-  //  double height = std::max(biliardo.r1(), biliardo.r2()) * ratio_ * 2;
-  //  double verticalFraction = height / simulationHeight_;
-  //  yOffset_ = (1 - verticalFraction) / 2 * simulationHeight_;
 
   // ordino i Vertex nel buffer in base all'ordine in cui devono essere disegnati
   if (biliardo->type() == rightBounded) {

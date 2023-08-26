@@ -30,7 +30,6 @@ class Designer {
 
   float ratio_{};
   float simulationXOffset_{};
-  float simulationYOffset_{};
 
   sf::VertexBuffer frame_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer bordiBiliardo_{sf::VertexBuffer::Usage::Static};
@@ -64,9 +63,7 @@ class Designer {
 
   void initWindow(sf::RenderWindow& window);
 
-  sf::Vector2f screenFraction() const { return {widthLeftFraction_, heightTopFraction_}; }
-
-  void changeSize(const Biliardo* biliardo, const sf::Event::SizeEvent& size, const std::vector<double>& input, sf::RenderWindow& window);
+  void changeSize(const Biliardo* biliardo, const std::vector<double>& input, sf::RenderWindow& window);
   void calcBordiBiliardo(Biliardo const* biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);

@@ -43,7 +43,7 @@ void App::handleEvents() {
         break;
 
       case sf::Event::Resized:
-        designer_.changeSize(biliardo_, event_.size, multipleLaunches_[biliardo_->type()], window_);
+        designer_.changeSize(biliardo_, multipleLaunches_[biliardo_->type()], window_);
         break;
 
       default:
