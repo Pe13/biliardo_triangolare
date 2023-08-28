@@ -159,6 +159,16 @@ void Biliardo::launchForDrawing(std::vector<double> &output) {
   launchForDrawing(initialY, initialDirection, output);
 }
 
+void Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<double> &output) {
+  double initialY = (2 * uniformDist_(rng_) - 1) * r1_;
+  launchForDrawing(initialY, initialDirection, output);
+}
+
+void Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double> &output) {
+  double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
+  launchForDrawing(initialY, initialDirection, output);
+}
+
 void Biliardo::launch(long long N, std::vector<double>& output) {
   output.reserve(2 * N);
   for (long long _ = 0; _ < N; _++) {

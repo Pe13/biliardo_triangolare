@@ -40,7 +40,7 @@ class Biliardo {
   virtual void registerRightCollision(double& x, double& y, const double& a, const double& c, double& dir,
                                       LastHit& lastHit, std::vector<double>& output) const = 0;
 
-  virtual bool isOut(const LastHit lastHit) const = 0;
+  virtual bool isOut(LastHit lastHit) const = 0;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
@@ -49,7 +49,7 @@ class Biliardo {
 
   virtual BiliardoType type() const = 0;
 
-  Biliardo* changeType(const BiliardoType type);
+  Biliardo* changeType(BiliardoType type);
 
   const double & l() const { return l_; }
   const double & r1() const { return r1_; }
@@ -60,6 +60,8 @@ class Biliardo {
   // biliardo
   void launchForDrawing(double const& initialY, double const& initialDirection, std::vector<double>& output) const;
   void launchForDrawing(std::vector<double>& output);  // non const perché l'rng ha bisogno di "cambiare" per funzionare
+  void launchForDrawingNoY(double const& initialDirection, std::vector<double>& output);
+  void launchForDrawingNoDir(double const& initialY, std::vector<double>& output);
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
