@@ -20,18 +20,17 @@ string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
 
 find_package(ROOT 6.26 COMPONENTS CONFIG REQUIRED)
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(TGUI 1.0 REQUIRED)
 find_package(Boost 1.35 COMPONENTS container REQUIRED)
 
 add_executable(biliardo_triangolare
         main.cpp App.cpp
         Biliardo.cpp Designer.cpp
-        BiliardoAperto.cpp
-        BiliardoChiusoSx.cpp
-        BiliardoChiusoDx.cpp
-        Statistics.cpp)
+        Statistics.cpp
+        BiliardoFunctions.cpp)
 
 target_include_directories(biliardo_triangolare PRIVATE include)
-target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics ROOT::Gpad sfml-graphics)
+target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics ROOT::Gpad sfml-graphics TGUI::TGUI)
 
 # se il testing e' abilitato...
 #   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione

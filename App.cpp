@@ -13,15 +13,13 @@
 #include <TGUI/Widgets/VerticalLayout.hpp>
 #include <algorithm>
 
-#include "BiliardoAperto.hpp"
-#include "BiliardoChiusoDx.hpp"
-#include "BiliardoChiusoSx.hpp"
+#include "Biliardo.hpp"
 
 namespace bt {
 
 bool isNumber(const std::string &s) { return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit); }
 
-App::App(double l, double r1, double r2) : biliardo_{new BiliardoChiusoSx(l, r1, r2)} {
+App::App(const double l, const double r1, const double r2, const BiliardoType type) : biliardo_(l, r1, r2, type) {
   window_.setPosition(sf::Vector2i(100, 100));
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
@@ -35,14 +33,14 @@ App::App(double l, double r1, double r2) : biliardo_{new BiliardoChiusoSx(l, r1,
   // inizializzo tutti i vector di lanci singoli e setto il biliardo iniziale "aperto"
   for (int i = 2; i > -1; i--) {
     singleLaunches_[i].emplace_back();
-    biliardo_ = biliardo_->changeType(static_cast<BiliardoType>(i));
-    biliardo_->launchForDrawing(singleLaunches_[i][0]);
+    biliardo_.changeType(static_cast<BiliardoType>(i));
+    biliardo_.launchForDrawing(singleLaunches_[i][0]);
   }
   designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[open][0]);
 }
 
-App::~App() { delete biliardo_; }
+// App::~App() { delete biliardo_; }
 
 void App::createGui() {
   gui_.add(wrapper_, "wrapper");
@@ -130,8 +128,8 @@ void App::activateGui() {
   biliardoChiusoDxBtn_->onPress([this] { changeBiliardo(rightBounded); });
   biliardoChiusoSxBtn_->onPress([this] { changeBiliardo(leftBounded); });
 
-  previousLaunchBtn_->onPress([this] { designer_.previousLaunch(&singleLaunches_[biliardo_->type()].front()); });
-  nextLaunchBtn_->onPress([this] { designer_.nextLaunch(&singleLaunches_[biliardo_->type()].back()); });
+  previousLaunchBtn_->onPress([this] { designer_.previousLaunch(&singleLaunches_[biliardo_.type()].front()); });
+  nextLaunchBtn_->onPress([this] { designer_.nextLaunch(&singleLaunches_[biliardo_.type()].back()); });
   pauseBtn_->onPress([this] { designer_.pause(); });
   reRunBtn_->onPress([this] { designer_.reRun(); });
 
@@ -139,7 +137,7 @@ void App::activateGui() {
     float y, t;
     bool isY = false, isT = false;
 
-    singleLaunches_[biliardo_->type()].emplace_back();
+    singleLaunches_[biliardo_.type()].emplace_back();
 
     if (heightInput_->getText().attemptToFloat(y)) {
       isY = true;
@@ -149,16 +147,16 @@ void App::activateGui() {
     }
 
     if (!isY && !isT) {
-      biliardo_->launchForDrawing(singleLaunches_[biliardo_->type()].back());
+      biliardo_.launchForDrawing(singleLaunches_[biliardo_.type()].back());
     } else if (isY && isT) {
-      biliardo_->launchForDrawing(y, t, singleLaunches_[biliardo_->type()].back());
+      biliardo_.launchForDrawing(y, t, singleLaunches_[biliardo_.type()].back());
     } else if (isY) {
-      biliardo_->launchForDrawingNoDir(y, singleLaunches_[biliardo_->type()].back());
+      biliardo_.launchForDrawingNoDir(y, singleLaunches_[biliardo_.type()].back());
     } else {
-      biliardo_->launchForDrawingNoY(t, singleLaunches_[biliardo_->type()].back());
+      biliardo_.launchForDrawingNoY(t, singleLaunches_[biliardo_.type()].back());
     }
 
-    designer_.setPoints(&singleLaunches_[biliardo_->type()].back());
+    designer_.setPoints(&singleLaunches_[biliardo_.type()].back());
   });
 }
 
@@ -175,7 +173,7 @@ void App::handleEvents() {
         break;
 
       case sf::Event::Resized:
-        designer_.changeSize(biliardo_, multipleLaunches_[biliardo_->type()], window_, wrapper_);
+        designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()], window_, wrapper_);
         break;
 
       default:
@@ -195,15 +193,15 @@ void App::handeKeyboardEvents(const sf::Keyboard::Key key) {
       //      break;
 
     case sf::Keyboard::L: {  // graffe necessarie per dichiarare variabili in un case
-      multipleLaunches_[biliardo_->type()].clear();
-      biliardo_->launch(1e6, multipleLaunches_[biliardo_->type()]);
-      designer_.setCanvas(biliardo_->r1(), multipleLaunches_[biliardo_->type()], window_);
+      multipleLaunches_[biliardo_.type()].clear();
+      biliardo_.launch(1e6, multipleLaunches_[biliardo_.type()]);
+      designer_.setCanvas(biliardo_.r1(), multipleLaunches_[biliardo_.type()], window_);
       break;
     }
     case sf::Keyboard::N:
-      singleLaunches_[biliardo_->type()].emplace_back();
-      biliardo_->launchForDrawing(singleLaunches_[biliardo_->type()].back());
-      designer_.setPoints(&singleLaunches_[biliardo_->type()].back());
+      singleLaunches_[biliardo_.type()].emplace_back();
+      biliardo_.launchForDrawing(singleLaunches_[biliardo_.type()].back());
+      designer_.setPoints(&singleLaunches_[biliardo_.type()].back());
       break;
 
       //    case sf::Keyboard::P:
@@ -241,10 +239,7 @@ void App::run() {
   }
 }
 void App::changeBiliardo(BiliardoType type) {
-  if (type == biliardo_->type()) {
-    return;
-  }
-  biliardo_ = biliardo_->changeType(type);
+  biliardo_.changeType(type);
   designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[type].back());
 }

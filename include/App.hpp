@@ -15,13 +15,13 @@
 #include <array>
 #include <vector>
 
-#include "BiliardoAperto.hpp"
+#include "Biliardo.hpp"
 #include "Designer.hpp"
 
 namespace bt {
 
 class App {
-  Biliardo* biliardo_;
+  Biliardo biliardo_;
 
   Designer designer_{};
 
@@ -92,8 +92,8 @@ class App {
   void changeBiliardo(BiliardoType type);
 
  public:
-  App(double l, double r1, double r2);
-  ~App();
+  App(double l, double r1, double r2, BiliardoType type);
+//  ~App();
 
   void run();
 };

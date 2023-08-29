@@ -3,9 +3,6 @@
 //
 
 #include "Biliardo.hpp"
-#include "BiliardoAperto.hpp"
-#include "BiliardoChiusoDx.hpp"
-#include "BiliardoChiusoSx.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -23,29 +20,13 @@ Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
   }
 }
 
-Biliardo::Biliardo(const bt::Biliardo *biliardo, bt::BiliardoType type)
-    : type_{type}, l_{biliardo->l()}, r1_{biliardo->r1()}, r2_{biliardo->r2()}, theta_{std::atan((r2_ - r1_) / l_)},
-      rng_(std::chrono::system_clock::now().time_since_epoch().count()), yNormalDist_(0, r1_ / 5) {}
+// Biliardo::Biliardo(const bt::Biliardo *biliardo, bt::BiliardoType type)
+//     : type_{type}, l_{biliardo->l()}, r1_{biliardo->r1()}, r2_{biliardo->r2()}, theta_{std::atan((r2_ - r1_) / l_)},
+//       rng_(std::chrono::system_clock::now().time_since_epoch().count()), yNormalDist_(0, r1_ / 5) {}
 
-Biliardo* Biliardo::changeType(const bt::BiliardoType type) {
-  if (this->type_ == type) {
-    return this;
-  }
-  Biliardo* output;
-  switch (type) {
-    case open:
-      output = new BiliardoAperto(this);
-      break;
-    case rightBounded:
-      output = new BiliardoChiusoDx(this);
-      break;
-    case leftBounded:
-      output = new BiliardoChiusoSx(this);
-      break;
-  }
-  delete this;
-  return output;
-}
+BiliardoType Biliardo::type() const { return type_; }
+
+void Biliardo::changeType(const bt::BiliardoType type) { type_ = type; }
 
 void Biliardo::registerTopBottomCollision(const double &x, double &y, const double &a, const double &c,
                                           std::vector<double> &output) const {
@@ -54,8 +35,27 @@ void Biliardo::registerTopBottomCollision(const double &x, double &y, const doub
   output.push_back(y);
 }
 
-void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection,
-                                std::vector<double> &output) const {
+bool Biliardo::isOut(const LastHit &lastHit) const {
+  switch (type_) {
+    case open:
+      return true;
+
+    case rightBounded:
+      if (lastHit == left) {
+        return true;
+      }
+      return false;
+
+    case leftBounded:
+      if (lastHit == right) {
+        return true;
+      }
+      return false;
+  }
+  return false; // non necessario ma il compilatore se no si lamenta
+}
+
+void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output) {
   double x = 0;
   double y = initialY;
   double direction = initialDirection;
@@ -90,7 +90,7 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideBottom(direction);
             lastHit = bottom;
           } else {
-            registerRightCollision(x, y, a, c, direction, lastHit, output);
+            functions_.registerRightCollision(type_, x, y, a, c, lastHit, direction, l_, output);
             break;
           }
         }
@@ -109,7 +109,7 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideBottom(direction);
             lastHit = bottom;
           } else {
-            registerLeftCollision(x, y, c, direction, lastHit, output);
+            functions_.registerLeftCollision(type_, x, y, c, direction, lastHit, output);
             break;
           }
         }
@@ -117,7 +117,7 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
 
       case top:
         if (std::abs(c) < r1_) {
-          registerLeftCollision(x, y, c, direction, lastHit, output);
+          functions_.registerLeftCollision(type_, x, y, c, direction, lastHit, output);
           break;
         } else {
           x = (-d - c) / (a + b);
@@ -126,14 +126,14 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideBottom(direction);
             lastHit = bottom;
           } else {
-            registerRightCollision(x, y, a, c, direction, lastHit, output);
+            functions_.registerRightCollision(type_, x, y, a, c, lastHit, direction, l_, output);
             break;
           }
         }
         break;
       case bottom:
         if (std::abs(c) < r1_) {
-          registerLeftCollision(x, y, c, direction, lastHit, output);
+          functions_.registerLeftCollision(type_, x, y, c, direction, lastHit, output);
           break;
         } else {
           x = (d - c) / (a - b);
@@ -142,7 +142,7 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
             collideTop(direction);
             lastHit = top;
           } else {
-            registerRightCollision(x, y, a, c, direction, lastHit, output);
+            functions_.registerRightCollision(type_, x, y, a, c, lastHit, direction, l_, output);
             break;
           }
         }
@@ -169,7 +169,7 @@ void Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double>
   launchForDrawing(initialY, initialDirection, output);
 }
 
-void Biliardo::launch(long long N, std::vector<double>& output) {
+void Biliardo::launch(long long N, std::vector<double> &output) {
   output.reserve(2 * N);
   for (long long _ = 0; _ < N; _++) {
     double x = 0;
@@ -213,6 +213,7 @@ void Biliardo::launch(long long N, std::vector<double>& output) {
               direction = -direction;
               lastHit = right;
               out = isOut(lastHit);
+
               break;
             }
           }

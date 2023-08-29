@@ -55,7 +55,7 @@ class Designer {
   sf::CircleShape particle_{4};
 
   void calcFrame(const sf::Vector2u& size);
-  void calcClearBiliardo(const Biliardo* biliardo);
+  void calcClearBiliardo(const Biliardo &biliardo);
   void calcClearHisto(const sf::Vector2u& size);
   void calcStep();
 
@@ -65,8 +65,8 @@ class Designer {
 
   void initWindow(sf::RenderWindow& window);
 
-  void changeSize(const Biliardo* biliardo, const std::vector<double>& input, sf::RenderWindow& window, tgui::VerticalLayout::Ptr wrapper);
-  void calcBordiBiliardo(Biliardo const* biliardo);
+  void changeSize(const Biliardo &biliardo, const std::vector<double>& input, sf::RenderWindow& window, tgui::VerticalLayout::Ptr wrapper);
+  void calcBordiBiliardo(const Biliardo &biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
   void nextLaunch(std::vector<double>* last);
