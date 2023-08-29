@@ -9,7 +9,11 @@
 #include <TROOT.h>
 #include <TVirtualX.h>
 
-#include <SFML/Graphics.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/Core.hpp>
+#include <TGUI/Widgets/Button.hpp>
+#include <TGUI/Widgets/HorizontalLayout.hpp>
+#include <TGUI/Widgets/VerticalLayout.hpp>
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -50,7 +54,6 @@ void Designer::calcFrame(const sf::Vector2u& size) {
                                        Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
                                        Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White)})
                     .data());
-
 }
 
 void Designer::calcClearBiliardo(const bt::Biliardo* biliardo) {
@@ -59,18 +62,18 @@ void Designer::calcClearBiliardo(const bt::Biliardo* biliardo) {
   clearBiliardo_.update(
       (std::array<Vertex, 4>{
            sf::Vertex(
-               sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_ + particle_.getRadius()),
-                            simulationHeight_ / 2.f - max * ratio_ - particle_.getRadius()),
+               sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_ + (particle_.getRadius() + 2)),
+                            simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
                sf::Color::Black),
-           sf::Vertex(sf::Vector2f(simulationXOffset_ - particle_.getRadius(),
-                                   simulationHeight_ / 2.f - max * ratio_ - particle_.getRadius()),
+           sf::Vertex(sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
+                                   simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
                       sf::Color::Black),
            sf::Vertex(
-               sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_ + particle_.getRadius()),
-                            simulationHeight_ / 2.f + max * ratio_ + particle_.getRadius()),
+               sf::Vector2f(static_cast<float>(biliardo->l() * ratio_ + simulationXOffset_ + (particle_.getRadius() + 2)),
+                            simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
                sf::Color::Black),
-           sf::Vertex(sf::Vector2f(simulationXOffset_ - particle_.getRadius(),
-                                   simulationHeight_ / 2.f + max * ratio_ + particle_.getRadius()),
+           sf::Vertex(sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
+                                   simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
                       sf::Color::Black)})
           .data());
 }
@@ -117,8 +120,8 @@ Designer::Designer() {
 
 void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
 
-void Designer::changeSize(const Biliardo* biliardo, const std::vector<double>& input,
-                          sf::RenderWindow& window) {
+void Designer::changeSize(const Biliardo* biliardo, const std::vector<double>& input, sf::RenderWindow& window,
+                          tgui::VerticalLayout::Ptr wrapper) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
   topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
   simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
@@ -130,6 +133,11 @@ void Designer::changeSize(const Biliardo* biliardo, const std::vector<double>& i
   calcClearHisto(window.getSize());
   calcBordiBiliardo(biliardo);
   calcClearBiliardo(biliardo);
+
+  wrapper->setSize(rightOffset_, window.getSize().y);
+  auto buttonsWrapper = wrapper->get<tgui::HorizontalLayout>("buttonsWrapper");
+  buttonsWrapper->setSize("95%", "5%");
+
 
   window.clear(sf::Color::Black);
   window.draw(bordiBiliardo_);
@@ -310,8 +318,6 @@ void Designer::operator()(sf::RenderWindow& window) {
         calcStep();
       }
     }
-
-    window.display();
   }
 }
 

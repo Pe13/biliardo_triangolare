@@ -7,7 +7,10 @@
 
 #include <TH1D.h>
 
-#include <SFML/Graphics.hpp>
+// #include <SFML/Graphics.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/Core.hpp>
+#include <TGUI/Widgets/VerticalLayout.hpp>
 #include <array>
 #include <boost/circular_buffer.hpp>
 #include <vector>
@@ -17,7 +20,6 @@
 namespace bt {
 
 class Designer {
-
   std::vector<double>* points_{nullptr};
 
   const float widthLeftFraction_{.3};
@@ -63,7 +65,7 @@ class Designer {
 
   void initWindow(sf::RenderWindow& window);
 
-  void changeSize(const Biliardo* biliardo, const std::vector<double>& input, sf::RenderWindow& window);
+  void changeSize(const Biliardo* biliardo, const std::vector<double>& input, sf::RenderWindow& window, tgui::VerticalLayout::Ptr wrapper);
   void calcBordiBiliardo(Biliardo const* biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
