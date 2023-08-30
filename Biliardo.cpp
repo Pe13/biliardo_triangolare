@@ -20,10 +20,6 @@ Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
   }
 }
 
-// Biliardo::Biliardo(const bt::Biliardo *biliardo, bt::BiliardoType type)
-//     : type_{type}, l_{biliardo->l()}, r1_{biliardo->r1()}, r2_{biliardo->r2()}, theta_{std::atan((r2_ - r1_) / l_)},
-//       rng_(std::chrono::system_clock::now().time_since_epoch().count()), yNormalDist_(0, r1_ / 5) {}
-
 BiliardoType Biliardo::type() const { return type_; }
 
 void Biliardo::changeType(const bt::BiliardoType type) { type_ = type; }
@@ -52,7 +48,7 @@ bool Biliardo::isOut(const LastHit &lastHit) const {
       }
       return false;
   }
-  return false; // non necessario ma il compilatore se no si lamenta
+  return false;  // non necessario ma il compilatore se no si lamenta
 }
 
 void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output) {
@@ -169,9 +165,9 @@ void Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double>
   launchForDrawing(initialY, initialDirection, output);
 }
 
-void Biliardo::launch(long long N, std::vector<double> &output) {
+void Biliardo::launch(int N, std::vector<double> &output) {
   output.reserve(2 * N);
-  for (long long _ = 0; _ < N; _++) {
+  for (int _ = 0; _ < N; _++) {
     double x = 0;
     double y, direction;
     do {
@@ -295,6 +291,17 @@ void Biliardo::launch(long long N, std::vector<double> &output) {
     output.push_back(y);
     output.push_back(direction);
   }
+}
+void Biliardo::multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const int N,
+                              std::vector<double> &output) {
+  yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
+  thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
+
+  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la sequenza non dovrebbe mai
+  // ripetersi
+  rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
+
+  launch(N, output);
 }
 
 }  // namespace bt

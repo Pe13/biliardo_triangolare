@@ -5,10 +5,10 @@
 #ifndef BILIARDO_TRIANGOLARE_INCLUDE_BILIARDO_HPP_
 #define BILIARDO_TRIANGOLARE_INCLUDE_BILIARDO_HPP_
 
+#include <array>
 #include <functional>
 #include <random>
 #include <vector>
-#include <array>
 
 #include "BiliardoFunctions.hpp"
 #include "types.hpp"
@@ -16,7 +16,6 @@
 namespace bt {
 
 class Biliardo {
-
   BiliardoType type_;
 
   double l_;
@@ -38,11 +37,11 @@ class Biliardo {
   void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
                                   std::vector<double>& output) const;
 
-  bool isOut(const LastHit &lastHit) const;
+  bool isOut(const LastHit& lastHit) const;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
-//  Biliardo(const Biliardo* biliardo, BiliardoType type);
+  //  Biliardo(const Biliardo* biliardo, BiliardoType type);
   ~Biliardo() = default;
 
   BiliardoType type() const;
@@ -56,7 +55,8 @@ class Biliardo {
   // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
   // biliardo
   void launchForDrawing(double const& initialY, double const& initialDirection, std::vector<double>& output);
-  void launchForDrawing(std::vector<double>& output);  // non const perché l'rng ha bisogno di "cambiare" per funzionare
+  // questi prima generano le condizioni iniziali mancanti poi chiama il metodo sopra
+  void launchForDrawing(std::vector<double>& output);
   void launchForDrawingNoY(double const& initialDirection, std::vector<double>& output);
   void launchForDrawingNoDir(double const& initialY, std::vector<double>& output);
 
@@ -64,7 +64,9 @@ class Biliardo {
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void launch(long long N, std::vector<double>& output);
+  void launch(int N, std::vector<double>& output);
+  void multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const int N,
+                      std::vector<double>& output);
 };
 
 }  // namespace bt

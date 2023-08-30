@@ -27,7 +27,9 @@ add_executable(biliardo_triangolare
         main.cpp App.cpp
         Biliardo.cpp Designer.cpp
         Statistics.cpp
-        BiliardoFunctions.cpp)
+        BiliardoFunctions.cpp
+        Gui.cpp
+        Gui.cpp)
 
 target_include_directories(biliardo_triangolare PRIVATE include)
 target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics ROOT::Gpad sfml-graphics TGUI::TGUI)
