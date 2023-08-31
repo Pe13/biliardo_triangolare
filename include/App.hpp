@@ -34,7 +34,6 @@ class App {
   std::array<std::vector<sf::Image>, 3> graphImages{{}};
 
   void handleEvents();
-  void handeKeyboardEvents(sf::Keyboard::Key key);
   void changeBiliardoType(BiliardoType type);
   void modifyBiliardo();
 

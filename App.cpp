@@ -46,9 +46,9 @@ void App::handleEvents() {
         window_.close();
         break;  // non necessario ma carino
 
-      case sf::Event::KeyPressed:
-        handeKeyboardEvents(event_.key.code);
-        break;
+//      case sf::Event::KeyPressed:
+//        handeKeyboardEvents(event_.key.code);
+//        break;
 
       case sf::Event::Resized:
         designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()], window_, gui_.wrapper);
@@ -57,53 +57,6 @@ void App::handleEvents() {
       default:
         break;
     }
-  }
-}
-
-void App::handeKeyboardEvents(const sf::Keyboard::Key key) {
-  switch (key) {
-      //    case sf::Keyboard::A:
-      //      changeBiliardoType(open);
-      //      break;
-
-      //    case sf::Keyboard::D:
-      //      changeBiliardoType(rightBounded);
-      //      break;
-
-    case sf::Keyboard::L: {  // graffe necessarie per dichiarare variabili in un case
-      multipleLaunches_[biliardo_.type()].clear();
-      biliardo_.launch(1e6, multipleLaunches_[biliardo_.type()]);
-      designer_.setCanvas(biliardo_.r1(), multipleLaunches_[biliardo_.type()], window_);
-      break;
-    }
-      //    case sf::Keyboard::N:
-      //      singleLaunches_[biliardo_.type()].emplace_back();
-      //      biliardo_.launchForDrawing(singleLaunches_[biliardo_.type()].back());
-      //      designer_.setPoints(&singleLaunches_[biliardo_.type()].back());
-      //      break;
-
-      //    case sf::Keyboard::P:
-      //      designer_.pause();
-      //      break;
-
-      //    case sf::Keyboard::R:
-      //      designer_.reRun();
-      //      break;
-
-      //    case sf::Keyboard::S:
-      //      changeBiliardoType(leftBounded);
-      //      break;
-
-      //    case sf::Keyboard::Right:
-      //      designer_.nextLaunch(&singleLaunches_[biliardo_->type()].back());
-      //      break;
-
-      //    case sf::Keyboard::Left:
-      //      designer_.previousLaunch(&singleLaunches_[biliardo_->type()].front());
-      //      break;
-
-    default:
-      break;
   }
 }
 
