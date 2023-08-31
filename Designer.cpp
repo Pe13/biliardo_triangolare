@@ -121,7 +121,7 @@ Designer::Designer() {
 void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
 
 void Designer::changeSize(const Biliardo &biliardo, const std::vector<double>& input, sf::RenderWindow& window,
-                          tgui::VerticalLayout::Ptr wrapper) {
+                          const tgui::VerticalLayout::Ptr& wrapper) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
   topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
   simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
@@ -135,8 +135,8 @@ void Designer::changeSize(const Biliardo &biliardo, const std::vector<double>& i
   calcClearBiliardo(biliardo);
 
   wrapper->setSize(rightOffset_, window.getSize().y);
-  auto buttonsWrapper = wrapper->get<tgui::HorizontalLayout>("buttonsWrapper");
-  buttonsWrapper->setSize("95%", "5%");
+//  auto buttonsWrapper = wrapper->get<tgui::HorizontalLayout>("buttonsWrapper");
+//  buttonsWrapper->setSize("95%", "5%");
 
 
   window.clear(sf::Color::Black);
@@ -146,6 +146,12 @@ void Designer::changeSize(const Biliardo &biliardo, const std::vector<double>& i
   window.draw(frame_);
 
   window.display();
+}
+
+void Designer::changeBiliardo(const bt::Biliardo& biliardo, sf::RenderWindow& window) {
+  window.draw(clearBiliardo_);
+  calcBordiBiliardo(biliardo);
+  calcClearBiliardo(biliardo);
 }
 
 void Designer::calcBordiBiliardo(const Biliardo &biliardo) {

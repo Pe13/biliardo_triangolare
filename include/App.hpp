@@ -35,7 +35,8 @@ class App {
 
   void handleEvents();
   void handeKeyboardEvents(sf::Keyboard::Key key);
-  void changeBiliardo(BiliardoType type);
+  void changeBiliardoType(BiliardoType type);
+  void modifyBiliardo();
 
  public:
   App(double l, double r1, double r2, BiliardoType type);

@@ -5,37 +5,36 @@
 #include "Gui.hpp"
 
 #include <cmath>
-#include <functional>
 
 #include "App.hpp"
 
 namespace bt {
 
-template <typename Target>
-void recursiveSearch(const tgui::Widget::Ptr &ptr, std::function<void(std::shared_ptr<Target> &)> &fun) {
-  if (ptr->getWidgetType() == tgui::HorizontalLayout::StaticWidgetType) {
-    auto layout = std::static_pointer_cast<tgui::HorizontalLayout>(ptr);
-    for (auto &elt : layout->getWidgets()) {
-      if (elt->getWidgetType() == Target::StaticWidgetType) {
-        auto target = std::static_pointer_cast<Target>(elt);
-        fun(target);
-      }
-      recursiveSearch(elt, fun);
-    }
-  } else if (ptr->getWidgetType() == tgui::VerticalLayout::StaticWidgetType) {
-    auto layout = std::static_pointer_cast<tgui::VerticalLayout>(ptr);
-    for (auto &elt : layout->getWidgets()) {
-      if (elt->getWidgetType() == Target::StaticWidgetType) {
-        auto target = std::static_pointer_cast<Target>(elt);
-        fun(target);
-      }
-      recursiveSearch(elt, fun);
-    }
-  } else if (ptr->getWidgetType() == Target::StaticWidgetType) {
-    auto target = std::static_pointer_cast<Target>(ptr);
-    fun(target);
-  }
-}
+//template <typename Target>
+//void recursiveSearch(const tgui::Widget::Ptr &ptr, std::function<void(std::shared_ptr<Target>)> &fun) {
+//  if (ptr->getWidgetType() == tgui::HorizontalLayout::StaticWidgetType) {
+//    auto layout = std::static_pointer_cast<tgui::HorizontalLayout>(ptr);
+//    for (auto &elt : layout->getWidgets()) {
+//      if (elt->getWidgetType() == Target::StaticWidgetType) {
+//        auto target = std::static_pointer_cast<Target>(elt);
+//        fun(target);
+//      }
+//      recursiveSearch(elt, fun);
+//    }
+//  } else if (ptr->getWidgetType() == tgui::VerticalLayout::StaticWidgetType) {
+//    auto layout = std::static_pointer_cast<tgui::VerticalLayout>(ptr);
+//    for (auto &elt : layout->getWidgets()) {
+//      if (elt->getWidgetType() == Target::StaticWidgetType) {
+//        auto target = std::static_pointer_cast<Target>(elt);
+//        fun(target);
+//      }
+//      recursiveSearch(elt, fun);
+//    }
+//  } else if (ptr->getWidgetType() == Target::StaticWidgetType) {
+//    auto target = std::static_pointer_cast<Target>(ptr);
+//    fun(target);
+//  }
+//}
 
 void Gui::create() {
   gui.add(wrapper, "wrapper");
@@ -50,6 +49,7 @@ void Gui::create() {
   biliardoButtonsWrapper->add(biliardoChiusoDxBtn, "biliardoChiusoDx");
   biliardoButtonsWrapper->addSpace(.1);
   biliardoButtonsWrapper->add(biliardoChiusoSxBtn, "biliardoChiusoSx");
+  biliardoButtonsWrapper->addSpace(.1);
 
   wrapper->addSpace(.5);
 
@@ -119,28 +119,58 @@ void Gui::create() {
 }
 
 void Gui::activate(App *app) {
-  biliardoApertoBtn->onPress([app] { app->changeBiliardo(open); });
-  biliardoChiusoDxBtn->onPress([app] { app->changeBiliardo(rightBounded); });
-  biliardoChiusoSxBtn->onPress([app] { app->changeBiliardo(leftBounded); });
+  // ripristino il colore del testo di default all'ottenimento del focus nel caso questo sia diventato rosso a causa di
+  // un dato non valido inserito
+  r1Input->onFocus([this] { r1Input->getRenderer()->setTextColor(tgui::Color::White); });
+  r2Input->onFocus([this] { r2Input->getRenderer()->setTextColor(tgui::Color::White); });
+  lInput->onFocus([this] { lInput->getRenderer()->setTextColor(tgui::Color::White); });
+  heightInput->onFocus([this] { heightInput->getRenderer()->setTextColor(tgui::Color::White); });
+  angleInput->onFocus([this] { angleInput->getRenderer()->setTextColor(tgui::Color::White); });
+  muYInput->onFocus([this] { muYInput->getRenderer()->setTextColor(tgui::Color::White); });
+  sigmaYInput->onFocus([this] { sigmaYInput->getRenderer()->setTextColor(tgui::Color::White); });
+  muTInput->onFocus([this] { muTInput->getRenderer()->setTextColor(tgui::Color::White); });
+  sigmaTInput->onFocus([this] { sigmaTInput->getRenderer()->setTextColor(tgui::Color::White); });
+  numberInput->onFocus([this] { numberInput->getRenderer()->setTextColor(tgui::Color::White); });
 
+  // attivo le funzioni dei bottoni per cambiare tipo di biliardo
+  biliardoApertoBtn->onPress([app] { app->changeBiliardoType(open); });
+  biliardoChiusoDxBtn->onPress([app] { app->changeBiliardoType(rightBounded); });
+  biliardoChiusoSxBtn->onPress([app] { app->changeBiliardoType(leftBounded); });
+
+  // gestisco la modifica del biliardo
   r1Input->setText(tgui::String(app->biliardo_.r1()));
   r2Input->setText(tgui::String(app->biliardo_.r2()));
   lInput->setText(tgui::String(app->biliardo_.l()));
+
+  newBiliardoBtn->onPress([this, app] {
+    float r1, r2, l;
+
+    if (r1Input->getText().attemptToFloat(r1) && r1 > 0) {
+      app->biliardo_.r1(r1, false);
+      sigmaYInput->setDefaultText(tgui::String(r1 / 5));
+    } else {
+      r1Input->getRenderer()->setTextColor(tgui::Color::Red);
+    }
+    if (r2Input->getText().attemptToFloat(r2) && r2 > 0) {
+      app->biliardo_.r2(r2, false);
+    } else {
+      r2Input->getRenderer()->setTextColor(tgui::Color::Red);
+    }
+    if (lInput->getText().attemptToFloat(l) && l > 0) {
+      app->biliardo_.l(l, false);
+    } else {
+      lInput->getRenderer()->setTextColor(tgui::Color::Red);
+    }
+
+    app->modifyBiliardo();
+
+  });
 
   previousLaunchBtn->onPress(
       [app] { app->designer_.previousLaunch(&app->singleLaunches_[app->biliardo_.type()].front()); });
   nextLaunchBtn->onPress([app] { app->designer_.nextLaunch(&app->singleLaunches_[app->biliardo_.type()].back()); });
   pauseBtn->onPress([app] { app->designer_.pause(); });
   reRunBtn->onPress([app] { app->designer_.reRun(); });
-
-  //  heightInput->onFocus([this] { heightInput->getRenderer()->setTextColor(tgui::Color::White); });
-  //  angleInput->onFocus([this] { angleInput->getRenderer()->setTextColor(tgui::Color::White); });
-
-  // ripristino il colore del testo di default nel caso questo sia diventato rosso a causa di un dato errato inserito
-  std::function setWhiteColor{[](tgui::EditBox::Ptr &target) {
-    target->onFocus([&target] { target->getRenderer()->setTextColor(tgui::Color::White); });
-  }};
-  recursiveSearch(std::static_pointer_cast<tgui::Widget>(wrapper), setWhiteColor);
 
   singleLaunchBtn->onPress([this, app] {
     float y, t;
@@ -187,51 +217,46 @@ void Gui::activate(App *app) {
   numberInput->setDefaultText("1'000'000");
 
   multipleLaunchBtn->onPress([this, app] {
-    // creo un array con i parametri per usarlo nel for loop
-    std::array<float, 5> parameters{0, static_cast<float>(app->biliardo_.r1() / 5), 0, M_PI / 8, 10e6};
-    // non necessario ma mi permette di chiamare i singoli parametri per nome e non per numero
-    enum { muY = 0, sigmaY = 1, muT = 2, sigmaT = 3, N = 4 };
+    float muY = 0, sigmaY = static_cast<float>(app->biliardo_.r1() / 5), muT = 0, sigmaT = M_PI / 8;
+    int N = 10e6;
 
     app->multipleLaunches_[app->biliardo_.type()].clear();
 
-    // creata per passarla by reference a recursiveSearch
-    std::function getMultipleLaunchInput{[&parameters, _i = 0](tgui::EditBox::Ptr &target) mutable {
-      if (!target->getText().attemptToFloat(parameters[_i]) && !target->getText().empty()) {
-        target->getRenderer()->setTextColor(tgui::Color::Red);
-        return;
-      }
-      _i++;
-    }};
-    recursiveSearch(std::static_pointer_cast<tgui::Widget>(multipleLaunchWrapper), getMultipleLaunchInput);
-
-    // controllo con un ciclo su tutti i widget dentro al multipleLaunchWrapper se gli EditBox contengono input validi
-    int i = 0;
-    for (const auto &list : multipleLaunchWrapper->getWidgets()) {
-      for (const auto &widget : std::static_pointer_cast<tgui::VerticalLayout>(list)->getWidgets()) {
-        if (widget->getWidgetType() == "EditBox") {
-          auto editBox = std::static_pointer_cast<tgui::EditBox>(widget);
-          if (!editBox->getText().attemptToFloat(parameters[i]) && !editBox->getText().empty()) {
-            editBox->getRenderer()->setTextColor(tgui::Color::Red);
-            return;
-          }
-          i++;
-        }
-      }
+    // catena di if poco elegante ma il for loop non funzionava
+    if (!muYInput->getText().attemptToFloat(muY) && !muYInput->getText().empty()) {
+      muYInput->getRenderer()->setTextColor((tgui::Color::Red));
+      return;
     }
+    if (!sigmaYInput->getText().attemptToFloat(sigmaY) && !sigmaYInput->getText().empty()) {
+      sigmaYInput->getRenderer()->setTextColor((tgui::Color::Red));
+      return;
+    }
+    if (!muTInput->getText().attemptToFloat(muT) && !muTInput->getText().empty()) {
+      muTInput->getRenderer()->setTextColor((tgui::Color::Red));
+      return;
+    }
+    if (!sigmaTInput->getText().attemptToFloat(sigmaT) && !sigmaTInput->getText().empty()) {
+      sigmaTInput->getRenderer()->setTextColor((tgui::Color::Red));
+      return;
+    }
+    if (!numberInput->getText().attemptToInt(N) && !numberInput->getText().empty()) {
+      numberInput->getRenderer()->setTextColor((tgui::Color::Red));
+      return;
+    }
+
     // TODO fare parsing della stringa prima dell'analisi (invalidare stringhe con lettere in mezzo e accettare apici
     // per separare le cifre)
     // controllo che le deviazioni standard non siano negative o nulle
-    if (parameters[sigmaY] <= 0) {
+    if (sigmaY <= 0) {
       sigmaYInput->getRenderer()->setTextColor(tgui::Color::Red);
       return;
     }
-    if (parameters[sigmaT] <= 0) {
+    if (sigmaT <= 0) {
       sigmaTInput->getRenderer()->setTextColor(tgui::Color::Red);
       return;
     }
 
-    app->biliardo_.multipleLaunch(parameters[muY], parameters[sigmaY], parameters[muT], parameters[sigmaT],
-                                  static_cast<int>(parameters[N]), app->multipleLaunches_[app->biliardo_.type()]);
+    app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N, app->multipleLaunches_[app->biliardo_.type()]);
 
     app->designer_.setCanvas(app->biliardo_.r1(), app->multipleLaunches_[app->biliardo_.type()], app->window_);
   });

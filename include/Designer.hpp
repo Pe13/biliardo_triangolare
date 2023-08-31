@@ -7,7 +7,6 @@
 
 #include <TH1D.h>
 
-// #include <SFML/Graphics.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/Core.hpp>
 #include <TGUI/Widgets/VerticalLayout.hpp>
@@ -55,7 +54,7 @@ class Designer {
   sf::CircleShape particle_{4};
 
   void calcFrame(const sf::Vector2u& size);
-  void calcClearBiliardo(const Biliardo &biliardo);
+  void calcClearBiliardo(const Biliardo& biliardo);
   void calcClearHisto(const sf::Vector2u& size);
   void calcStep();
 
@@ -65,8 +64,10 @@ class Designer {
 
   void initWindow(sf::RenderWindow& window);
 
-  void changeSize(const Biliardo &biliardo, const std::vector<double>& input, sf::RenderWindow& window, tgui::VerticalLayout::Ptr wrapper);
-  void calcBordiBiliardo(const Biliardo &biliardo);
+  void changeSize(const Biliardo& biliardo, const std::vector<double>& input, sf::RenderWindow& window,
+                  const tgui::VerticalLayout::Ptr& wrapper);
+  void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
+  void calcBordiBiliardo(const Biliardo& biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
   void nextLaunch(std::vector<double>* last);
@@ -80,7 +81,7 @@ class Designer {
 
   template <typename num>
   sf::Vector2f toSfmlCord(num x, num y) const {
-    static_assert(std::is_arithmetic<num>::value);
+    static_assert(std::is_arithmetic_v<num>);
     return {static_cast<float>(simulationXOffset_ + x * ratio_),
             static_cast<float>(simulationHeight_ / 2 - y * ratio_)};
   }

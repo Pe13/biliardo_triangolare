@@ -63,11 +63,11 @@ void App::handleEvents() {
 void App::handeKeyboardEvents(const sf::Keyboard::Key key) {
   switch (key) {
       //    case sf::Keyboard::A:
-      //      changeBiliardo(open);
+      //      changeBiliardoType(open);
       //      break;
 
       //    case sf::Keyboard::D:
-      //      changeBiliardo(rightBounded);
+      //      changeBiliardoType(rightBounded);
       //      break;
 
     case sf::Keyboard::L: {  // graffe necessarie per dichiarare variabili in un case
@@ -91,7 +91,7 @@ void App::handeKeyboardEvents(const sf::Keyboard::Key key) {
       //      break;
 
       //    case sf::Keyboard::S:
-      //      changeBiliardo(leftBounded);
+      //      changeBiliardoType(leftBounded);
       //      break;
 
       //    case sf::Keyboard::Right:
@@ -116,10 +116,21 @@ void App::run() {
     window_.display();
   }
 }
-void App::changeBiliardo(BiliardoType type) {
+void App::changeBiliardoType(BiliardoType type) {
   biliardo_.changeType(type);
   designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[type].back());
+}
+
+void App::modifyBiliardo() {
+  for (int i = 2; i > -1; i--) {
+    singleLaunches_[i].clear();
+    singleLaunches_[i].emplace_back();
+    biliardo_.changeType(static_cast<BiliardoType>(i));
+    biliardo_.launchForDrawing(singleLaunches_[i][0]);
+  }
+  designer_.changeBiliardo(biliardo_, window_);
+  designer_.setPoints(&singleLaunches_[biliardo_.type()][0]);
 }
 
 }  // namespace bt
