@@ -8,7 +8,6 @@
 #include <TH1D.h>
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
-#include <TGUI/Core.hpp>
 #include <TGUI/Widgets/VerticalLayout.hpp>
 #include <array>
 #include <boost/circular_buffer.hpp>

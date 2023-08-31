@@ -5,13 +5,6 @@
 #include "App.hpp"
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
-#include <TGUI/TextStyle.hpp>
-#include <TGUI/Widgets/Button.hpp>
-#include <TGUI/Widgets/EditBox.hpp>
-#include <TGUI/Widgets/HorizontalLayout.hpp>
-#include <TGUI/Widgets/Label.hpp>
-#include <TGUI/Widgets/VerticalLayout.hpp>
-#include <algorithm>
 
 #include "Biliardo.hpp"
 
@@ -46,9 +39,9 @@ void App::handleEvents() {
         window_.close();
         break;  // non necessario ma carino
 
-//      case sf::Event::KeyPressed:
-//        handeKeyboardEvents(event_.key.code);
-//        break;
+        //      case sf::Event::KeyPressed:
+        //        handeKeyboardEvents(event_.key.code);
+        //        break;
 
       case sf::Event::Resized:
         designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()], window_, gui_.wrapper);
