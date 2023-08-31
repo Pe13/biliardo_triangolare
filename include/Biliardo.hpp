@@ -6,7 +6,7 @@
 #define BILIARDO_TRIANGOLARE_INCLUDE_BILIARDO_HPP_
 
 #include <array>
-#include <functional>
+#include <iostream>
 #include <random>
 #include <vector>
 
@@ -41,7 +41,6 @@ class Biliardo {
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
-  //  Biliardo(const Biliardo* biliardo, BiliardoType type);
   ~Biliardo() = default;
 
   BiliardoType type() const;
@@ -50,6 +49,52 @@ class Biliardo {
   const double& l() const { return l_; }
   const double& r1() const { return r1_; }
   const double& r2() const { return r2_; }
+
+  /// no by reference se no ambigua
+  // metodi per settare l, r1, e r2; ritornano delle const reference così si possono settare i parametri e al contempo
+  // immagazzinare una loro reference
+  // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
+  // in caso di errore il parametro non viene modificato
+  template <class T>
+  const double& l(T l, bool shouldCheck = true) {
+    static_assert(std::is_arithmetic_v<T>);
+    if (shouldCheck) {
+      if (l <= 0) {
+        std::cerr << "il parametro \"l\" deve essere positivo; è stato fornito" << l << '\n';
+        return l_;
+      }
+    }
+    l_ = double(l);
+    theta_ = std::atan((r2_ - r1_) / l_);
+    return l_;
+  }
+  template <class T>
+  const double& r1(T r1, bool shouldCheck = true) {
+    static_assert(std::is_arithmetic_v<T>);
+    if (shouldCheck) {
+      if (r1 <= 0) {
+        std::cerr << "il parametro \"r1\" deve essere positivo; è stato fornito " << r1 << '\n';
+        return r1_;
+      }
+    }
+    r1_ = double(r1);
+    theta_ = std::atan((r2_ - r1_) / l_);
+    yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
+    return r1_;
+  }
+  template <class T>
+  const double& r2(T r2, bool shouldCheck = true) {
+    static_assert(std::is_arithmetic_v<T>);
+    if (shouldCheck) {
+      if (r2 <= 0) {
+        std::cerr << "il parametro \"r2\" deve essere positivo; è stato fornito" << r2 << '\n';
+        return r2_;
+      }
+    }
+    r2_ = double(r2);
+    theta_ = std::atan((r2_ - r1_) / l_);
+    return r2_;
+  }
 
   // Questo metodo è in grado di lanciare una sola particella e restituisce un
   // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
