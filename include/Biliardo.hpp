@@ -109,8 +109,8 @@ class Biliardo {
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void launch(int N, std::vector<double>& output);
-  void multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const int N,
+  void launch(const unsigned int N, std::vector<double>& output);
+  void multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const unsigned int N,
                       std::vector<double>& output);
 };
 

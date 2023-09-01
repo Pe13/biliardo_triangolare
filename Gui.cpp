@@ -5,13 +5,14 @@
 #include "Gui.hpp"
 
 #include <algorithm>
+#include <boost/numeric/conversion/converter.hpp>
 #include <cmath>
 
 #include "App.hpp"
 
 namespace bt {
 // TODO
-//  1 - proteggersi dagli overflow negli input limitando il numero di caratteri e passando prima da un uint
+//  testare che i check siano ok
 
 // funzione per formattare le stringe di input numerici in modo da invalidarle o renderle comprensibili agli occhi del
 // metodo tgui::String::attemptToFloat
@@ -281,6 +282,15 @@ void Gui::activate(App* app) {
       numberInput->getRenderer()->setTextColor((tgui::Color::Red));
       return;
     }
+    // controllo che N non sia negativo o troppo grande per stare in un unsigned int
+    unsigned int N_;
+    boost::numeric::converter<unsigned int, float> safeFloatToUInt;
+    try {
+      N_ = safeFloatToUInt(N);
+    } catch (std::bad_cast&) {
+      numberInput->getRenderer()->setTextColor((tgui::Color::Red));
+      return;
+    }
 
     // controllo che le deviazioni standard non siano negative o nulle
     if (sigmaY <= 0) {
@@ -292,8 +302,7 @@ void Gui::activate(App* app) {
       return;
     }
 
-    app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, static_cast<int>(N),
-                                  app->multipleLaunches_[app->biliardo_.type()]);
+    app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, app->multipleLaunches_[app->biliardo_.type()]);
 
     app->designer_.setCanvas(app->biliardo_.r1(), app->multipleLaunches_[app->biliardo_.type()], app->window_);
   });

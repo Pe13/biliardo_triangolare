@@ -164,9 +164,9 @@ void Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double>
   launchForDrawing(initialY, initialDirection, output);
 }
 
-void Biliardo::launch(int N, std::vector<double> &output) {
+void Biliardo::launch(const unsigned int N, std::vector<double> &output) {
   output.reserve(2 * N);
-  for (int _ = 0; _ < N; _++) {
+  for (unsigned int _ = 0; _ < N; _++) {
     double x = 0;
     double y, direction;
     do {
@@ -291,7 +291,7 @@ void Biliardo::launch(int N, std::vector<double> &output) {
     output.push_back(direction);
   }
 }
-void Biliardo::multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const int N,
+void Biliardo::multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const unsigned int N,
                               std::vector<double> &output) {
   yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
   thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
