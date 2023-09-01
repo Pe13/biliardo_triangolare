@@ -229,6 +229,7 @@ void Designer::reRun() {
     return;
   }
   isDrawing_ = true;
+  isPaused_ = false;
   hasCleared_ = false;
   pointIndex_ = 0;
   pathFraction_ = 0;
@@ -312,7 +313,7 @@ void Designer::operator()(sf::RenderWindow& window) {
     if (pathFraction_ > 1) {
       pathFraction_ = 0;
       pointIndex_ += 2;
-      if (pointIndex_ > points_->size() - 4) {
+      if (pointIndex_ > points_->size() - 5) {
         pointIndex_ = 0;
         isDrawing_ = false;
         hasCleared_ = false;

@@ -96,9 +96,9 @@ class Biliardo {
     return r2_;
   }
 
-  // Questo metodo è in grado di lanciare una sola particella e restituisce un
-  // vettore contenente le posizioni di tutti gli urti tra essa e i bordi del
-  // biliardo
+  // Questo metodo è in grado di lanciare una sola particella e riempie un
+  // vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  // biliardo, la direzione finale e quella iniziale
   void launchForDrawing(double const& initialY, double const& initialDirection, std::vector<double>& output);
   // questi prima generano le condizioni iniziali mancanti poi chiama il metodo sopra
   void launchForDrawing(std::vector<double>& output);

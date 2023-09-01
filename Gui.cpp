@@ -104,8 +104,6 @@ void Gui::create() {
   singleLaunchBtnWrapper->add(singleLaunchBtn, .8, "singleLaunchBtn");
   singleLaunchWrapper->addSpace(.05);
 
-//  wrapper->addSpace(.1);
-
   // bottone e campi per lanciare N particelle
   wrapper->add(multipleLaunchWrapper, 2.5, "multipleLaunchWrapper");
   multipleLaunchWrapper->addSpace(.05);
@@ -169,26 +167,29 @@ void Gui::activate(App* app) {
   biliardoChiusoSxBtn->onPress([app] { app->changeBiliardoType(leftBounded); });
 
   // gestisco la modifica del biliardo
-  r1Input->setText(tgui::String(app->biliardo_.r1()));
-  r2Input->setText(tgui::String(app->biliardo_.r2()));
-  lInput->setText(tgui::String(app->biliardo_.l()));
+  r1Input->setDefaultText(tgui::String(app->biliardo_.r1()));
+  r2Input->setDefaultText(tgui::String(app->biliardo_.r2()));
+  lInput->setDefaultText(tgui::String(app->biliardo_.l()));
   newBiliardoBtn->onPress([this, app] {
     float r1, r2, l;
 
     // cambio singolarmente i parametri se questi sono stati inseriti, controllando che siano validi
     if (format(r1Input->getText()).attemptToFloat(r1) && r1 > 0) {
       app->biliardo_.r1(r1, false);
+      r1Input->setDefaultText(tgui::String(r1));          // aggiorno il testo placeholder dell'EditBox
       sigmaYInput->setDefaultText(tgui::String(r1 / 5));  // aggiorno il testo placeholder della sigmaY di default
     } else {
       r1Input->getRenderer()->setTextColor(tgui::Color::Red);
     }
     if (format(r2Input->getText()).attemptToFloat(r2) && r2 > 0) {
       app->biliardo_.r2(r2, false);
+      r2Input->setDefaultText(tgui::String(r2));  // aggiorno il testo placeholder dell'EditBox
     } else {
       r2Input->getRenderer()->setTextColor(tgui::Color::Red);
     }
     if (format(lInput->getText()).attemptToFloat(l) && l > 0) {
       app->biliardo_.l(l, false);
+      lInput->setDefaultText(tgui::String(l));  // aggiorno il testo placeholder dell'EditBox
     } else {
       lInput->getRenderer()->setTextColor(tgui::Color::Red);
     }
@@ -230,17 +231,19 @@ void Gui::activate(App* app) {
     }
 
     // gestisco i vari casi
+    auto& newLaunch = app->singleLaunches_[app->biliardo_.type()].back();
     if (!isY && !isT) {  // se ne y ne teta sono indicate le genera entrambe
-      app->biliardo_.launchForDrawing(app->singleLaunches_[app->biliardo_.type()].back());
+      app->biliardo_.launchForDrawing(newLaunch);
     } else if (isY && isT) {  // se invece sono entrambe indicate le usa semplicemente
-      app->biliardo_.launchForDrawing(y, t, app->singleLaunches_[app->biliardo_.type()].back());
+      app->biliardo_.launchForDrawing(y, t, newLaunch);
     } else if (isY) {  // altrimenti genera solo quella mancante
-      app->biliardo_.launchForDrawingNoDir(y, app->singleLaunches_[app->biliardo_.type()].back());
+      app->biliardo_.launchForDrawingNoDir(y, newLaunch);
     } else {
-      app->biliardo_.launchForDrawingNoY(t, app->singleLaunches_[app->biliardo_.type()].back());
+      app->biliardo_.launchForDrawingNoY(t, newLaunch);
     }
 
-    app->designer_.setPoints(&app->singleLaunches_[app->biliardo_.type()].back());  // aggiorno il lancio da riprodurre
+    app->designer_.setPoints(&newLaunch);  // aggiorno il lancio da riprodurre
+    setSingleLaunchText(newLaunch);
   });
 
   // imposto i placeholder per gli editbox del lancio multiplo con i valori di default delle distribuzioni normali
@@ -294,6 +297,35 @@ void Gui::activate(App* app) {
 
     app->designer_.setCanvas(app->biliardo_.r1(), app->multipleLaunches_[app->biliardo_.type()], app->window_);
   });
+
+  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
+  rightText->setEnabled(false);
+  leftText->setTextSize(15);
+  rightText->setTextSize(15);
+  // usando lo sharedRenderer modifico simultaneamente i due campi di testo
+  // ho rimosso la texture di background dal tema se no il background color verrebbe ignorato
+  leftText->getSharedRenderer()->setBackgroundColor(tgui::Color::Black);
+}
+
+void Gui::setSingleLaunchText(const std::vector<double>& launch) {
+  leftText->setText(tgui::String::join(
+      {
+          "Lancio singolo:",
+          " y iniziale:",
+          "  " + tgui::String(launch[1]),
+          " angolo iniziale:",
+          "  " + tgui::String(launch[launch.size() - 1]),
+      },
+      '\n'));
+  rightText->setText(tgui::String::join(
+      {
+          "",
+          " y finale:",
+          "  " + tgui::String(launch[launch.size() - 1 - 2]),
+          " angolo finale:",
+          "  " + tgui::String(launch[launch.size() - 1 - 1]),
+      },
+      '\n'));
 }
 
 Gui::Gui(sf::RenderWindow& window) : gui{window} { create(); }

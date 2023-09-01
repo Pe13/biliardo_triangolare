@@ -145,6 +145,7 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
         break;
     }
   }
+  output.push_back(initialDirection);
 }
 
 void Biliardo::launchForDrawing(std::vector<double> &output) {

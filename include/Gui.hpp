@@ -11,6 +11,7 @@
 #include <TGUI/Widgets/EditBox.hpp>
 #include <TGUI/Widgets/HorizontalLayout.hpp>
 #include <TGUI/Widgets/Label.hpp>
+#include <TGUI/Widgets/TextArea.hpp>
 #include <TGUI/Widgets/VerticalLayout.hpp>
 
 namespace bt {
@@ -77,12 +78,14 @@ struct Gui {
   // area di testo per i dati statistici
   tgui::HorizontalLayout::Ptr textWrapper{tgui::HorizontalLayout::create()};
 //  tgui::VerticalLayout::Ptr leftTextWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr leftText{tgui::Label::create()};
-  tgui::Label::Ptr rightText{tgui::Label::create()};
+  tgui::TextArea::Ptr leftText{tgui::TextArea::create()};
+  tgui::TextArea::Ptr rightText{tgui::TextArea::create()};
 
   
   void create();
   void activate(App* app);
+  void setSingleLaunchText(const std::vector<double>& launch);
+  // TODO void setStatisticsText();
 
   Gui(sf::RenderWindow &window);
 };

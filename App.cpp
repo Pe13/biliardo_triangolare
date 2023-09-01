@@ -26,6 +26,7 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
     singleLaunches_[i].emplace_back();
     biliardo_.changeType(static_cast<BiliardoType>(i));
     biliardo_.launchForDrawing(singleLaunches_[i][0]);
+    gui_.setSingleLaunchText(singleLaunches_[i][0]); // aggiorno il testo dei dati riguardo il singolo lancio
   }
   designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[open][0]);
