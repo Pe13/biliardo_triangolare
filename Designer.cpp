@@ -7,17 +7,13 @@
 #include <TCanvas.h>
 #include <TImage.h>
 #include <TROOT.h>
+#include <TStyle.h>
 #include <TVirtualX.h>
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
-#include <TGUI/Core.hpp>
-#include <TGUI/Widgets/Button.hpp>
-#include <TGUI/Widgets/HorizontalLayout.hpp>
 #include <TGUI/Widgets/VerticalLayout.hpp>
 #include <array>
 #include <cmath>
-#include <cstring>
-#include <iostream>
 #include <stdexcept>
 
 namespace bt {
@@ -101,6 +97,9 @@ void Designer::calcStep() {
 }
 
 Designer::Designer() {
+  // rimuovo le statistics box dai grafici dato che le indico tutte sulla sinistra
+  gStyle->SetOptStat(0);
+
   frame_.create(4);
   frame_.setPrimitiveType(sf::Lines);
 
