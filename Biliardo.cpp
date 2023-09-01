@@ -151,8 +151,6 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
 void Biliardo::launchForDrawing(std::vector<double> &output) {
   double initialY = (2 * uniformDist_(rng_) - 1) * r1_;
   double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
-  std::cout << "y: " << initialY << "\n";
-  std::cout << "theta: " << initialDirection << "\n";
   launchForDrawing(initialY, initialDirection, output);
 }
 
