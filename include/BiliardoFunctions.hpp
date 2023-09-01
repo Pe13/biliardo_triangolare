@@ -31,13 +31,6 @@ class BiliardoFunctions {
 
   void registerRightCollision(const BiliardoType type, double& x, double& y, const double& a, const double& c,
                               LastHit& lastHit, double& direction, const double& l, std::vector<double>& output) const;
-
-//  void registerLeftCollision(BiliardoType type, double& x, double& y, const double& c, double& direction,
-//                             LastHit& lastHit, bool& out, std::vector<double>& output) const;
-//
-//  void registerRightCollision(const BiliardoType type, double& x, double& y, const double& a, const double& c,
-//                              LastHit& lastHit, double& direction, const double& l, bool& out,
-//                              std::vector<double>& output) const;
 };
 
 }  // namespace bt

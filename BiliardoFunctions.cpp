@@ -62,26 +62,4 @@ void BiliardoFunctions::registerRightCollision(const bt::BiliardoType type, doub
   }
 }
 
-// void BiliardoFunctions::registerLeftCollision(bt::BiliardoType type, double& x, double& y, const double& c,
-//                                               double& direction, bt::LastHit& lastHit, bool& out,
-//                                               std::vector<double>& output) const {
-//   if (type == leftBounded) {
-//     leftCollision(x, y, c, direction, lastHit, output);
-//   } else {
-//     leftCollisionOut(c, direction, output);
-//     out = true;
-//   }
-// }
-//
-// void BiliardoFunctions::registerRightCollision(const bt::BiliardoType type, double& x, double& y, const double& a,
-//                                                const double& c, bt::LastHit& lastHit, double& direction,
-//                                                const double& l, bool& out, std::vector<double>& output) const {
-//   if (type == rightBounded) {
-//     rightCollision(x, y, a, c, lastHit, direction, l, output);
-//   } else {
-//     rightCollisionOut(a, c, direction, l, output);
-//     out = true;
-//   }
-// }
-
 }  // namespace bt
