@@ -65,67 +65,71 @@ void Gui::create() {
   biliardoButtonsWrapper->addSpace(.1);
   biliardoButtonsWrapper->add(biliardoApertoBtn, "biliardoAperto");
   biliardoButtonsWrapper->addSpace(.1);
-  biliardoButtonsWrapper->add(biliardoChiusoDxBtn, "biliardoChiusoDx");
-  biliardoButtonsWrapper->addSpace(.1);
   biliardoButtonsWrapper->add(biliardoChiusoSxBtn, "biliardoChiusoSx");
   biliardoButtonsWrapper->addSpace(.1);
-
-  wrapper->addSpace(.5);
+  biliardoButtonsWrapper->add(biliardoChiusoDxBtn, "biliardoChiusoDx");
+  biliardoButtonsWrapper->addSpace(.1);
 
   // bottone e campi per modificare il biliardo
-  wrapper->add(newBiliardoWrapper, 2.5, "newBiliardoWrapper");
+  wrapper->add(newBiliardoWrapper, 2, "newBiliardoWrapper");
   newBiliardoWrapper->addSpace(.05);
-  newBiliardoWrapper->add(newBiliardoInputWrapper, .3, "newBiliardoInputWrapper");
-  newBiliardoInputWrapper->add(r1Label, .7, "r1Label");
-  newBiliardoInputWrapper->add(r1Input, "r1Input");
-  newBiliardoInputWrapper->add(r2Label, .7, "r2Label");
-  newBiliardoInputWrapper->add(r2Input, "r2Input");
-  newBiliardoInputWrapper->add(lLabel, .7, "lLabel");
-  newBiliardoInputWrapper->add(lInput, "lInput");
-  newBiliardoWrapper->addSpace(.2);
-  newBiliardoWrapper->add(newBiliardoBtn, .4, "newBiliardoBtn");
+  newBiliardoWrapper->add(leftNewBiliardoWrapper, .425, "leftNewBiliardoWrapper");
+  leftNewBiliardoWrapper->add(r1Label, .7, "r1Label");
+  leftNewBiliardoWrapper->add(r1Input, "r1Input");
+  leftNewBiliardoWrapper->add(r2Label, .7, "r2Label");
+  leftNewBiliardoWrapper->add(r2Input, "r2Input");
+  newBiliardoWrapper->addSpace(.05);
+  newBiliardoWrapper->add(rightNewBiliardoWrapper, .425, "rightNewBiliardoWrapper");
+  rightNewBiliardoWrapper->add(lLabel, .41, "lLabel");
+  rightNewBiliardoWrapper->add(lInput, .588, "lInput");
+  rightNewBiliardoWrapper->addSpace(.2);
+  rightNewBiliardoWrapper->add(newBiliardoBtn, .8, "newBiliardoBtn");
   newBiliardoWrapper->addSpace(.05);
 
-  wrapper->addSpace(.5);
+  wrapper->addSpace(.1);
 
   // bottone e campi per lanciare la singola particella
-  wrapper->add(singleLaunchWrapper, 2, "singleLaunchWrapper");
+  wrapper->add(singleLaunchWrapper, 1, "singleLaunchWrapper");
   singleLaunchWrapper->addSpace(.05);
-  singleLaunchWrapper->add(singleLaunchInputWrapper, .3, "singleLaunchInputWrapper");
-  singleLaunchInputWrapper->add(heightLabel, .5, "heightLabel");
-  singleLaunchInputWrapper->add(heightInput, "heightInput");
-  singleLaunchInputWrapper->add(angleLabel, .5, "angleLabel");
-  singleLaunchInputWrapper->add(angleInput, "angleInput");
-  singleLaunchWrapper->addSpace(.2);
-  singleLaunchWrapper->add(singleLaunchBtn, .4, "singleLaunchBtn");
+  singleLaunchWrapper->add(heightWrapper, .28, "heightWrapper");
+  heightWrapper->add(heightLabel, .7, "heightLabel");
+  heightWrapper->add(heightInput, "heightInput");
+  singleLaunchWrapper->addSpace(.03);
+  singleLaunchWrapper->add(angleWrapper, .28, "angleWrapper");
+  angleWrapper->add(angleLabel, .7, "angleLabel");
+  angleWrapper->add(angleInput, "angleInput");
+  singleLaunchWrapper->addSpace(.03);
+  singleLaunchWrapper->add(singleLaunchBtnWrapper, .28, "singleLaunchBtnWrapper");
+  singleLaunchBtnWrapper->addSpace(.2);
+  singleLaunchBtnWrapper->add(singleLaunchBtn, .8, "singleLaunchBtn");
   singleLaunchWrapper->addSpace(.05);
 
-  wrapper->addSpace(.5);
+//  wrapper->addSpace(.1);
 
   // bottone e campi per lanciare N particelle
   wrapper->add(multipleLaunchWrapper, 2.5, "multipleLaunchWrapper");
   multipleLaunchWrapper->addSpace(.05);
-  multipleLaunchWrapper->add(multipleLaunchLeftWrapper, .3, "multipleLaunchLeftWrapper");
-  multipleLaunchLeftWrapper->add(muYLabel, "muYLabel");
-  multipleLaunchLeftWrapper->add(muYInput, "muYInput");
-  multipleLaunchLeftWrapper->add(sigmaYLabel, "sigmaYLabel");
-  multipleLaunchLeftWrapper->add(sigmaYInput, "sigmaYInput");
-  multipleLaunchLeftWrapper->add(muTLabel, "mutLabel");
-  multipleLaunchLeftWrapper->add(muTInput, "muTInput");
-  multipleLaunchLeftWrapper->add(sigmaTLabel, "sigmaTLabel");
-  multipleLaunchLeftWrapper->add(sigmaTInput, "sigmaTInput");
+  multipleLaunchWrapper->add(leftMultipleLaunchWrapper, .3, "leftMultipleLaunchWrapper");
+  leftMultipleLaunchWrapper->add(muYLabel, "muYLabel");
+  leftMultipleLaunchWrapper->add(muYInput, "muYInput");
+  leftMultipleLaunchWrapper->add(sigmaYLabel, "sigmaYLabel");
+  leftMultipleLaunchWrapper->add(sigmaYInput, "sigmaYInput");
+  leftMultipleLaunchWrapper->add(muTLabel, "mutLabel");
+  leftMultipleLaunchWrapper->add(muTInput, "muTInput");
+  leftMultipleLaunchWrapper->add(sigmaTLabel, "sigmaTLabel");
+  leftMultipleLaunchWrapper->add(sigmaTInput, "sigmaTInput");
   multipleLaunchWrapper->addSpace(.2);
-  multipleLaunchWrapper->add(multipleLaunchRightWrapper, .4, "multipleLaunchRightWrapper");
-  multipleLaunchRightWrapper->add(numberLabel, "numberLabel");
-  multipleLaunchRightWrapper->add(numberInput, "numberInput");
-  multipleLaunchRightWrapper->addSpace(2);
-  multipleLaunchRightWrapper->add(multipleLaunchBtn, 4, "multipleLaunchBtn");
+  multipleLaunchWrapper->add(rightMultipleLaunchWrapper, .4, "rightMultipleLaunchWrapper");
+  rightMultipleLaunchWrapper->add(numberLabel, .7, "numberLabel");
+  rightMultipleLaunchWrapper->add(numberInput, .7, "numberInput");
+  rightMultipleLaunchWrapper->addSpace(1);
+  rightMultipleLaunchWrapper->add(multipleLaunchBtn, 2, "multipleLaunchBtn");
   multipleLaunchWrapper->addSpace(.05);
 
-  wrapper->addSpace(.5);
+  wrapper->addSpace(.1);
 
   // bottoni per navigare tra i singoli lanci
-  wrapper->add(navigateWrapper, "navigateWrapper");
+  wrapper->add(navigateWrapper, .5, "navigateWrapper");
   navigateWrapper->addSpace(.1);
   navigateWrapper->add(previousLaunchBtn, "previousLaunchBtn");
   navigateWrapper->addSpace(.1);
@@ -135,6 +139,14 @@ void Gui::create() {
   navigateWrapper->addSpace(.1);
   navigateWrapper->add(reRunBtn, "reRunBtn");
   navigateWrapper->addSpace(.1);
+
+  wrapper->addSpace(.2);
+
+  // area di testo per i dati statistici
+  wrapper->add(textWrapper, 4, "textWrapper");
+  textWrapper->add(leftText, .45, "leftText");
+  textWrapper->addSpace(.1);
+  textWrapper->add(rightText, .45, "rightText");
 }
 
 void Gui::activate(App* app) {

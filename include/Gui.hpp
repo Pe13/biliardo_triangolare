@@ -30,27 +30,30 @@ struct Gui {
 
   // bottone e campi per modificare il biliardo
   tgui::HorizontalLayout::Ptr newBiliardoWrapper{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr newBiliardoInputWrapper{tgui::VerticalLayout::create()};
+  tgui::VerticalLayout::Ptr leftNewBiliardoWrapper{tgui::VerticalLayout::create()};
   tgui::Label::Ptr r1Label{tgui::Label::create("r1:")};
   tgui::EditBox::Ptr r1Input{tgui::EditBox::create()};
   tgui::Label::Ptr r2Label{tgui::Label::create("r2:")};
   tgui::EditBox::Ptr r2Input{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr rightNewBiliardoWrapper{tgui::VerticalLayout::create()};
   tgui::Label::Ptr lLabel{tgui::Label::create("l:")};
   tgui::EditBox::Ptr lInput{tgui::EditBox::create()};
   tgui::Button::Ptr newBiliardoBtn{tgui::Button::create("Conferma")};
 
   // bottone e campi per lanciare la singola particella
   tgui::HorizontalLayout::Ptr singleLaunchWrapper{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr singleLaunchInputWrapper{tgui::VerticalLayout::create()};
+  tgui::VerticalLayout::Ptr heightWrapper{tgui::VerticalLayout::create()};
   tgui::Label::Ptr heightLabel{tgui::Label::create("Altezza:")};
   tgui::EditBox::Ptr heightInput{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr angleWrapper{tgui::VerticalLayout::create()};
   tgui::Label::Ptr angleLabel{tgui::Label::create("Angolo (rad):")};
   tgui::EditBox::Ptr angleInput{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr singleLaunchBtnWrapper{tgui::VerticalLayout::create()};
   tgui::Button::Ptr singleLaunchBtn{tgui::Button::create("Lancio singolo")};
 
   // bottone e campi per lanciare N particelle
   tgui::HorizontalLayout::Ptr multipleLaunchWrapper{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr multipleLaunchLeftWrapper{tgui::VerticalLayout::create()};
+  tgui::VerticalLayout::Ptr leftMultipleLaunchWrapper{tgui::VerticalLayout::create()};
   tgui::Label::Ptr muYLabel{tgui::Label::create("µy:")};
   tgui::EditBox::Ptr muYInput{tgui::EditBox::create()};
   tgui::Label::Ptr sigmaYLabel{tgui::Label::create("σy:")};
@@ -59,7 +62,7 @@ struct Gui {
   tgui::EditBox::Ptr muTInput{tgui::EditBox::create()};
   tgui::Label::Ptr sigmaTLabel{tgui::Label::create("σθ:")};
   tgui::EditBox::Ptr sigmaTInput{tgui::EditBox::create()};
-  tgui::VerticalLayout::Ptr multipleLaunchRightWrapper{tgui::VerticalLayout::create()};
+  tgui::VerticalLayout::Ptr rightMultipleLaunchWrapper{tgui::VerticalLayout::create()};
   tgui::Label::Ptr numberLabel{tgui::Label::create("Numero:")};
   tgui::EditBox::Ptr numberInput{tgui::EditBox::create()};
   tgui::Button::Ptr multipleLaunchBtn{tgui::Button::create("Lancio multiplo")};
@@ -71,6 +74,13 @@ struct Gui {
   tgui::Button::Ptr pauseBtn{tgui::Button::create("▶")};
   tgui::Button::Ptr reRunBtn{tgui::Button::create("⟳")};
 
+  // area di testo per i dati statistici
+  tgui::HorizontalLayout::Ptr textWrapper{tgui::HorizontalLayout::create()};
+//  tgui::VerticalLayout::Ptr leftTextWrapper{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr leftText{tgui::Label::create()};
+  tgui::Label::Ptr rightText{tgui::Label::create()};
+
+  
   void create();
   void activate(App* app);
 
