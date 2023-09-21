@@ -291,8 +291,8 @@ void Biliardo::launch(const unsigned int N, std::vector<double> &output) {
     output.push_back(direction);
   }
 }
-void Biliardo::multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const unsigned int N,
-                              std::vector<double> &output) {
+void Biliardo::multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT,
+                              const unsigned int N, std::vector<double> &output) {
   yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
   thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
 

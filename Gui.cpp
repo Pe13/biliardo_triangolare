@@ -287,7 +287,8 @@ void Gui::activate(App* app) {
     boost::numeric::converter<unsigned int, float> safeFloatToUInt;
     try {
       N_ = safeFloatToUInt(N);
-    } catch (std::bad_cast&) {
+    } catch (
+        std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere sottoclassi di std::bad_cast
       numberInput->getRenderer()->setTextColor((tgui::Color::Red));
       return;
     }
