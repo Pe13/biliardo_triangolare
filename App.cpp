@@ -26,7 +26,7 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
     singleLaunches_[i].emplace_back();
     biliardo_.changeType(static_cast<BiliardoType>(i));
     biliardo_.launchForDrawing(singleLaunches_[i][0]);
-    gui_.setSingleLaunchText(singleLaunches_[i][0]); // aggiorno il testo dei dati riguardo il singolo lancio
+    gui_.setSingleLaunchText(singleLaunches_[i][0]);  // aggiorno il testo dei dati riguardo il singolo lancio
   }
   designer_.calcBordiBiliardo(biliardo_);
   designer_.setPoints(&singleLaunches_[open][0]);
@@ -39,10 +39,6 @@ void App::handleEvents() {
       case sf::Event::Closed:
         window_.close();
         break;  // non necessario ma carino
-
-        //      case sf::Event::KeyPressed:
-        //        handeKeyboardEvents(event_.key.code);
-        //        break;
 
       case sf::Event::Resized:
         designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()], window_, gui_.wrapper);
@@ -70,12 +66,16 @@ void App::changeBiliardoType(BiliardoType type) {
 }
 
 void App::modifyBiliardo() {
+  BiliardoType oldType = biliardo_.type();  // salvo il tipo attuale
+  // rigenero un lancio per ogni tipo di biliardo
   for (int i = 2; i > -1; i--) {
     singleLaunches_[i].clear();
     singleLaunches_[i].emplace_back();
     biliardo_.changeType(static_cast<BiliardoType>(i));
     biliardo_.launchForDrawing(singleLaunches_[i][0]);
   }
+  biliardo_.changeType(oldType);  // ripristino il tipo attuale
+  // aggiorno la parte grafica
   designer_.changeBiliardo(biliardo_, window_);
   designer_.setPoints(&singleLaunches_[biliardo_.type()][0]);
 }
