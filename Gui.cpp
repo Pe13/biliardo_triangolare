@@ -14,8 +14,8 @@ namespace bt {
 // TODO
 //  testare che i check siano ok
 
-// funzione per formattare le stringe di input numerici in modo da invalidarle o renderle comprensibili agli occhi del
-// metodo tgui::String::attemptToFloat
+// funzione per formattare le stringe di input numerici in modo da invalidarle o renderle comprensibili al metodo
+// tgui::String::attemptToFloat
 tgui::String format(const tgui::String& str) {
   if (str.empty()) {
     return str;
@@ -199,18 +199,28 @@ void Gui::activate(App* app) {
   });
 
   // attivo i bottoni per navigare tra un lancio e l'altro
-  previousLaunchBtn->onPress(
-      [app] { app->designer_.previousLaunch(&app->singleLaunches_[app->biliardo_.type()].front()); });
-  nextLaunchBtn->onPress([app] { app->designer_.nextLaunch(&app->singleLaunches_[app->biliardo_.type()].back()); });
+  //  previousLaunchBtn->onPress(
+  //      [app] { app->designer_.previousLaunch(&app->singleLaunches_[app->biliardo_.type()].front()); });
+  previousLaunchBtn->onPress([app] {
+    if (app->singleLaunchesIndex_[app->biliardo_.type()] != 0) {
+      app->singleLaunchesIndex_[app->biliardo_.type()]--;
+    }
+  });
+  //  nextLaunchBtn->onPress([app] { app->designer_.nextLaunch(&app->singleLaunches_[app->biliardo_.type()].back()); });
+  nextLaunchBtn->onPress([app] {
+    if (app->singleLaunchesIndex_[app->biliardo_.type()] != app->singleLaunches_[app->biliardo_.type()].size() - 1) {
+      app->singleLaunchesIndex_[app->biliardo_.type()]++;
+    }
+  });
   pauseBtn->onPress([app] { app->designer_.pause(); });
-  reRunBtn->onPress([app] { app->designer_.reRun(); });
+  reRunBtn->onPress([app] {
+    app->designer_.reRun(app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
+  });
 
   // attivo il bottone per i lanci singoli
   singleLaunchBtn->onPress([this, app] {
     float y, t;
     bool isY, isT;
-
-    app->singleLaunches_[app->biliardo_.type()].emplace_back();  // genero lo spazio per un nuovo lanci in memoria
 
     // controllo quali input sono presenti
     if (format(heightInput->getText()).attemptToFloat(y) && std::abs(y) <= app->biliardo_.r1()) {
@@ -232,7 +242,7 @@ void Gui::activate(App* app) {
     }
 
     // gestisco i vari casi
-    auto& newLaunch = app->singleLaunches_[app->biliardo_.type()].back();
+    auto& newLaunch = app->newSingleLaunch();
     if (!isY && !isT) {  // se ne y ne teta sono indicate le genera entrambe
       app->biliardo_.launchForDrawing(newLaunch);
     } else if (isY && isT) {  // se invece sono entrambe indicate le usa semplicemente
@@ -243,7 +253,8 @@ void Gui::activate(App* app) {
       app->biliardo_.launchForDrawingNoY(t, newLaunch);
     }
 
-    app->designer_.setPoints(&newLaunch);  // aggiorno il lancio da riprodurre
+    app->designer_.reRun(app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
+    //    app->designer_.setPoints(&newLaunch);  // aggiorno il lancio da riprodurre
     setSingleLaunchText(newLaunch);
   });
 
@@ -255,13 +266,12 @@ void Gui::activate(App* app) {
   numberInput->setDefaultText("1'000'000");
 
   multipleLaunchBtn->onPress([this, app] {
-    // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la e
+    // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la "e" e posso fare
+    // un controllo su un possibile overflow
     float muY = 0, sigmaY = static_cast<float>(app->biliardo_.r1() / 5), muT = 0, sigmaT = M_PI / 8, N = 10e6;
 
-    app->multipleLaunches_[app->biliardo_.type()].clear();  // pulisco la memoria per un nuovo lancio
-
     // catena di if poco elegante ma il for loop non funzionava
-    // mi limito a verificare che gli input siano validi perché ho dei valori di default
+    // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di default
     if (!format(muYInput->getText()).attemptToFloat(muY) && !muYInput->getText().empty()) {
       muYInput->getRenderer()->setTextColor((tgui::Color::Red));
       return;
@@ -303,9 +313,10 @@ void Gui::activate(App* app) {
       return;
     }
 
-    app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, app->multipleLaunches_[app->biliardo_.type()]);
-
-    app->designer_.setCanvas(app->biliardo_.r1(), app->multipleLaunches_[app->biliardo_.type()], app->window_);
+    //    app->multipleLaunches_[app->biliardo_.type()].emplace_back();  // creo lo spazio in memoria per
+    auto& histograms = app->newHistograms();
+    app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, histograms);
+    app->designer_.setCanvas(histograms, app->window_);
   });
 
   leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile

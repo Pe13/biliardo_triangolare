@@ -84,11 +84,10 @@ void Designer::calcClearHisto(const sf::Vector2u& size) {
           .data());
 }
 
-void Designer::calcStep() {
-  double distance = std::sqrt(((*points_)[pointIndex_] - (*points_)[pointIndex_ + 2]) *
-                                  ((*points_)[pointIndex_] - (*points_)[pointIndex_ + 2]) +
-                              ((*points_)[pointIndex_ + 1] - (*points_)[pointIndex_ + 3]) *
-                                  ((*points_)[pointIndex_ + 1] - (*points_)[pointIndex_ + 3]));
+void Designer::calcStep(const std::vector<double>& points) {
+  double distance = std::sqrt(
+      (points[pointIndex_] - points[pointIndex_ + 2]) * (points[pointIndex_] - points[pointIndex_ + 2]) +
+      (points[pointIndex_ + 1] - points[pointIndex_ + 3]) * (points[pointIndex_ + 1] - points[pointIndex_ + 3]));
   // speedx = stepx * 30
   // speedx = step * ratio * 30
   // step = speedx / (ratio * 30)
@@ -119,7 +118,7 @@ Designer::Designer() {
 
 void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
 
-void Designer::changeSize(const Biliardo& biliardo, const std::vector<double>& input, sf::RenderWindow& window,
+void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
                           const tgui::VerticalLayout::Ptr& wrapper) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
   topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
@@ -138,10 +137,17 @@ void Designer::changeSize(const Biliardo& biliardo, const std::vector<double>& i
   window.clear(sf::Color::Black);
   window.draw(bordiBiliardo_);
   histoSprite_.setPosition(rightOffset_, topOffset_);
-  setCanvas(biliardo.r1(), input, window);
+  setCanvas(histograms, window);
   window.draw(frame_);
 
   window.display();
+}
+
+void Designer::changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window,
+                          const tgui::VerticalLayout::Ptr& wrapper) {
+  auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
+                               TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+  changeSize(biliardo, histograms, window, wrapper);
 }
 
 void Designer::changeBiliardo(const bt::Biliardo& biliardo, sf::RenderWindow& window) {
@@ -201,69 +207,61 @@ void Designer::calcBordiBiliardo(const Biliardo& biliardo) {
             .data());
   }
 }
-void Designer::setPoints(std::vector<double>* points) {
-  if (points != nullptr) {
-    points_ = points;
-    reRun();
-  } else {
-    throw std::runtime_error("nullptr passed to setPoints");
-  }
-}
+// void Designer::setPoints(std::vector<double>* points) {
+//   if (points != nullptr) {
+//     points_ = points;
+//     reRun();
+//   } else {
+//     throw std::runtime_error("nullptr passed to setPoints");
+//   }
+// }
 
-void Designer::previousLaunch(std::vector<double>* first) {
-  if (points_ > first) {
-    points_--;
-    reRun();
-  }
-}
+// void Designer::previousLaunch(std::vector<double>* first) {
+//   if (points_ > first) {
+//     points_--;
+//     reRun();
+//   }
+// }
 
-void Designer::nextLaunch(std::vector<double>* last) {
-  if (points_ < last) {
-    points_++;
-    reRun();
-  }
-}
+// void Designer::nextLaunch(std::vector<double>* last) {
+//   if (points_ < last) {
+//     points_++;
+//     reRun();
+//   }
+// }
 
-void Designer::reRun() {
-  if (points_ == nullptr) {
-    return;
-  }
+void Designer::reRun(const std::vector<double>& points) {
+  //  if (points_ == nullptr) {
+  //    return;
+  //  }
   isDrawing_ = true;
   isPaused_ = false;
   hasCleared_ = false;
   pointIndex_ = 0;
   pathFraction_ = 0;
-  calcStep();
+  calcStep(points);
   contrail_.clear();
 }
 
 void Designer::pause() {
-  if (points_ == nullptr) {
-    return;
-  }
+  //  if (points_ == nullptr) {
+  //    return;
+  //  }
   isPaused_ = !isPaused_;
 }
 
-void Designer::setCanvas(const double& r1, const std::vector<double>& input, sf::RenderWindow& window) {
+void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
   int width = static_cast<int>(static_cast<float>(window.getSize().x) - rightOffset_);
   int height = static_cast<int>(static_cast<float>(window.getSize().y) - topOffset_);
   TCanvas canvas = TCanvas("canvas", "canvas", width, height);
   canvas.SetCanvasSize(width, height);
 
-  TH1D yHisto("yhisto", "Istogramma delle y di uscita", 1000, -r1, r1);
-  TH1D thetaHisto("thetaHisto", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
-
-  for (size_t i = 0; i < input.size(); i += 2) {
-    yHisto.Fill(input[i]);
-    thetaHisto.Fill(input[i + 1]);
-  }
-
   canvas.Divide(2);
 
   canvas.cd(1);
-  yHisto.Draw();
+  histograms[0].Draw();  // non const
   canvas.cd(2);
-  thetaHisto.Draw();
+  histograms[1].Draw();
 
   sf::Image histoImage;
   saveCanvasOnImage(histoImage, canvas);
@@ -271,7 +269,6 @@ void Designer::setCanvas(const double& r1, const std::vector<double>& input, sf:
   histoSprite_.setTexture(histoTexture_, true);
 
   updateHisto(window);
-  //  reRun();
 }
 
 void Designer::updateHisto(sf::RenderWindow& window) {
@@ -281,7 +278,7 @@ void Designer::updateHisto(sf::RenderWindow& window) {
   window.display();
 }
 
-void Designer::operator()(sf::RenderWindow& window) {
+void Designer::operator()(const std::vector<double>& points, sf::RenderWindow& window) {
   if (isPaused_) {
     return;
   }
@@ -301,8 +298,8 @@ void Designer::operator()(sf::RenderWindow& window) {
 
     particle_.setFillColor(sf::Color::White);
     particle_.setPosition(
-        toSfmlCord((*points_)[pointIndex_] * (1 - pathFraction_) + (*points_)[pointIndex_ + 2] * pathFraction_,
-                   (*points_)[pointIndex_ + 1] * (1 - pathFraction_) + (*points_)[pointIndex_ + 3] * pathFraction_) -
+        toSfmlCord(points[pointIndex_] * (1 - pathFraction_) + points[pointIndex_ + 2] * pathFraction_,
+                   points[pointIndex_ + 1] * (1 - pathFraction_) + points[pointIndex_ + 3] * pathFraction_) -
         sf::Vector2f(5, 5));
     window.draw(particle_);
     window.draw(&contrail_.back(), 1, sf::Points);
@@ -313,12 +310,12 @@ void Designer::operator()(sf::RenderWindow& window) {
     if (pathFraction_ > 1) {
       pathFraction_ = 0;
       pointIndex_ += 2;
-      if (pointIndex_ > points_->size() - 5) {
+      if (pointIndex_ > points.size() - 5) {
         pointIndex_ = 0;
         isDrawing_ = false;
         hasCleared_ = false;
       } else {
-        calcStep();
+        calcStep(points);
       }
     }
   }

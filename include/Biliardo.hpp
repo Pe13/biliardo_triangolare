@@ -5,6 +5,8 @@
 #ifndef BILIARDO_TRIANGOLARE_INCLUDE_BILIARDO_HPP_
 #define BILIARDO_TRIANGOLARE_INCLUDE_BILIARDO_HPP_
 
+#include <TH1D.h>
+
 #include <array>
 #include <iostream>
 #include <random>
@@ -32,25 +34,29 @@ class Biliardo {
   std::normal_distribution<double> thetaNormalDist_{0, M_PI / 8};
 
   void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
-  void collideBottom(double& angle) const { angle = -(2 * theta_ + angle); }
+  void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }
 
   void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
                                   std::vector<double>& output) const;
 
-  bool isOut(const LastHit& lastHit) const;
+  [[nodiscard]] bool isOut(const LastHit& lastHit) const;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
   ~Biliardo() = default;
 
-  BiliardoType type() const;
-  void changeType(BiliardoType type);
+  [[nodiscard]] BiliardoType type() const;
 
-  const double& l() const { return l_; }
-  const double& r1() const { return r1_; }
-  const double& r2() const { return r2_; }
+  /// \brief Consente di cambiare il tipo del biliardo
+  /// \param type Il nuovo tipo che si vuole assegnare
+  /// \return restituisce true se il cambio è avvenuto con successo, altrimenti ritorna false
+  bool changeType(BiliardoType type);
 
-  /// no by reference se no ambigua
+  [[nodiscard]] const double& l() const { return l_; }
+  [[nodiscard]] const double& r1() const { return r1_; }
+  [[nodiscard]] const double& r2() const { return r2_; }
+
+  // no by reference se no ambigua
   // metodi per settare l, r1, e r2; ritornano delle const reference così si possono settare i parametri e al contempo
   // immagazzinare una loro reference
   // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
@@ -96,22 +102,101 @@ class Biliardo {
     return r2_;
   }
 
-  // Questo metodo è in grado di lanciare una sola particella e riempie un
-  // vettore con le posizioni di tutti gli urti tra essa e i bordi del
-  // biliardo, la direzione finale e quella iniziale
+  /// \brief Metodo per lanciare una singola particella da disegnare fornendo tutti i parametri iniziali, NON effettua
+  /// controlli sugli input.
+  ///
+  /// \param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
+  /// \param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
+  /// \param output il vettore che viene riempito con il risultato del lancio
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
   void launchForDrawing(double const& initialY, double const& initialDirection, std::vector<double>& output);
-  // questi prima generano le condizioni iniziali mancanti poi chiama il metodo sopra
+
+  /// \brief Metodo per lanciare una singola particella da disegnare fornendo tutti i parametri iniziali.
+  ///
+  /// \param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
+  /// \param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
+  /// \param output Il vettore che viene riempito con il risultato del lancio
+  /// \param shouldCheck Se viene passato true viene eseguito un check sulla validità dei parametri initialY
+  /// e initialDirection. Se non è necessario che il metodo esegua questo controllo il parametro può essere omesso
+  ///
+  /// \return Ritorna true se gli input risultano nei range appropriati, altrimenti ritorna false
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
+  [[nodiscard]] bool launchForDrawing(double const& initialY, double const& initialDirection,
+                                      std::vector<double>& output, bool shouldCheck);
+
+  /// \brief Metodo per lanciare una singola particella generando i parametri secondo due distribuzioni uniformi
+  /// tra tutti i valori accettati.
+  /// \param output Il vettore che viene riempito con il risultato del lancio
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
   void launchForDrawing(std::vector<double>& output);
+
+  /// \brief Metodo per lanciare una singola particella fornendo solo la direzione iniziale e generando l'altezza
+  /// iniziale secondo una distribuzione uniforme tra tutti i valori accettati. NON effettua il controllo sull'input.
+  ///
+  /// \param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
+  /// \param output Il vettore che viene riempito con il risultato del lancio
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
   void launchForDrawingNoY(double const& initialDirection, std::vector<double>& output);
-  void launchForDrawingNoDir(double const& initialY, std::vector<double>& output);
+
+  /// \brief Metodo per lanciare una singola particella fornendo solo la direzione iniziale e generando l'altezza
+  /// iniziale secondo una distribuzione uniforme tra tutti i valori accettati.
+  ///
+  /// \param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
+  /// \param output Il vettore che viene riempito con il risultato del lancio
+  /// \param shouldCheck Se viene passato true viene eseguito un check sulla validità del parametro initialDirection.
+  /// Se non è necessario che il metodo esegua questo controllo il parametro può essere omesso
+  ///
+  /// \return Ritorna true se l'input risulta nei range appropriato, altrimenti ritorna false
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
+  [[nodiscard]] bool launchForDrawingNoY(double const& initialDirection, std::vector<double>& output, bool shouldCheck);
+
+  /// \brief Metodo per lanciare una singola particella fornendo solo l'altezza iniziale e generando la direzione
+  /// iniziale secondo una distribuzione uniforme tra tutti i valori accettati. NON effettua il controllo
+  /// sull'input.
+  ///
+  /// \param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
+  /// \param output Il vettore che viene riempito con il risultato del lancio
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
+  void launchForDrawingNoDir(const double& initialY, std::vector<double>& output);
+
+  /// \brief Metodo per lanciare una singola particella fornendo solo l'altezza iniziale e generando la direzione
+  /// iniziale secondo una distribuzione uniforme tra tutti i valori accettati.
+  ///
+  /// \param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
+  /// \param output Il vettore che viene riempito con il risultato del lancio
+  /// \param shouldCheck Se viene passato true viene eseguito un check sulla validità del parametro initialY.
+  ///  Se non è necessario che il metodo esegua questo controllo il parametro può essere omesso
+  ///
+  /// Questo metodo è in grado di lanciare una sola particella e riempie un
+  /// vettore con le posizioni di tutti gli urti tra essa e i bordi del
+  /// biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
+  [[nodiscard]] bool launchForDrawingNoDir(const double& initialY, std::vector<double>& output, bool shouldCheck);
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void launch(const unsigned int N, std::vector<double>& output);
-  void multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT, const unsigned int N,
-                      std::vector<double>& output);
+  void launch(unsigned int N, std::array<TH1D, 2>& histograms);
+  void multipleLaunch(float muY, float sigmaY, float muT, float sigmaT, unsigned int N,
+                      std::array<TH1D, 2>& histograms);
 };
 
 }  // namespace bt

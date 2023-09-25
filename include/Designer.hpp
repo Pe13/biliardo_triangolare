@@ -55,7 +55,7 @@ class Designer {
   void calcFrame(const sf::Vector2u& size);
   void calcClearBiliardo(const Biliardo& biliardo);
   void calcClearHisto(const sf::Vector2u& size);
-  void calcStep();
+  void calcStep(const std::vector<double>& points);
 
  public:
   Designer();
@@ -63,20 +63,22 @@ class Designer {
 
   void initWindow(sf::RenderWindow& window);
 
-  void changeSize(const Biliardo& biliardo, const std::vector<double>& input, sf::RenderWindow& window,
+  void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
+                  const tgui::VerticalLayout::Ptr& wrapper);
+  void changeSize(const Biliardo& biliardo, sf::RenderWindow& window,
                   const tgui::VerticalLayout::Ptr& wrapper);
   void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
   void calcBordiBiliardo(const Biliardo& biliardo);
   void setPoints(std::vector<double>* points);
   void previousLaunch(std::vector<double>* first);
   void nextLaunch(std::vector<double>* last);
-  void reRun();
+  void reRun(const std::vector<double>& points);
   void pause();
 
-  void setCanvas(const double& r1, const std::vector<double>& input, sf::RenderWindow& window);
+  void setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window);
   void updateHisto(sf::RenderWindow& window);
 
-  void operator()(sf::RenderWindow& window);
+  void operator()(const std::vector<double>& points, sf::RenderWindow& window);
 
   template <typename num>
   sf::Vector2f toSfmlCord(num x, num y) const {

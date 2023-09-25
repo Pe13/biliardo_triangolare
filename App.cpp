@@ -18,18 +18,33 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
   window_.setFramerateLimit(60);
-  window_.setVerticalSyncEnabled(false);
+  //  window_.setVerticalSyncEnabled(false);
   window_.clear(sf::Color::White);
 
   // inizializzo tutti i vector di lanci singoli e setto il biliardo iniziale "aperto"
   for (int i = 2; i > -1; i--) {
-    singleLaunches_[i].emplace_back();
     biliardo_.changeType(static_cast<BiliardoType>(i));
-    biliardo_.launchForDrawing(singleLaunches_[i][0]);
-    gui_.setSingleLaunchText(singleLaunches_[i][0]);  // aggiorno il testo dei dati riguardo il singolo lancio
+    auto& newLaunch = newSingleLaunch();
+    biliardo_.launchForDrawing(newLaunch);
+    gui_.setSingleLaunchText(newLaunch);  // aggiorno il testo dei dati riguardo il singolo lancio
   }
   designer_.calcBordiBiliardo(biliardo_);
-  designer_.setPoints(&singleLaunches_[open][0]);
+  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+}
+
+std::vector<double>& App::newSingleLaunch() {
+  singleLaunches_[biliardo_.type()].emplace_back();
+  singleLaunchesIndex_[biliardo_.type()] = singleLaunches_[biliardo_.type()].size() - 1;
+  return singleLaunches_[biliardo_.type()].back();
+}
+
+std::array<TH1D, 2>& App::newHistograms() {
+  multipleLaunches_[biliardo_.type()].emplace_back();
+  multipleLaunchesIndex_[biliardo_.type()] = multipleLaunches_[biliardo_.type()].size() - 1;
+  auto& histograms = multipleLaunches_[biliardo_.type()].back();
+  histograms[0] = TH1D("", "Istogramma delle y di uscita", 1000, -biliardo_.r1(), biliardo_.r1());
+  histograms[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
+  return histograms;
 }
 
 void App::handleEvents() {
@@ -41,7 +56,11 @@ void App::handleEvents() {
         break;  // non necessario ma carino
 
       case sf::Event::Resized:
-        designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()], window_, gui_.wrapper);
+        if (multipleLaunches_[biliardo_.type()].empty()) {
+          designer_.changeSize(biliardo_, window_, gui_.wrapper);
+        } else {
+          designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]], window_, gui_.wrapper);
+        }
         break;
 
       default:
@@ -55,29 +74,33 @@ void App::run() {
   while (window_.isOpen()) {
     handleEvents();
     gui_.gui.draw();
-    designer_(window_);
+    designer_(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]], window_);
     window_.display();
   }
 }
 void App::changeBiliardoType(BiliardoType type) {
   biliardo_.changeType(type);
   designer_.calcBordiBiliardo(biliardo_);
-  designer_.setPoints(&singleLaunches_[type].back());
+  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
 }
 
 void App::modifyBiliardo() {
   BiliardoType oldType = biliardo_.type();  // salvo il tipo attuale
-  // rigenero un lancio per ogni tipo di biliardo
+  // rigenero un lancio per ogni tipo di biliardo e rimuovo i vecchi istogrammi
   for (int i = 2; i > -1; i--) {
     singleLaunches_[i].clear();
-    singleLaunches_[i].emplace_back();
+    multipleLaunches_[i].clear();
     biliardo_.changeType(static_cast<BiliardoType>(i));
-    biliardo_.launchForDrawing(singleLaunches_[i][0]);
+    auto& newLaunch = newSingleLaunch();
+    biliardo_.launchForDrawing(newLaunch);
   }
   biliardo_.changeType(oldType);  // ripristino il tipo attuale
   // aggiorno la parte grafica
   designer_.changeBiliardo(biliardo_, window_);
-  designer_.setPoints(&singleLaunches_[biliardo_.type()][0]);
+  // resetto gli indici a 0
+  singleLaunchesIndex_ = {0, 0, 0};
+  multipleLaunchesIndex_ = {0, 0, 0};
+  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
 }
 
 }  // namespace bt
