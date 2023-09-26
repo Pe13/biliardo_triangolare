@@ -146,7 +146,7 @@ void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histogr
 void Designer::changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window,
                           const tgui::VerticalLayout::Ptr& wrapper) {
   auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
-                               TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+                                        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
   changeSize(biliardo, histograms, window, wrapper);
 }
 
@@ -269,6 +269,12 @@ void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& wind
   histoSprite_.setTexture(histoTexture_, true);
 
   updateHisto(window);
+}
+
+void Designer::setCanvas(const Biliardo& biliardo, sf::RenderWindow& window) {
+  auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
+                                        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+  setCanvas(histograms, window);
 }
 
 void Designer::updateHisto(sf::RenderWindow& window) {

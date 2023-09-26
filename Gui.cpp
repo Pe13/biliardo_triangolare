@@ -31,23 +31,36 @@ tgui::String format(const tgui::String& str) {
   // trasformo le virgole in punti così da accettare entrambe le notazioni
   std::replace(string.begin(), string.end(), ',', '.');
 
-  // salvo il segno per dopo, se non c'è non ri aggiungerò nulla
+  // salvo il segno del numero e dell'esponenziale per dopo, se non ci non ri aggiungerò nulla
   tgui::String sign{""};
   if (string.starts_with('+') || string.starts_with('-')) {
     sign = string[0];
     string.erase(string.begin());
   }
-  // se contiene anche solo uno dei caratteri sottoelencati invalido la stringa
+  tgui::String eSign{""};
+  auto eSignPos = std::min(string.find("e+"), string.find("e-")) + 1;
+  if (eSignPos != 0) {
+    eSign = string[eSignPos];
+    string.erase(eSignPos, 1);
+  }
+
+  // se contiene anche solo un carattere che non è tra quelli sottoelencati invalido la stringa
   if (string.find_first_not_of("0123456789e.") != tgui::String::npos) {
     return {""};
   }
-  // reinserisco l'eventuale segno
+  // reinserisco l'eventuale segno del numero
   string.insert(0, sign);
 
   // se contiene più di un punto decimale o più di una "e" invalido la stringa
   if (std::count(string.begin(), string.end(), 'e') > 1 || std::count(string.begin(), string.end(), '.') > 1) {
     return {""};
   }
+  // reinserisco l'eventuale segno all'eventuale esponenziale
+  eSignPos = string.find('e');
+  if (eSignPos != tgui::String::npos) {
+    string.insert(eSignPos, eSign);
+  }
+
   // se la "e" è prima del punto invalido la stringa
   if (string.find('e') < string.find('.') && string.find('.') != tgui::String::npos) {
     return {""};
@@ -105,17 +118,33 @@ void Gui::create() {
   singleLaunchBtnWrapper->add(singleLaunchBtn, .8, "singleLaunchBtn");
   singleLaunchWrapper->addSpace(.05);
 
+  wrapper->addSpace(.05);
+
+  // bottoni per navigare tra i singoli lanci
+  wrapper->add(navigateLaunchesWrapper, .5, "navigateLaunchesWrapper");
+  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->add(previousLaunchBtn, "previousLaunchBtn");
+  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->add(nextLaunchBtn, "nextLaunchBtn");
+  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->add(pauseBtn, "pauseBtn");
+  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->add(reRunBtn, "reRunBtn");
+  navigateLaunchesWrapper->addSpace(.1);
+
+  wrapper->addSpace(.05);
+
   // bottone e campi per lanciare N particelle
   wrapper->add(multipleLaunchWrapper, 2.5, "multipleLaunchWrapper");
   multipleLaunchWrapper->addSpace(.05);
-  multipleLaunchWrapper->add(leftMultipleLaunchWrapper, .3, "leftMultipleLaunchWrapper");
+  multipleLaunchWrapper->add(leftMultipleLaunchWrapper, .4, "leftMultipleLaunchWrapper");
   leftMultipleLaunchWrapper->add(numberLabel, .8, "numberLabel");
   leftMultipleLaunchWrapper->add(numberInput, .7, "numberInput");
   leftMultipleLaunchWrapper->add(muYLabel, .8, "muYLabel");
   leftMultipleLaunchWrapper->add(muYInput, .7, "muYInput");
   leftMultipleLaunchWrapper->add(sigmaYLabel, .8, "sigmaYLabel");
   leftMultipleLaunchWrapper->add(sigmaYInput, .7, "sigmaYInput");
-  multipleLaunchWrapper->addSpace(.2);
+  multipleLaunchWrapper->addSpace(.1);
   multipleLaunchWrapper->add(rightMultipleLaunchWrapper, .4, "rightMultipleLaunchWrapper");
   rightMultipleLaunchWrapper->add(muTLabel, 1.1, "mutLabel");
   rightMultipleLaunchWrapper->add(muTInput, "muTInput");
@@ -125,27 +154,36 @@ void Gui::create() {
   rightMultipleLaunchWrapper->add(multipleLaunchBtn, 1.7, "multipleLaunchBtn");
   multipleLaunchWrapper->addSpace(.05);
 
-  wrapper->addSpace(.1);
+  wrapper->addSpace(.05);
 
-  // bottoni per navigare tra i singoli lanci
-  wrapper->add(navigateWrapper, .5, "navigateWrapper");
-  navigateWrapper->addSpace(.1);
-  navigateWrapper->add(previousLaunchBtn, "previousLaunchBtn");
-  navigateWrapper->addSpace(.1);
-  navigateWrapper->add(nextLaunchBtn, "nextLaunchBtn");
-  navigateWrapper->addSpace(.1);
-  navigateWrapper->add(pauseBtn, "pauseBtn");
-  navigateWrapper->addSpace(.1);
-  navigateWrapper->add(reRunBtn, "reRunBtn");
-  navigateWrapper->addSpace(.1);
+  // bottoni per navigare tra gli istogrammi
+  wrapper->add(navigateHistogramsWrapper, .5, "navigateHistogramsWrapper");
+  navigateHistogramsWrapper->addSpace(.1);
+  navigateHistogramsWrapper->add(previousHistogramBtn, "previousHistogramBtn");
+  navigateHistogramsWrapper->addSpace(.1);
+  navigateHistogramsWrapper->add(nextHistogramBtn, "nextHistogramBtn");
+  navigateHistogramsWrapper->addSpace(.1);
+  navigateHistogramsWrapper->add(saveHistogramBtn, "saveHistogramBtn");
+  navigateHistogramsWrapper->addSpace(.1);
 
   wrapper->addSpace(.2);
 
   // area di testo per i dati statistici
   wrapper->add(textWrapper, 4, "textWrapper");
   textWrapper->add(leftText, .45, "leftText");
-  textWrapper->addSpace(.1);
+  textWrapper->addSpace(.08);
   textWrapper->add(rightText, .45, "rightText");
+  textWrapper->addSpace(.02);
+}
+
+void Gui::style() {
+  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
+  rightText->setEnabled(false);
+  leftText->setTextSize(15);
+  rightText->setTextSize(15);
+  // usando lo sharedRenderer modifico simultaneamente i due campi di testo
+  // ho rimosso la texture di background dal tema se no il background color verrebbe ignorato
+  leftText->getSharedRenderer()->setBackgroundColor(tgui::Color::Black);
 }
 
 void Gui::activate(App* app) {
@@ -199,17 +237,18 @@ void Gui::activate(App* app) {
   });
 
   // attivo i bottoni per navigare tra un lancio e l'altro
-  //  previousLaunchBtn->onPress(
-  //      [app] { app->designer_.previousLaunch(&app->singleLaunches_[app->biliardo_.type()].front()); });
   previousLaunchBtn->onPress([app] {
     if (app->singleLaunchesIndex_[app->biliardo_.type()] != 0) {
       app->singleLaunchesIndex_[app->biliardo_.type()]--;
+      app->designer_.reRun(
+          app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
     }
   });
-  //  nextLaunchBtn->onPress([app] { app->designer_.nextLaunch(&app->singleLaunches_[app->biliardo_.type()].back()); });
   nextLaunchBtn->onPress([app] {
     if (app->singleLaunchesIndex_[app->biliardo_.type()] != app->singleLaunches_[app->biliardo_.type()].size() - 1) {
       app->singleLaunchesIndex_[app->biliardo_.type()]++;
+      app->designer_.reRun(
+          app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
     }
   });
   pauseBtn->onPress([app] { app->designer_.pause(); });
@@ -254,7 +293,6 @@ void Gui::activate(App* app) {
     }
 
     app->designer_.reRun(app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
-    //    app->designer_.setPoints(&newLaunch);  // aggiorno il lancio da riprodurre
     setSingleLaunchText(newLaunch);
   });
 
@@ -265,6 +303,7 @@ void Gui::activate(App* app) {
   sigmaTInput->setDefaultText(tgui::String(M_PI / 8));
   numberInput->setDefaultText("1'000'000");
 
+  // attivo il bottone per i lanci multipli
   multipleLaunchBtn->onPress([this, app] {
     // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la "e" e posso fare
     // un controllo su un possibile overflow
@@ -313,19 +352,30 @@ void Gui::activate(App* app) {
       return;
     }
 
-    //    app->multipleLaunches_[app->biliardo_.type()].emplace_back();  // creo lo spazio in memoria per
     auto& histograms = app->newHistograms();
     app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, histograms);
     app->designer_.setCanvas(histograms, app->window_);
   });
 
-  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
-  rightText->setEnabled(false);
-  leftText->setTextSize(15);
-  rightText->setTextSize(15);
-  // usando lo sharedRenderer modifico simultaneamente i due campi di testo
-  // ho rimosso la texture di background dal tema se no il background color verrebbe ignorato
-  leftText->getSharedRenderer()->setBackgroundColor(tgui::Color::Black);
+  // attivo i bottoni per navigare tra un istogramma e l'altro
+  previousHistogramBtn->onPress([app] {
+    if (app->multipleLaunchesIndex_[app->biliardo_.type()] != 0) {
+      app->multipleLaunchesIndex_[app->biliardo_.type()]--;
+      app->designer_.setCanvas(
+          app->multipleLaunches_[app->biliardo_.type()][app->multipleLaunchesIndex_[app->biliardo_.type()]],
+          app->window_);
+    }
+  });
+  nextHistogramBtn->onPress([app] {
+    if (app->multipleLaunchesIndex_[app->biliardo_.type()] !=
+        app->multipleLaunches_[app->biliardo_.type()].size() - 1) {
+      app->multipleLaunchesIndex_[app->biliardo_.type()]++;
+      app->designer_.setCanvas(
+          app->multipleLaunches_[app->biliardo_.type()][app->multipleLaunchesIndex_[app->biliardo_.type()]],
+          app->window_);
+    }
+  });
+  saveHistogramBtn->onPress([app] { app->saveHistogram(); });
 }
 
 void Gui::setSingleLaunchText(const std::vector<double>& launch) {
@@ -349,5 +399,8 @@ void Gui::setSingleLaunchText(const std::vector<double>& launch) {
       '\n'));
 }
 
-Gui::Gui(sf::RenderWindow& window) : gui{window} { create(); }
+Gui::Gui(sf::RenderWindow& window) : gui{window} {
+  create();
+  style();
+}
 }  // namespace bt

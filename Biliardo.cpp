@@ -14,11 +14,19 @@
 
 namespace bt {
 
+// TODO testare il costruttore
+// TODO testare l'algoritmo che calcola i rimbalzi
+// TODO testare che changeType non permetta di assegnare un tipo invalido
+// TODO testare che i vari metodi con controllo dell'input funzionino
+
 Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
     : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)},
       rng_(std::chrono::system_clock::now().time_since_epoch().count()), yNormalDist_(0, r1_ / 5) {
   if (r1 <= 0 || r2 <= 0) {
     throw std::runtime_error("r1 e r2 devono essere maggiori di 0");
+  }
+  if (type < 0 || type > 2) {
+    throw std::runtime_error("Il tipo fornito per la costruzione del Biliardo non è valido");
   }
 }
 
@@ -56,8 +64,10 @@ bool Biliardo::isOut(const LastHit &lastHit) const {
         return true;
       }
       return false;
+
+    default:
+      return false;
   }
-  return false;  // non necessario ma il compilatore se no si lamenta
 }
 
 void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output) {

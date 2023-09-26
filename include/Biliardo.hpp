@@ -48,7 +48,9 @@ class Biliardo {
   [[nodiscard]] BiliardoType type() const;
 
   /// \brief Consente di cambiare il tipo del biliardo
+  ///
   /// \param type Il nuovo tipo che si vuole assegnare
+  ///
   /// \return restituisce true se il cambio è avvenuto con successo, altrimenti ritorna false
   bool changeType(BiliardoType type);
 

@@ -25,9 +25,9 @@ struct Gui {
 
   // bottoni per cambiare tipo di biliardo
   tgui::HorizontalLayout::Ptr biliardoButtonsWrapper{tgui::HorizontalLayout::create()};
-  tgui::Button::Ptr biliardoApertoBtn{tgui::Button::create("Biliardo aperto")};
-  tgui::Button::Ptr biliardoChiusoDxBtn{tgui::Button::create("Biliardo chiuso Dx")};
-  tgui::Button::Ptr biliardoChiusoSxBtn{tgui::Button::create("Biliardo chiuso Sx")};
+  tgui::Button::Ptr biliardoApertoBtn{tgui::Button::create("Biliardo\naperto")};
+  tgui::Button::Ptr biliardoChiusoDxBtn{tgui::Button::create("Biliardo\nchiuso Dx")};
+  tgui::Button::Ptr biliardoChiusoSxBtn{tgui::Button::create("Biliardo\nchiuso Sx")};
 
   // bottone e campi per modificare il biliardo
   tgui::HorizontalLayout::Ptr newBiliardoWrapper{tgui::HorizontalLayout::create()};
@@ -52,6 +52,13 @@ struct Gui {
   tgui::VerticalLayout::Ptr singleLaunchBtnWrapper{tgui::VerticalLayout::create()};
   tgui::Button::Ptr singleLaunchBtn{tgui::Button::create("Lancio singolo")};
 
+  // bottoni per navigare tra i singoli lanci
+  tgui::HorizontalLayout::Ptr navigateLaunchesWrapper{tgui::HorizontalLayout::create()};
+  tgui::Button::Ptr nextLaunchBtn{tgui::Button::create("→")};
+  tgui::Button::Ptr previousLaunchBtn{tgui::Button::create("←")};
+  tgui::Button::Ptr pauseBtn{tgui::Button::create("▶")};
+  tgui::Button::Ptr reRunBtn{tgui::Button::create("⟳")};
+
   // bottone e campi per lanciare N particelle
   tgui::HorizontalLayout::Ptr multipleLaunchWrapper{tgui::HorizontalLayout::create()};
   tgui::VerticalLayout::Ptr leftMultipleLaunchWrapper{tgui::VerticalLayout::create()};
@@ -68,12 +75,11 @@ struct Gui {
   tgui::EditBox::Ptr numberInput{tgui::EditBox::create()};
   tgui::Button::Ptr multipleLaunchBtn{tgui::Button::create("Lancio multiplo")};
 
-  // bottoni per navigare tra i singoli lanci
-  tgui::HorizontalLayout::Ptr navigateWrapper{tgui::HorizontalLayout::create()};
-  tgui::Button::Ptr nextLaunchBtn{tgui::Button::create("→")};
-  tgui::Button::Ptr previousLaunchBtn{tgui::Button::create("←")};
-  tgui::Button::Ptr pauseBtn{tgui::Button::create("▶")};
-  tgui::Button::Ptr reRunBtn{tgui::Button::create("⟳")};
+  // bottoni per navigare tra gli istogrammi e salvarli
+  tgui::HorizontalLayout::Ptr navigateHistogramsWrapper{tgui::HorizontalLayout::create()};
+  tgui::Button::Ptr nextHistogramBtn{tgui::Button::create("→")};
+  tgui::Button::Ptr previousHistogramBtn{tgui::Button::create("←")};
+  tgui::Button::Ptr saveHistogramBtn{tgui::Button::create("Salva\nGrafico")};
 
   // area di testo per i dati statistici
   tgui::HorizontalLayout::Ptr textWrapper{tgui::HorizontalLayout::create()};
@@ -83,6 +89,7 @@ struct Gui {
 
   
   void create();
+  void style();
   void activate(App* app);
   void setSingleLaunchText(const std::vector<double>& launch);
   // TODO void setStatisticsText();

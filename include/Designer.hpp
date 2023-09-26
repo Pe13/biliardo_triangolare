@@ -65,8 +65,7 @@ class Designer {
 
   void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
                   const tgui::VerticalLayout::Ptr& wrapper);
-  void changeSize(const Biliardo& biliardo, sf::RenderWindow& window,
-                  const tgui::VerticalLayout::Ptr& wrapper);
+  void changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const tgui::VerticalLayout::Ptr& wrapper);
   void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
   void calcBordiBiliardo(const Biliardo& biliardo);
   void setPoints(std::vector<double>* points);
@@ -76,6 +75,7 @@ class Designer {
   void pause();
 
   void setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window);
+  void setCanvas(const Biliardo& biliardo, sf::RenderWindow& window);
   void updateHisto(sf::RenderWindow& window);
 
   void operator()(const std::vector<double>& points, sf::RenderWindow& window);

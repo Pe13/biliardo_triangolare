@@ -4,7 +4,11 @@
 
 #include "App.hpp"
 
+#include <TCanvas.h>
+
 #include <TGUI/Backend/SFML-Graphics.hpp>
+#include <boost/format.hpp>
+#include <ctime>
 
 #include "Biliardo.hpp"
 
@@ -59,7 +63,8 @@ void App::handleEvents() {
         if (multipleLaunches_[biliardo_.type()].empty()) {
           designer_.changeSize(biliardo_, window_, gui_.wrapper);
         } else {
-          designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]], window_, gui_.wrapper);
+          designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]],
+                               window_, gui_.wrapper);
         }
         break;
 
@@ -78,10 +83,19 @@ void App::run() {
     window_.display();
   }
 }
-void App::changeBiliardoType(BiliardoType type) {
-  biliardo_.changeType(type);
-  designer_.calcBordiBiliardo(biliardo_);
-  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+
+bool App::changeBiliardoType(BiliardoType type) {
+  if (biliardo_.changeType(type)) {
+    designer_.calcBordiBiliardo(biliardo_);
+    designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+    if (multipleLaunches_[biliardo_.type()].empty()) {
+      designer_.setCanvas(biliardo_, window_);
+    } else {
+      designer_.setCanvas(multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]], window_);
+    }
+    return true;
+  }
+  return false;
 }
 
 void App::modifyBiliardo() {
@@ -101,6 +115,35 @@ void App::modifyBiliardo() {
   singleLaunchesIndex_ = {0, 0, 0};
   multipleLaunchesIndex_ = {0, 0, 0};
   designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+}
+
+void App::saveHistogram(const std::string& filename) {
+  if (multipleLaunches_[biliardo_.type()].empty()) {
+    return;
+  }
+  TCanvas canvas = TCanvas();
+  canvas.SetCanvasSize(2560, 1440);
+
+  canvas.Divide(2);
+
+  auto& histograms = multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]];
+
+  canvas.cd(1);
+  histograms[0].Draw();
+
+  canvas.cd(2);
+  histograms[1].Draw();
+
+  if (filename.empty()) {
+    std::time_t t = std::time(nullptr);  // get time now
+    std::tm* now = std::localtime(&t);
+    canvas.SaveAs((boost::format("grafico_%1%-%2%-%3%_%4%:%5%:%6%.png") % now->tm_mday % (now->tm_mon + 1) %
+                   (now->tm_year + 1900) % now->tm_hour % now->tm_min % now->tm_sec)
+                      .str()
+                      .c_str());
+  } else {
+    canvas.SaveAs(filename.c_str());
+  }
 }
 
 }  // namespace bt

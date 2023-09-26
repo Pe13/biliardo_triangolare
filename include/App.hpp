@@ -40,11 +40,13 @@ class App {
   std::array<TH1D, 2>& newHistograms();
 
   void handleEvents();
-  void changeBiliardoType(BiliardoType type);
+  bool changeBiliardoType(BiliardoType type);
 
   /// @brief
   /// Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e la parte grafica
   void modifyBiliardo();
+
+  void saveHistogram(const std::string& filename="");
 
  public:
   App(double l, double r1, double r2, BiliardoType type);
