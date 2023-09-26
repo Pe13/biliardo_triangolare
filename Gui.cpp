@@ -367,7 +367,7 @@ void Gui::activate(App* app) {
     }
   });
   nextHistogramBtn->onPress([app] {
-    if (app->multipleLaunchesIndex_[app->biliardo_.type()] !=
+    if (app->multipleLaunchesIndex_[app->biliardo_.type()] >=
         app->multipleLaunches_[app->biliardo_.type()].size() - 1) {
       app->multipleLaunchesIndex_[app->biliardo_.type()]++;
       app->designer_.setCanvas(
