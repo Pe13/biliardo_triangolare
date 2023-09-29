@@ -6,6 +6,6 @@
 int main() {
   tgui::Theme::setDefault("Black.txt");
   bt::App app{100, 30, 10, bt::open};
-  app.run();
+  app.start();
   return 0;
 }
