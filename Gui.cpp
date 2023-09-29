@@ -237,24 +237,10 @@ void Gui::activate(App* app) {
   });
 
   // attivo i bottoni per navigare tra un lancio e l'altro
-  previousLaunchBtn->onPress([app] {
-    if (app->singleLaunchesIndex_[app->biliardo_.type()] != 0) {
-      app->singleLaunchesIndex_[app->biliardo_.type()]--;
-      app->designer_.reRun(
-          app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
-    }
-  });
-  nextLaunchBtn->onPress([app] {
-    if (app->singleLaunchesIndex_[app->biliardo_.type()] != app->singleLaunches_[app->biliardo_.type()].size() - 1) {
-      app->singleLaunchesIndex_[app->biliardo_.type()]++;
-      app->designer_.reRun(
-          app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
-    }
-  });
-  pauseBtn->onPress([app] { app->designer_.pause(); });
-  reRunBtn->onPress([app] {
-    app->designer_.reRun(app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
-  });
+  previousLaunchBtn->onPress([app] { app->previousLaunch(); });
+  nextLaunchBtn->onPress([app] { app->nextLaunch(); });
+  pauseBtn->onPress([app] { app->pause(); });
+  reRunBtn->onPress([app] { app->reRun(); });
 
   // attivo il bottone per i lanci singoli
   singleLaunchBtn->onPress([this, app] {
@@ -292,7 +278,7 @@ void Gui::activate(App* app) {
       app->biliardo_.launchForDrawingNoY(t, newLaunch);
     }
 
-    app->designer_.reRun(app->singleLaunches_[app->biliardo_.type()][app->singleLaunchesIndex_[app->biliardo_.type()]]);
+    app->reRun();
     setSingleLaunchText(newLaunch);
   });
 
@@ -307,7 +293,7 @@ void Gui::activate(App* app) {
   multipleLaunchBtn->onPress([this, app] {
     // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la "e" e posso fare
     // un controllo su un possibile overflow
-    float muY = 0, sigmaY = static_cast<float>(app->biliardo_.r1() / 5), muT = 0, sigmaT = M_PI / 8, N = 10e6;
+    float muY = 0, sigmaY = static_cast<float>(app->biliardo_.r1() / 5), muT = 0, sigmaT = M_PI / 8, N = 1e6;
 
     // catena di if poco elegante ma il for loop non funzionava
     // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di default
@@ -358,23 +344,8 @@ void Gui::activate(App* app) {
   });
 
   // attivo i bottoni per navigare tra un istogramma e l'altro
-  previousHistogramBtn->onPress([app] {
-    if (app->multipleLaunchesIndex_[app->biliardo_.type()] != 0) {
-      app->multipleLaunchesIndex_[app->biliardo_.type()]--;
-      app->designer_.setCanvas(
-          app->multipleLaunches_[app->biliardo_.type()][app->multipleLaunchesIndex_[app->biliardo_.type()]],
-          app->window_);
-    }
-  });
-  nextHistogramBtn->onPress([app] {
-    if (app->multipleLaunchesIndex_[app->biliardo_.type()] >=
-        app->multipleLaunches_[app->biliardo_.type()].size() - 1) {
-      app->multipleLaunchesIndex_[app->biliardo_.type()]++;
-      app->designer_.setCanvas(
-          app->multipleLaunches_[app->biliardo_.type()][app->multipleLaunchesIndex_[app->biliardo_.type()]],
-          app->window_);
-    }
-  });
+  previousHistogramBtn->onPress([app] { app->previousHistogram(); });
+  nextHistogramBtn->onPress([app] { app->nextHistogram(); });
   saveHistogramBtn->onPress([app] { app->saveHistogram(); });
 }
 

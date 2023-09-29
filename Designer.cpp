@@ -207,33 +207,8 @@ void Designer::calcBordiBiliardo(const Biliardo& biliardo) {
             .data());
   }
 }
-// void Designer::setPoints(std::vector<double>* points) {
-//   if (points != nullptr) {
-//     points_ = points;
-//     reRun();
-//   } else {
-//     throw std::runtime_error("nullptr passed to setPoints");
-//   }
-// }
-
-// void Designer::previousLaunch(std::vector<double>* first) {
-//   if (points_ > first) {
-//     points_--;
-//     reRun();
-//   }
-// }
-
-// void Designer::nextLaunch(std::vector<double>* last) {
-//   if (points_ < last) {
-//     points_++;
-//     reRun();
-//   }
-// }
 
 void Designer::reRun(const std::vector<double>& points) {
-  //  if (points_ == nullptr) {
-  //    return;
-  //  }
   isDrawing_ = true;
   isPaused_ = false;
   hasCleared_ = false;
@@ -244,9 +219,6 @@ void Designer::reRun(const std::vector<double>& points) {
 }
 
 void Designer::pause() {
-  //  if (points_ == nullptr) {
-  //    return;
-  //  }
   isPaused_ = !isPaused_;
 }
 
