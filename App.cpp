@@ -33,7 +33,7 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
     gui_.setSingleLaunchText(newLaunch);  // aggiorno il testo dei dati riguardo il singolo lancio
   }
   designer_.calcBordiBiliardo(biliardo_);
-  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+  reRun();
 }
 
 std::vector<double>& App::newSingleLaunch() {
@@ -74,7 +74,7 @@ void App::handleEvents() {
   }
 }
 
-void App::run() {
+void App::start() {
   designer_.initWindow(window_);
   while (window_.isOpen()) {
     handleEvents();
@@ -87,7 +87,7 @@ void App::run() {
 bool App::changeBiliardoType(BiliardoType type) {
   if (biliardo_.changeType(type)) {
     designer_.calcBordiBiliardo(biliardo_);
-    designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+    reRun();
     if (multipleLaunches_[biliardo_.type()].empty()) {
       designer_.setCanvas(biliardo_, window_);
     } else {
@@ -114,7 +114,48 @@ void App::modifyBiliardo() {
   // resetto gli indici a 0
   singleLaunchesIndex_ = {0, 0, 0};
   multipleLaunchesIndex_ = {0, 0, 0};
-  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
+  reRun();                                  // faccio partire la nuova simulazione
+  designer_.setCanvas(biliardo_, window_);  // pulisco il grafico
+}
+
+void App::pause() { designer_.pause(); }
+
+void App::reRun() { designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]); }
+
+bool App::nextLaunch() {
+  if (singleLaunchesIndex_[biliardo_.type()] != singleLaunches_[biliardo_.type()].size() - 1) {
+    singleLaunchesIndex_[biliardo_.type()]++;
+    reRun();
+    return true;
+  }
+  return false;
+}
+bool App::previousLaunch() {
+  if (singleLaunchesIndex_[biliardo_.type()] != 0) {
+    singleLaunchesIndex_[biliardo_.type()]--;
+    reRun();
+    return true;
+  }
+  return false;
+}
+
+bool App::nextHistogram() {
+  if (!multipleLaunches_[biliardo_.type()].empty() &&
+      multipleLaunchesIndex_[biliardo_.type()] != multipleLaunches_[biliardo_.type()].size() - 1) {
+    multipleLaunchesIndex_[biliardo_.type()]++;
+    designer_.setCanvas(multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]], window_);
+    return true;
+  }
+  return false;
+}
+
+bool App::previousHistogram() {
+  if (multipleLaunchesIndex_[biliardo_.type()] != 0) {
+    multipleLaunchesIndex_[biliardo_.type()]--;
+    designer_.setCanvas(multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]], window_);
+    return true;
+  }
+  return false;
 }
 
 void App::saveHistogram(const std::string& filename) {

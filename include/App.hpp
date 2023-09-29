@@ -46,13 +46,22 @@ class App {
   /// Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e la parte grafica
   void modifyBiliardo();
 
-  void saveHistogram(const std::string& filename="");
 
  public:
   App(double l, double r1, double r2, BiliardoType type);
-  //  ~App();
+  void start();
 
-  void run();
+  void pause();
+  void reRun();
+
+  bool nextLaunch();
+  bool previousLaunch();
+
+  bool nextHistogram();
+  bool previousHistogram();
+
+  void saveHistogram(const std::string& filename="");
+
 };
 
 }  // namespace bt
