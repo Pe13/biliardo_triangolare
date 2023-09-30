@@ -211,29 +211,41 @@ void Gui::activate(App* app) {
   lInput->setDefaultText(tgui::String(app->biliardo_.l()));
   newBiliardoBtn->onPress([this, app] {
     float r1, r2, l;
+    bool hasChanged = false;
+    bool error = false;
 
     // cambio singolarmente i parametri se questi sono stati inseriti, controllando che siano validi
     if (format(r1Input->getText()).attemptToFloat(r1) && r1 > 0) {
       app->biliardo_.r1(r1, false);
       r1Input->setDefaultText(tgui::String(r1));          // aggiorno il testo placeholder dell'EditBox
       sigmaYInput->setDefaultText(tgui::String(r1 / 5));  // aggiorno il testo placeholder della sigmaY di default
+      r1Input->setText("");                               // Pulisco l'EditBox
+      hasChanged = true;
     } else {
       r1Input->getRenderer()->setTextColor(tgui::Color::Red);
+      error = true;
     }
     if (format(r2Input->getText()).attemptToFloat(r2) && r2 > 0) {
       app->biliardo_.r2(r2, false);
       r2Input->setDefaultText(tgui::String(r2));  // aggiorno il testo placeholder dell'EditBox
+      r2Input->setText("");                       // Pulisco l'EditBox
+      hasChanged = true;
     } else {
       r2Input->getRenderer()->setTextColor(tgui::Color::Red);
+      error = true;
     }
     if (format(lInput->getText()).attemptToFloat(l) && l > 0) {
       app->biliardo_.l(l, false);
       lInput->setDefaultText(tgui::String(l));  // aggiorno il testo placeholder dell'EditBox
+      lInput->setText("");                      // Pulisco l'EditBox
+      hasChanged = true;
     } else {
       lInput->getRenderer()->setTextColor(tgui::Color::Red);
+      error = true;
     }
-
-    app->modifyBiliardo();
+    if (hasChanged && !error) {
+      app->modifyBiliardo();
+    }
   });
 
   // attivo i bottoni per navigare tra un lancio e l'altro
