@@ -2,22 +2,23 @@
 // Created by paolo on 29/08/2023.
 //
 
-#include "BiliardoFunctions.hpp"
+// #include "Biliardo::BiliardoFunctions.hpp"
 
 #include <vector>
 
-#include "types.hpp"
+#include "Biliardo.hpp"
 
 namespace bt {
 
-void BiliardoFunctions::leftCollisionOut(const double& c, const double& direction, std::vector<double>& output) const {
+void Biliardo::BiliardoFunctions::leftCollisionOut(const double& c, const double& direction,
+                                                   std::vector<double>& output) const {
   output.push_back(0);
   output.push_back(c);
   output.push_back(direction);
 }
 
-void BiliardoFunctions::leftCollision(double& x, double& y, const double& c, double& direction, LastHit& lastHit,
-                                      std::vector<double>& output) const {
+void Biliardo::BiliardoFunctions::leftCollision(double& x, double& y, const double& c, double& direction,
+                                                LastHit& lastHit, std::vector<double>& output) const {
   collideLeft(direction);
   x = 0;
   y = c;
@@ -26,15 +27,16 @@ void BiliardoFunctions::leftCollision(double& x, double& y, const double& c, dou
   lastHit = left;
 }
 
-void BiliardoFunctions::rightCollisionOut(const double& a, const double& c, const double& direction, const double& l,
-                                          std::vector<double>& output) const {
+void Biliardo::BiliardoFunctions::rightCollisionOut(const double& a, const double& c, const double& direction,
+                                                    const double& l, std::vector<double>& output) const {
   output.push_back(l);
   output.push_back(a * l + c);
   output.push_back(direction);
 }
 
-void BiliardoFunctions::rightCollision(double& x, double& y, const double& a, const double& c, LastHit& lastHit,
-                                       double& direction, const double& l, std::vector<double>& output) const {
+void Biliardo::BiliardoFunctions::rightCollision(double& x, double& y, const double& a, const double& c,
+                                                 LastHit& lastHit, double& direction, const double& l,
+                                                 std::vector<double>& output) const {
   collideRight(direction);
   x = l;
   y = c + a * l;
@@ -43,8 +45,9 @@ void BiliardoFunctions::rightCollision(double& x, double& y, const double& a, co
   lastHit = right;
 }
 
-void BiliardoFunctions::registerLeftCollision(const bt::BiliardoType type, double& x, double& y, const double& c,
-                                              double& direction, LastHit& lastHit, std::vector<double>& output) const {
+void Biliardo::BiliardoFunctions::registerLeftCollision(const bt::BiliardoType type, double& x, double& y,
+                                                        const double& c, double& direction, LastHit& lastHit,
+                                                        std::vector<double>& output) const {
   if (type == leftBounded) {
     leftCollision(x, y, c, direction, lastHit, output);
   } else {
@@ -52,9 +55,10 @@ void BiliardoFunctions::registerLeftCollision(const bt::BiliardoType type, doubl
   }
 }
 
-void BiliardoFunctions::registerRightCollision(const bt::BiliardoType type, double& x, double& y, const double& a,
-                                               const double& c, LastHit& lastHit, double& direction, const double& l,
-                                               std::vector<double>& output) const {
+void Biliardo::BiliardoFunctions::registerRightCollision(const bt::BiliardoType type, double& x, double& y,
+                                                         const double& a, const double& c, LastHit& lastHit,
+                                                         double& direction, const double& l,
+                                                         std::vector<double>& output) const {
   if (type == rightBounded) {
     rightCollision(x, y, a, c, lastHit, direction, l, output);
   } else {

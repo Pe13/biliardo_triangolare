@@ -6,11 +6,13 @@
 
 #include <TH1D.h>
 
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <execution>
 
 namespace bt {
 
@@ -227,10 +229,139 @@ bool Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double>
   return true;
 }
 
+ void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
+   //  output.reserve(2 * N);
+   for (unsigned int _ = 0; _ < N; _++) {
+     double x = 0;
+     double y, direction;
+     do {
+       y = yNormalDist_(rng_);
+     } while (y <= -r1_ && y >= r1_);
+     do {
+       direction = thetaNormalDist_(rng_);
+     } while (direction <= -M_PI / 2 && direction >= M_PI / 2);
+
+     LastHit lastHit = left;
+
+     bool out = false;
+     while (!out) {
+       // retta direttrice passante per il punto: ax + c
+       double a = std::tan(direction);
+       double c = y - std::tan(direction) * x;
+
+       // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
+       // meno): bx + d
+       double b = std::tan(theta_);
+       double d = r1_;
+
+       switch (lastHit) {
+         case left:
+           x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
+           if (x > 0 && x < l_) {
+             y = a * x + c;
+             collideTop(direction);
+             lastHit = top;
+           } else {
+             x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
+             if (x > 0 && x < l_) {
+               y = a * x + c;
+               collideBottom(direction);
+               lastHit = bottom;
+             } else {
+               x = l_;
+               y = a * x + c;
+               direction = -direction;
+               lastHit = right;
+               out = isOut(lastHit);
+
+               break;
+             }
+           }
+           break;
+
+         case right:
+           x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
+           if (x > 0 && x < l_) {
+             y = a * x + c;
+             collideTop(direction);
+             lastHit = top;
+           } else {
+             x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
+             if (x > 0 && x < l_) {
+               y = a * x + c;
+               collideBottom(direction);
+               lastHit = bottom;
+             } else {
+               x = 0;
+               y = c;
+               direction = -direction;
+               lastHit = left;
+               out = isOut(lastHit);
+               break;
+             }
+           }
+           break;
+
+         case top:
+           if (std::abs(c) < r1_) {
+             x = 0;
+             y = c;
+             direction = -direction;
+             lastHit = left;
+             out = isOut(lastHit);
+             break;
+           } else {
+             x = (-d - c) / (a + b);
+             if (x > 0 && x < l_) {
+               y = a * x + c;
+               collideBottom(direction);
+               lastHit = bottom;
+             } else {
+               x = l_;
+               y = a * x + c;
+               direction = -direction;
+               lastHit = right;
+               out = isOut(lastHit);
+               break;
+             }
+           }
+           break;
+         case bottom:
+           if (std::abs(c) < r1_) {
+             x = 0;
+             y = c;
+             direction = -direction;
+             lastHit = left;
+             out = isOut(lastHit);
+             break;
+           } else {
+             x = (d - c) / (a - b);
+             if (x > 0 && x < l_) {
+               y = a * x + c;
+               collideTop(direction);
+               lastHit = top;
+             } else {
+               x = l_;
+               y = a * x + c;
+               direction = -direction;
+               lastHit = right;
+               out = isOut(lastHit);
+               break;
+             }
+           }
+           break;
+       }
+     }
+     histograms[0].Fill(y);
+     histograms[1].Fill(direction);
+   }
+ }
+
 void Biliardo::launch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  //  output.reserve(2 * N);
-  for (unsigned int _ = 0; _ < N; _++) {
-    double x = 0;
+  std::vector<std::array<double, 2>> v(N);
+
+  std::cout << "generating launch...\n";
+  std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> {
     double y, direction;
     do {
       y = yNormalDist_(rng_);
@@ -239,7 +370,16 @@ void Biliardo::launch(const unsigned int N, std::array<TH1D, 2> &histograms) {
       direction = thetaNormalDist_(rng_);
     } while (direction <= -M_PI / 2 && direction >= M_PI / 2);
 
+    return {y, direction};
+  });
+
+  std::cout << "launching...\n";
+  std::for_each(std::execution::par, v.begin(), v.end(), [&](auto &launch) {
     LastHit lastHit = left;
+    double x = 0;
+
+    double& y = launch[0];
+    double& direction = launch[1];
 
     bool out = false;
     while (!out) {
@@ -350,10 +490,30 @@ void Biliardo::launch(const unsigned int N, std::array<TH1D, 2> &histograms) {
           break;
       }
     }
-    histograms[0].Fill(y);
-    histograms[1].Fill(direction);
-  }
+  });
+
+  std::cout << "Filling histograms...\n";
+  std::for_each(v.begin(), v.end(), [&](const auto &arr) {
+    std::for_each(std::execution::par_unseq, arr.begin(), arr.end(), [&] (const auto &item) {
+      histograms[&item - arr.data()].Fill(item);
+    });
+  });
+
+  std::cout << "Done \n\n";
 }
+
+void Biliardo::syncMultipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT,
+                              const unsigned int N, std::array<TH1D, 2> &histograms) {
+  yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
+  thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
+
+  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la sequenza non dovrebbe mai
+  // ripetersi
+  rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
+
+  syncLaunch(N, histograms);
+}
+
 void Biliardo::multipleLaunch(const float muY, const float sigmaY, const float muT, const float sigmaT,
                               const unsigned int N, std::array<TH1D, 2> &histograms) {
   yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);

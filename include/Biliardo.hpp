@@ -18,6 +18,29 @@
 namespace bt {
 
 class Biliardo {
+
+  class BiliardoFunctions { // la definisco qui perché ne devo creare un istanza all'interno del Biliardo
+    void collideLeft(double& angle) const { angle = -angle; }
+    void collideRight(double& angle) const { angle = -angle; }
+
+    void leftCollisionOut(const double& c, const double& direction, std::vector<double>& output) const;
+
+    void leftCollision(double& x, double& y, const double& c, double& direction, LastHit& lastHit,
+                       std::vector<double>& output) const;
+
+    void rightCollisionOut(const double& a, const double& c, const double& direction, const double& l,
+                           std::vector<double>& output) const;
+    void rightCollision(double& x, double& y, const double& a, const double& c, LastHit& lastHit, double& direction,
+                        const double& l, std::vector<double>& output) const;
+
+   public:
+    void registerLeftCollision(BiliardoType type, double& x, double& y, const double& c, double& direction,
+                               LastHit& lastHit, std::vector<double>& output) const;
+
+    void registerRightCollision(BiliardoType type, double& x, double& y, const double& a, const double& c,
+                                LastHit& lastHit, double& direction, const double& l, std::vector<double>& output) const;
+  };
+
   BiliardoType type_;
 
   double l_;
@@ -40,6 +63,9 @@ class Biliardo {
                                   std::vector<double>& output) const;
 
   [[nodiscard]] bool isOut(const LastHit& lastHit) const;
+
+  void syncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);
+  void launch(unsigned int N, std::array<TH1D, 2>& histograms);
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type);
@@ -196,7 +222,8 @@ class Biliardo {
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void launch(unsigned int N, std::array<TH1D, 2>& histograms);
+  void syncMultipleLaunch(float muY, float sigmaY, float muT, float sigmaT, unsigned int N,
+                      std::array<TH1D, 2>& histograms);
   void multipleLaunch(float muY, float sigmaY, float muT, float sigmaT, unsigned int N,
                       std::array<TH1D, 2>& histograms);
 };
