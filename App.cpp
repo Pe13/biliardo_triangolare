@@ -22,7 +22,6 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
   window_.setFramerateLimit(60);
-  //  window_.setVerticalSyncEnabled(false);
   window_.clear(sf::Color::White);
 
   // inizializzo tutti i vector di lanci singoli e setto il biliardo iniziale "aperto"
@@ -60,6 +59,15 @@ void App::handleEvents() {
         break;  // non necessario ma carino
 
       case sf::Event::Resized:
+        // evito che la finestra sia resa troppo piccola
+        if (window_.getSize().x < 1280) {
+          window_.setSize({1280, window_.getSize().y});
+        }
+        if (window_.getSize().y < 720) {
+          window_.setSize({window_.getSize().x, 720});
+        }
+
+        // creo un'altra immagine dell'istogramma in accordo con la nuova dimensione della finestra
         if (multipleLaunches_[biliardo_.type()].empty()) {
           designer_.changeSize(biliardo_, window_, gui_.wrapper);
         } else {
