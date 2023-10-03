@@ -5,6 +5,7 @@
 #include "App.hpp"
 
 #include <TCanvas.h>
+#include <TStyle.h>
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <boost/format.hpp>
@@ -170,18 +171,28 @@ void App::saveHistogram(const std::string& filename) {
   if (multipleLaunches_[biliardo_.type()].empty()) {
     return;
   }
-  TCanvas canvas = TCanvas();
-  canvas.SetCanvasSize(2560, 1440);
-
-  canvas.Divide(2);
 
   auto& histograms = multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]];
+
+  for (auto& h: histograms) {
+    h.GetKurtosis();
+    h.GetSkewness();
+  }
+
+//  gStyle->SetOptStat("ksrme");
+
+  TCanvas canvas = TCanvas();
+  canvas.SetCanvasSize(1920, 826);
+
+  canvas.Divide(2);
 
   canvas.cd(1);
   histograms[0].Draw();
 
   canvas.cd(2);
   histograms[1].Draw();
+
+//  canvas.UseCurrentStyle();
 
   if (filename.empty()) {
     std::time_t t = std::time(nullptr);  // get time now
@@ -193,6 +204,8 @@ void App::saveHistogram(const std::string& filename) {
   } else {
     canvas.SaveAs(filename.c_str());
   }
+
+//  gStyle->SetOptStat(0);
 }
 
 }  // namespace bt

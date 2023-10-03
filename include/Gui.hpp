@@ -5,6 +5,8 @@
 #ifndef BILIARDO_TRIANGOLARE_INCLUDE_GUI_HPP_
 #define BILIARDO_TRIANGOLARE_INCLUDE_GUI_HPP_
 
+#include <TH1D.h>
+
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/Core.hpp>
 #include <TGUI/Widgets/Button.hpp>
@@ -83,18 +85,19 @@ struct Gui {
 
   // area di testo per i dati statistici
   tgui::HorizontalLayout::Ptr textWrapper{tgui::HorizontalLayout::create()};
-//  tgui::VerticalLayout::Ptr leftTextWrapper{tgui::VerticalLayout::create()};
+  //  tgui::VerticalLayout::Ptr leftTextWrapper{tgui::VerticalLayout::create()};
   tgui::TextArea::Ptr leftText{tgui::TextArea::create()};
   tgui::TextArea::Ptr rightText{tgui::TextArea::create()};
 
-  
+  Gui(sf::RenderWindow& window);
+
   void create();
   void style();
   void activate(App* app);
+  void setDefaultText();
   void setSingleLaunchText(const std::vector<double>& launch);
+  void setStatisticsText(const std::array<TH1D, 2>& histograms);
   // TODO void setStatisticsText();
-
-  Gui(sf::RenderWindow &window);
 };
 
 }  // namespace bt

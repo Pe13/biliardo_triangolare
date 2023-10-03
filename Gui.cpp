@@ -4,6 +4,8 @@
 
 #include "Gui.hpp"
 
+#include <TH1D.h>
+
 #include <algorithm>
 #include <boost/numeric/conversion/converter.hpp>
 #include <cmath>
@@ -69,6 +71,12 @@ tgui::String format(const tgui::String& str) {
   return string;
 }
 
+Gui::Gui(sf::RenderWindow& window) : gui{window} {
+  create();
+  style();
+  setDefaultText();
+}
+
 void Gui::create() {
   gui.add(wrapper, "wrapper");
 
@@ -100,7 +108,7 @@ void Gui::create() {
   rightNewBiliardoWrapper->add(newBiliardoBtn, .8, "newBiliardoBtn");
   newBiliardoWrapper->addSpace(.05);
 
-  wrapper->addSpace(.1);
+  wrapper->addSpace(.02);
 
   // bottone e campi per lanciare la singola particella
   wrapper->add(singleLaunchWrapper, 1, "singleLaunchWrapper");
@@ -118,7 +126,7 @@ void Gui::create() {
   singleLaunchBtnWrapper->add(singleLaunchBtn, .8, "singleLaunchBtn");
   singleLaunchWrapper->addSpace(.05);
 
-  wrapper->addSpace(.05);
+  wrapper->addSpace(.01);
 
   // bottoni per navigare tra i singoli lanci
   wrapper->add(navigateLaunchesWrapper, .5, "navigateLaunchesWrapper");
@@ -132,7 +140,7 @@ void Gui::create() {
   navigateLaunchesWrapper->add(reRunBtn, "reRunBtn");
   navigateLaunchesWrapper->addSpace(.1);
 
-  wrapper->addSpace(.05);
+  wrapper->addSpace(.02);
 
   // bottone e campi per lanciare N particelle
   wrapper->add(multipleLaunchWrapper, 2.5, "multipleLaunchWrapper");
@@ -154,7 +162,7 @@ void Gui::create() {
   rightMultipleLaunchWrapper->add(multipleLaunchBtn, 1.7, "multipleLaunchBtn");
   multipleLaunchWrapper->addSpace(.05);
 
-  wrapper->addSpace(.05);
+  wrapper->addSpace(.02);
 
   // bottoni per navigare tra gli istogrammi
   wrapper->add(navigateHistogramsWrapper, .5, "navigateHistogramsWrapper");
@@ -166,7 +174,7 @@ void Gui::create() {
   navigateHistogramsWrapper->add(saveHistogramBtn, "saveHistogramBtn");
   navigateHistogramsWrapper->addSpace(.1);
 
-  wrapper->addSpace(.2);
+  wrapper->addSpace(.03);
 
   // area di testo per i dati statistici
   wrapper->add(textWrapper, 4, "textWrapper");
@@ -177,10 +185,10 @@ void Gui::create() {
 }
 
 void Gui::style() {
-  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
-  rightText->setEnabled(false);
-  leftText->setTextSize(15);
-  rightText->setTextSize(15);
+  //  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
+  //  rightText->setEnabled(false);
+  leftText->setTextSize(13);
+  rightText->setTextSize(13);
   // usando lo sharedRenderer modifico simultaneamente i due campi di testo
   // ho rimosso la texture di background dal tema se no il background color verrebbe ignorato
   leftText->getSharedRenderer()->setBackgroundColor(tgui::Color::Black);
@@ -353,6 +361,7 @@ void Gui::activate(App* app) {
     auto& histograms = app->newHistograms();
     app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, histograms);
     app->designer_.setCanvas(histograms, app->window_);
+    setStatisticsText(histograms);
   });
 
   // attivo i bottoni per navigare tra un istogramma e l'altro
@@ -361,7 +370,52 @@ void Gui::activate(App* app) {
   saveHistogramBtn->onPress([app] { app->saveHistogram(); });
 }
 
+void Gui::setDefaultText() {
+  leftText->setText(tgui::String::join(
+      {
+          "Lancio singolo:",
+          " y iniziale:",
+          "",
+          " angolo iniziale:",
+          "",
+          "",
+          "Lancio multiplo:",
+          " media y:",
+          "",
+          " asimmetria y:",
+          "",
+          " media angoli:",
+          "",
+          " asimmetria angoli:",
+          "",
+      },
+      '\n'));
+
+  rightText->setText(tgui::String::join(
+      {
+          "",
+          " y finale:",
+          "",
+          " angolo finale:",
+          "",
+          "",
+          "",
+          " dev. y:",
+          "",
+          " curtosi y:",
+          "",
+          " dev. angoli:",
+          "",
+          " curtosi angoli:",
+          "",
+      },
+      '\n'));
+}
+
 void Gui::setSingleLaunchText(const std::vector<double>& launch) {
+  auto unchangedPartLeft = leftText->getText().substr(leftText->getText().find("\nL"));
+  auto unchangedPartRight = rightText->getText().substr(rightText->getText().find("\n\n d"));
+
   leftText->setText(tgui::String::join(
       {
           "Lancio singolo:",
@@ -369,6 +423,7 @@ void Gui::setSingleLaunchText(const std::vector<double>& launch) {
           "  " + tgui::String(launch[1]),
           " angolo iniziale:",
           "  " + tgui::String(launch[launch.size() - 1]),
+          unchangedPartLeft,
       },
       '\n'));
   rightText->setText(tgui::String::join(
@@ -378,12 +433,42 @@ void Gui::setSingleLaunchText(const std::vector<double>& launch) {
           "  " + tgui::String(launch[launch.size() - 1 - 2]),
           " angolo finale:",
           "  " + tgui::String(launch[launch.size() - 1 - 1]),
+          unchangedPartRight,
       },
       '\n'));
 }
 
-Gui::Gui(sf::RenderWindow& window) : gui{window} {
-  create();
-  style();
+void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) {
+  auto unchangedPartLeft = leftText->getText().substr(0, leftText->getText().find("\n m"));
+  auto unchangedPartRight = rightText->getText().substr(0, rightText->getText().find("\n\n d") + 1);
+
+  leftText->setText(tgui::String::join(
+      {
+          unchangedPartLeft,
+          " media y:",
+          " " + tgui::String(histograms[0].GetMean()),
+          " asimmetria y:",
+          " " + tgui::String(histograms[0].GetSkewness()),
+          " media angoli:",
+          " " + tgui::String(histograms[1].GetMean()),
+          " asimmetria angoli:",
+          " " + tgui::String(histograms[1].GetSkewness()),
+      },
+      '\n'));
+
+  rightText->setText((tgui::String::join(
+      {
+          unchangedPartRight,
+          " dev. y:",
+          " " + tgui::String(histograms[0].GetStdDev()),
+          " curtosi y:",
+          " " + tgui::String(histograms[0].GetKurtosis()),
+          " dev. angoli:",
+          " " + tgui::String(histograms[1].GetStdDev()),
+          " curtosi angoli:",
+          " " + tgui::String(histograms[1].GetKurtosis()),
+      },
+      '\n')));
 }
+
 }  // namespace bt

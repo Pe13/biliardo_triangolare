@@ -31,15 +31,17 @@ void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
     if (pixelData) {
       histoImage.create(w, h, pixelData);
     }
-    delete pixelData;
+    delete[] pixelData;
   } else {
     TImage* img = TImage::Create();
     if (img) {
       img->FromPad(&canvas);
     }
 
-    histoImage.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8*>(img->GetRgbaArray()));
+    auto rgbaArray = img->GetRgbaArray();
+    histoImage.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8*>(rgbaArray));
     delete img;
+    delete[] rgbaArray;
   }
 }
 
@@ -97,7 +99,10 @@ void Designer::calcStep(const std::vector<double>& points) {
 
 Designer::Designer() {
   // rimuovo le statistics box dai grafici dato che le indico tutte sulla sinistra
-  gStyle->SetOptStat(0);
+//  gStyle->SetOptStat(0);
+  gStyle->SetOptStat("ksrme");
+  gStyle->SetStatFontSize(.09);
+
 
   frame_.create(4);
   frame_.setPrimitiveType(sf::Lines);
