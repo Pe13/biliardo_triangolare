@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(biliardo_triangolare)
 
-# abilita il supporto per i test, tra cui l'opzione BUILD_TESTING usata sotto
-include(CTest)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # richiedi l'uso di C++17, senza estensioni non-standard offerte dal compilatore usato
@@ -41,13 +38,5 @@ target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::P
 # se il testing e' abilitato...
 #   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
 if (BUILD_TESTING)
-
-    add_executable(test_biliardo tests/BiliardoTest.cpp Biliardo.cpp BiliardoFunctions.cpp)
-
-    target_include_directories(test_biliardo PRIVATE include)
-    target_link_libraries(test_biliardo PRIVATE ROOT::Core ROOT::Hist ROOT::Physics sfml-graphics)
-
-    # aggiungi l'eseguibile test_biliardo alla lista dei test
-    add_test(NAME test_biliardo COMMAND test_biliardo)
-
+    add_subdirectory(tests)
 endif ()

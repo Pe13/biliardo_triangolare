@@ -18,6 +18,62 @@
 
 namespace bt {
 
+// funzione per formattare le stringe di input numerici in modo da invalidarle o renderle comprensibili al metodo
+// tgui::String::attemptToFloat
+inline tgui::String format(const tgui::String& str) {
+  if (str.empty()) {
+    return str;
+  }
+  auto string = str;
+
+  // rimuovo tutti gli apici e gli spazi (che possono essere usati per contare meglio le cifre inserite)
+  string.remove('\'');
+  string.remove(' ');
+
+  string = string.toLower();  // così facendo mi basta controllare "e"
+
+  // trasformo le virgole in punti così da accettare entrambe le notazioni
+  std::replace(string.begin(), string.end(), ',', '.');
+
+  // salvo il segno del numero e dell'esponenziale per dopo, se non ci non ri aggiungerò nulla
+  tgui::String sign{""};
+  if (string.starts_with('+') || string.starts_with('-')) {
+    sign = string[0];
+    string.erase(string.begin());
+  }
+  tgui::String eSign{""};
+  auto eSignPos = std::min(string.find("e+"), string.find("e-")) + 1;
+  if (eSignPos != 0) {
+    eSign = string[eSignPos];
+    string.erase(eSignPos, 1);
+  }
+
+  // se contiene anche solo un carattere che non è tra quelli sottoelencati invalido la stringa
+  if (string.find_first_not_of("0123456789e.") != tgui::String::npos) {
+    return {""};
+  }
+  // reinserisco l'eventuale segno del numero
+  string.insert(0, sign);
+
+  // se contiene più di un punto decimale o più di una "e" invalido la stringa
+  if (std::count(string.begin(), string.end(), 'e') > 1 || std::count(string.begin(), string.end(), '.') > 1) {
+    return {""};
+  }
+  // reinserisco l'eventuale segno all'eventuale esponenziale
+  eSignPos = string.find('e');
+  if (eSignPos != tgui::String::npos) {
+    string.insert(eSignPos + 1, eSign);
+  }
+
+  // se la "e" è prima del punto invalido la stringa
+  if (string.find('e') < string.find('.') && string.find('.') != tgui::String::npos) {
+    return {""};
+  }
+
+  return string;
+}
+
+
 class App;
 
 struct Gui {
@@ -97,7 +153,6 @@ struct Gui {
   void setDefaultText();
   void setSingleLaunchText(const std::vector<double>& launch);
   void setStatisticsText(const std::array<TH1D, 2>& histograms);
-  // TODO void setStatisticsText();
 };
 
 }  // namespace bt
