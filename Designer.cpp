@@ -99,10 +99,13 @@ void Designer::calcStep(const std::vector<double>& points) {
 
 Designer::Designer() {
   // rimuovo le statistics box dai grafici dato che le indico tutte sulla sinistra
-//  gStyle->SetOptStat(0);
+  //  gStyle->SetOptStat(0);
   gStyle->SetOptStat("ksrme");
-  gStyle->SetStatFontSize(.09);
+  gStyle->SetStatW(.30f);
+  gStyle->SetStatH(.30f);
 
+  //  gStyle->SetStatFontSize(.06);
+  //  gStyle->SetStatFont(62);
 
   frame_.create(4);
   frame_.setPrimitiveType(sf::Lines);
@@ -223,9 +226,7 @@ void Designer::reRun(const std::vector<double>& points) {
   contrail_.clear();
 }
 
-void Designer::pause() {
-  isPaused_ = !isPaused_;
-}
+void Designer::pause() { isPaused_ = !isPaused_; }
 
 void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
   int width = static_cast<int>(static_cast<float>(window.getSize().x) - rightOffset_);
@@ -254,7 +255,7 @@ void Designer::setCanvas(const Biliardo& biliardo, sf::RenderWindow& window) {
   setCanvas(histograms, window);
 }
 
-void Designer::updateHisto(sf::RenderWindow& window) {
+void Designer::updateHisto(sf::RenderWindow& window) const {
   window.draw(clearHisto_);
   window.draw(histoSprite_);
   window.draw(frame_);
