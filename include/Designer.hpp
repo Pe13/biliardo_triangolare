@@ -72,7 +72,7 @@ class Designer {
 
   void setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window);
   void setCanvas(const Biliardo& biliardo, sf::RenderWindow& window);
-  void updateHisto(sf::RenderWindow& window);
+  void updateHisto(sf::RenderWindow& window) const;
 
   void operator()(const std::vector<double>& points, sf::RenderWindow& window);
 
