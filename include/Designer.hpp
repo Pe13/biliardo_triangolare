@@ -18,18 +18,17 @@
 namespace bt {
 
 class Designer {
-  std::vector<double>* points_{nullptr};
 
-  const float widthLeftFraction_{.3};
-  const float heightTopFraction_{.5};
-  float rightOffset_{};
-  float topOffset_{};
+  const float widthLeftFraction_{.3f};
+  const float heightTopFraction_{.5f};
+  float rightOffset_;
+  float topOffset_;
 
-  float simulationWidth_{};
-  float simulationHeight_{};
+  float simulationWidth_;
+  float simulationHeight_;
 
-  float ratio_{};
-  float simulationXOffset_{};
+  float ratio_;
+  float simulationXOffset_;
 
   sf::VertexBuffer frame_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer bordiBiliardo_{sf::VertexBuffer::Usage::Static};
@@ -68,9 +67,6 @@ class Designer {
   void changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const tgui::VerticalLayout::Ptr& wrapper);
   void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
   void calcBordiBiliardo(const Biliardo& biliardo);
-  void setPoints(std::vector<double>* points);
-  void previousLaunch(std::vector<double>* first);
-  void nextLaunch(std::vector<double>* last);
   void reRun(const std::vector<double>& points);
   void pause();
 
