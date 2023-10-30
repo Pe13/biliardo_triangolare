@@ -13,13 +13,167 @@
 #include "App.hpp"
 
 namespace bt {
-// TODO
-//  testare che i check siano ok
 
 Gui::Gui(sf::RenderWindow& window) : gui{window} {
   create();
   style();
   setDefaultText();
+}
+
+void Gui::newBiliardoBtnPressed(bt::App* app) const {
+//  double r1;
+//  double r2;
+//  double l;
+  std::array<double, 3> data{app->biliardo_.r1(), app->biliardo_.r2(), app->biliardo_.l()};
+  bool hasChanged = false;
+  bool error = false;
+
+  forEachIndexed<tgui::EditBox>(newBiliardoWrapper->getWidgets().begin(), newBiliardoWrapper->getWidgets().end(),
+                                [&data, &hasChanged, &error](const tgui::EditBox::Ptr& box, unsigned int i) {
+                                  if (isValidInput(box->getText(), data[i]) && data[i] > 0) {
+                                    box->setDefaultText(tgui::String(data[i]));          // aggiorno il testo placeholder dell'EditBox
+                                    box->setText("");                               // Pulisco l'EditBox
+                                    hasChanged = true;
+                                  } else if (!box->getText().empty()) {
+                                    box->getRenderer()->setTextColor(tgui::Color::Red);
+                                    error = true;
+                                  }
+                                });
+
+  // cambio singolarmente i parametri se questi sono stati inseriti, controllando che siano validi
+//  if (isValidInput(r1Input->getText(), r1) && r1 > 0) {
+//    app->biliardo_.r1(r1, false);
+//    r1Input->setDefaultText(tgui::String(r1));          // aggiorno il testo placeholder dell'EditBox
+//    sigmaYInput->setDefaultText(tgui::String(r1 / 5));  // aggiorno il testo placeholder della sigmaY di default
+//    r1Input->setText("");                               // Pulisco l'EditBox
+//    hasChanged = true;
+//  } else if (!r1Input->getText().empty()) {
+//    r1Input->getRenderer()->setTextColor(tgui::Color::Red);
+//    error = true;
+//  }
+//  if (isValidInput(r2Input->getText(), r2) && r2 > 0) {
+//    app->biliardo_.r2(r2, false);
+//    r2Input->setDefaultText(tgui::String(r2));  // aggiorno il testo placeholder dell'EditBox
+//    r2Input->setText("");                       // Pulisco l'EditBox
+//    hasChanged = true;
+//  } else if (!r2Input->getText().empty()) {
+//    r2Input->getRenderer()->setTextColor(tgui::Color::Red);
+//    error = true;
+//  }
+//  if (isValidInput(lInput->getText(), l) && l > 0) {
+//    app->biliardo_.l(l, false);
+//    lInput->setDefaultText(tgui::String(l));  // aggiorno il testo placeholder dell'EditBox
+//    lInput->setText("");                      // Pulisco l'EditBox
+//    hasChanged = true;
+//  } else if (!lInput->getText().empty()) {
+//    lInput->getRenderer()->setTextColor(tgui::Color::Red);
+//    error = true;
+//  }
+
+  if (hasChanged && !error) {
+    app->biliardo_.modify(data[0], data[1], data[2], false);
+    sigmaYInput->setDefaultText(tgui::String(data[0] / 5));  // aggiorno il testo placeholder della sigmaY di default
+    app->modifyBiliardo();
+  }
+}
+
+void Gui::singleLaunchBtnPressed(bt::App* app) const {
+  double y;
+  double t;
+  bool isY;
+  bool isT;
+  bool failed = false;
+
+  // controllo quali input sono presenti
+
+  if (heightInput->getText().empty()) {
+    isY = false;
+  } else if (isValidInput(heightInput->getText(), y) && std::abs(y) <= app->biliardo_.r1()) {
+    isY = true;
+  } else {
+    heightInput->getRenderer()->setTextColor(tgui::Color::Red);
+    failed = true;
+  }
+
+  if (angleInput->getText().empty()) {
+    isT = false;
+  } else if (isValidInput(angleInput->getText(), t) && std::abs(t) <= M_PI / 2) {
+    isT = true;
+  } else {
+    angleInput->getRenderer()->setTextColor(tgui::Color::Red);
+    failed = true;
+  }
+
+  if (failed) {
+    return;
+  }
+
+  // gestisco i vari casi
+  auto& newLaunch = app->newSingleLaunch();
+  if (!isY && !isT) {  // se ne y ne teta sono indicate le genera entrambe
+    app->biliardo_.launchForDrawing(newLaunch);
+  } else if (isY && isT) {  // se invece sono entrambe indicate le usa semplicemente
+    app->biliardo_.launchForDrawing(y, t, newLaunch);
+  } else if (isY) {  // altrimenti genera solo quella mancante
+    app->biliardo_.launchForDrawingNoDir(y, newLaunch);
+  } else {
+    app->biliardo_.launchForDrawingNoY(t, newLaunch);
+  }
+
+  app->reRun();
+  setSingleLaunchText(newLaunch);
+}
+
+void Gui::multipleLaunchBtnPressed(App* app) const {
+  // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la "e" e posso fare
+  // un controllo su un possibile overflow
+  //    double muY = 0, sigmaY = static_cast<float>(app->biliardo_.r1() / 5), muT = 0, sigmaT = M_PI / 8, N = 1e6;
+  std::array<double, 5> data{1e6, 0, app->biliardo_.r1() / 5, 0, M_PI / 8};
+  const double& N = data[0];
+  const double& muY = data[1];
+  const double& sigmaY = data[2];
+  const double& muT = data[3];
+  const double& sigmaT = data[4];
+
+  bool error = false;
+
+  // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di default
+  forEachIndexed<tgui::EditBox>(multipleLaunchWrapper->getWidgets().begin(), multipleLaunchWrapper->getWidgets().end(),
+                                [&data, &error](const tgui::EditBox::Ptr& box, unsigned int i) {
+                                  if (!isValidInput(box->getText(), data[i]) && !box->getText().empty()) {
+                                    box->getRenderer()->setTextColor(tgui::Color::Red);
+                                    error = true;
+                                  }
+                                });
+
+  unsigned int N_;
+  boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
+  try {
+    N_ = safeDoubleToUInt(N);
+  } catch (
+      std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere sottoclassi di std::bad_cast
+    numberInput->getRenderer()->setTextColor(tgui::Color::Red);
+    error = true;
+  }
+
+  // controllo che le deviazioni standard non siano negative o nulle
+  if (sigmaY <= 0) {
+    sigmaYInput->getRenderer()->setTextColor(tgui::Color::Red);
+    error = true;
+  }
+  if (sigmaT <= 0) {
+    sigmaTInput->getRenderer()->setTextColor(tgui::Color::Red);
+    error = true;
+  }
+
+  if (error) {
+    return;
+  }
+
+  auto& histograms = app->newHistograms();
+  app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, histograms);
+  app->designer_.setCanvas(histograms, app->window_);
+  setStatisticsText(histograms);
 }
 
 void Gui::create() {
@@ -129,9 +283,9 @@ void Gui::create() {
   textWrapper->addSpace(.02);
 }
 
-void Gui::style() {
-  //  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
-  //  rightText->setEnabled(false);
+void Gui::style() const {
+  leftText->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
+  rightText->setEnabled(false);
   leftText->setTextSize(13);
   rightText->setTextSize(13);
   // usando lo sharedRenderer modifico simultaneamente i due campi di testo
@@ -139,113 +293,38 @@ void Gui::style() {
   leftText->getSharedRenderer()->setBackgroundColor(tgui::Color::Black);
 }
 
-void Gui::activate(App* app) {
+void Gui::activate(App* app) const {
   // ripristino il colore del testo di default all'ottenimento del focus nel caso questo sia diventato rosso a causa di
   // un dato non valido inserito
-  r1Input->onFocus([this] { r1Input->getRenderer()->setTextColor(tgui::Color::White); });
-  r2Input->onFocus([this] { r2Input->getRenderer()->setTextColor(tgui::Color::White); });
-  lInput->onFocus([this] { lInput->getRenderer()->setTextColor(tgui::Color::White); });
-  heightInput->onFocus([this] { heightInput->getRenderer()->setTextColor(tgui::Color::White); });
-  angleInput->onFocus([this] { angleInput->getRenderer()->setTextColor(tgui::Color::White); });
-  muYInput->onFocus([this] { muYInput->getRenderer()->setTextColor(tgui::Color::White); });
-  sigmaYInput->onFocus([this] { sigmaYInput->getRenderer()->setTextColor(tgui::Color::White); });
-  muTInput->onFocus([this] { muTInput->getRenderer()->setTextColor(tgui::Color::White); });
-  sigmaTInput->onFocus([this] { sigmaTInput->getRenderer()->setTextColor(tgui::Color::White); });
-  numberInput->onFocus([this] { numberInput->getRenderer()->setTextColor(tgui::Color::White); });
+  forEach<tgui::EditBox>(gui.getWidgets().begin(), gui.getWidgets().end(), [](tgui::EditBox::Ptr const& box) {
+    box->onFocus(
+        [box] { box->getRenderer()->setTextColor(tgui::Color::White); });  // box catturato by value se no crash
+  });
 
   // attivo le funzioni dei bottoni per cambiare tipo di biliardo
-  biliardoApertoBtn->onPress([app] { app->changeBiliardoType(open); });
-  biliardoChiusoDxBtn->onPress([app] { app->changeBiliardoType(rightBounded); });
-  biliardoChiusoSxBtn->onPress([app] { app->changeBiliardoType(leftBounded); });
+//  biliardoApertoBtn->onPress([app] { app->changeBiliardoType(open); });
+  biliardoApertoBtn->onPress(&App::changeBiliardoType, app, open);
+  biliardoChiusoDxBtn->onPress(&App::changeBiliardoType, app, rightBounded);
+  biliardoChiusoSxBtn->onPress(&App::changeBiliardoType, app, leftBounded);
 
   // gestisco la modifica del biliardo
   r1Input->setDefaultText(tgui::String(app->biliardo_.r1()));
   r2Input->setDefaultText(tgui::String(app->biliardo_.r2()));
   lInput->setDefaultText(tgui::String(app->biliardo_.l()));
-  newBiliardoBtn->onPress([this, app] {
-    float r1, r2, l;
-    bool hasChanged = false;
-    bool error = false;
-
-    // cambio singolarmente i parametri se questi sono stati inseriti, controllando che siano validi
-    if (format(r1Input->getText()).attemptToFloat(r1) && r1 > 0) {
-      app->biliardo_.r1(r1, false);
-      r1Input->setDefaultText(tgui::String(r1));          // aggiorno il testo placeholder dell'EditBox
-      sigmaYInput->setDefaultText(tgui::String(r1 / 5));  // aggiorno il testo placeholder della sigmaY di default
-      r1Input->setText("");                               // Pulisco l'EditBox
-      hasChanged = true;
-    } else {
-      r1Input->getRenderer()->setTextColor(tgui::Color::Red);
-      error = true;
-    }
-    if (format(r2Input->getText()).attemptToFloat(r2) && r2 > 0) {
-      app->biliardo_.r2(r2, false);
-      r2Input->setDefaultText(tgui::String(r2));  // aggiorno il testo placeholder dell'EditBox
-      r2Input->setText("");                       // Pulisco l'EditBox
-      hasChanged = true;
-    } else {
-      r2Input->getRenderer()->setTextColor(tgui::Color::Red);
-      error = true;
-    }
-    if (format(lInput->getText()).attemptToFloat(l) && l > 0) {
-      app->biliardo_.l(l, false);
-      lInput->setDefaultText(tgui::String(l));  // aggiorno il testo placeholder dell'EditBox
-      lInput->setText("");                      // Pulisco l'EditBox
-      hasChanged = true;
-    } else {
-      lInput->getRenderer()->setTextColor(tgui::Color::Red);
-      error = true;
-    }
-    if (hasChanged && !error) {
-      app->modifyBiliardo();
-    }
-  });
+  newBiliardoBtn->onPress(&Gui::newBiliardoBtnPressed, this, app);
 
   // attivo i bottoni per navigare tra un lancio e l'altro
-  previousLaunchBtn->onPress([app] { app->previousLaunch(); });
-  nextLaunchBtn->onPress([app] { app->nextLaunch(); });
-  pauseBtn->onPress([app] { app->pause(); });
-  reRunBtn->onPress([app] { app->reRun(); });
+//  previousLaunchBtn->onPress([app] { app->previousLaunch(); });
+  previousLaunchBtn->onPress(&App::previousLaunch, app);
+//  nextLaunchBtn->onPress([app] { app->nextLaunch(); });
+  nextLaunchBtn->onPress(&App::nextLaunch, app);
+//  pauseBtn->onPress([app] { app->pause(); });
+  pauseBtn->onPress(&App::pause, app);
+//  reRunBtn->onPress([app] { app->reRun(); });
+  reRunBtn->onPress(&App::reRun, app);
 
   // attivo il bottone per i lanci singoli
-  singleLaunchBtn->onPress([this, app] {
-    float y, t;
-    bool isY, isT;
-
-    // controllo quali input sono presenti
-    if (format(heightInput->getText()).attemptToFloat(y) && std::abs(y) <= app->biliardo_.r1()) {
-      isY = true;
-    } else if (heightInput->getText().empty()) {
-      isY = false;
-    } else {
-      heightInput->getRenderer()->setTextColor(tgui::Color::Red);
-      return;
-    }
-
-    if (format(angleInput->getText()).attemptToFloat(t) && std::abs(t) <= M_PI / 2) {
-      isT = true;
-    } else if (angleInput->getText().empty()) {
-      isT = false;
-    } else {
-      angleInput->getRenderer()->setTextColor(tgui::Color::Red);
-      return;
-    }
-
-    // gestisco i vari casi
-    auto& newLaunch = app->newSingleLaunch();
-    if (!isY && !isT) {  // se ne y ne teta sono indicate le genera entrambe
-      app->biliardo_.launchForDrawing(newLaunch);
-    } else if (isY && isT) {  // se invece sono entrambe indicate le usa semplicemente
-      app->biliardo_.launchForDrawing(y, t, newLaunch);
-    } else if (isY) {  // altrimenti genera solo quella mancante
-      app->biliardo_.launchForDrawingNoDir(y, newLaunch);
-    } else {
-      app->biliardo_.launchForDrawingNoY(t, newLaunch);
-    }
-
-    app->reRun();
-    setSingleLaunchText(newLaunch);
-  });
+  singleLaunchBtn->onPress(&Gui::singleLaunchBtnPressed, this, app);
 
   // imposto i placeholder per gli editbox del lancio multiplo con i valori di default delle distribuzioni normali
   muYInput->setDefaultText("0");
@@ -255,67 +334,18 @@ void Gui::activate(App* app) {
   numberInput->setDefaultText("1'000'000");
 
   // attivo il bottone per i lanci multipli
-  multipleLaunchBtn->onPress([this, app] {
-    // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la "e" e posso fare
-    // un controllo su un possibile overflow
-    float muY = 0, sigmaY = static_cast<float>(app->biliardo_.r1() / 5), muT = 0, sigmaT = M_PI / 8, N = 1e6;
-
-    // catena di if poco elegante ma il for loop non funzionava
-    // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di default
-    if (!format(muYInput->getText()).attemptToFloat(muY) && !muYInput->getText().empty()) {
-      muYInput->getRenderer()->setTextColor((tgui::Color::Red));
-      return;
-    }
-    if (!format(sigmaYInput->getText()).attemptToFloat(sigmaY) && !sigmaYInput->getText().empty()) {
-      sigmaYInput->getRenderer()->setTextColor((tgui::Color::Red));
-      return;
-    }
-    if (!format(muTInput->getText()).attemptToFloat(muT) && !muTInput->getText().empty()) {
-      muTInput->getRenderer()->setTextColor((tgui::Color::Red));
-      return;
-    }
-    if (!format(sigmaTInput->getText()).attemptToFloat(sigmaT) && !sigmaTInput->getText().empty()) {
-      sigmaTInput->getRenderer()->setTextColor((tgui::Color::Red));
-      return;
-    }
-    if (!format(numberInput->getText()).attemptToFloat(N) && !numberInput->getText().empty()) {
-      numberInput->getRenderer()->setTextColor((tgui::Color::Red));
-      return;
-    }
-    // controllo che N non sia negativo o troppo grande per stare in un unsigned int
-    unsigned int N_;
-    boost::numeric::converter<unsigned int, float> safeFloatToUInt;
-    try {
-      N_ = safeFloatToUInt(N);
-    } catch (
-        std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere sottoclassi di std::bad_cast
-      numberInput->getRenderer()->setTextColor((tgui::Color::Red));
-      return;
-    }
-
-    // controllo che le deviazioni standard non siano negative o nulle
-    if (sigmaY <= 0) {
-      sigmaYInput->getRenderer()->setTextColor(tgui::Color::Red);
-      return;
-    }
-    if (sigmaT <= 0) {
-      sigmaTInput->getRenderer()->setTextColor(tgui::Color::Red);
-      return;
-    }
-
-    auto& histograms = app->newHistograms();
-    app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, histograms);
-    app->designer_.setCanvas(histograms, app->window_);
-    setStatisticsText(histograms);
-  });
+  multipleLaunchBtn->onPress(&Gui::multipleLaunchBtnPressed, this, app);
 
   // attivo i bottoni per navigare tra un istogramma e l'altro
-  previousHistogramBtn->onPress([app] { app->previousHistogram(); });
-  nextHistogramBtn->onPress([app] { app->nextHistogram(); });
-  saveHistogramBtn->onPress([app] { app->saveHistogram(); });
+//  previousHistogramBtn->onPress([app] { app->previousHistogram(); });
+  previousHistogramBtn->onPress(&App::previousHistogram, app);
+//  nextHistogramBtn->onPress([app] { app->nextHistogram(); });
+  nextHistogramBtn->onPress(&App::nextHistogram, app);
+//  saveHistogramBtn->onPress([app] { app->saveHistogram(); });
+  saveHistogramBtn->onPress(&App::saveHistogram, app, "");
 }
 
-void Gui::setDefaultText() {
+void Gui::setDefaultText() const {
   leftText->setText(tgui::String::join(
       {
           "Lancio singolo:",
@@ -357,7 +387,7 @@ void Gui::setDefaultText() {
       '\n'));
 }
 
-void Gui::setSingleLaunchText(const std::vector<double>& launch) {
+void Gui::setSingleLaunchText(const std::vector<double>& launch) const {
   auto unchangedPartLeft = leftText->getText().substr(leftText->getText().find("\nL"));
   auto unchangedPartRight = rightText->getText().substr(rightText->getText().find("\n\n d"));
 
@@ -383,7 +413,7 @@ void Gui::setSingleLaunchText(const std::vector<double>& launch) {
       '\n'));
 }
 
-void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) {
+void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) const {
   auto unchangedPartLeft = leftText->getText().substr(0, leftText->getText().find("\n m"));
   auto unchangedPartRight = rightText->getText().substr(0, rightText->getText().find("\n\n d") + 1);
 
@@ -401,7 +431,7 @@ void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) {
       },
       '\n'));
 
-  rightText->setText((tgui::String::join(
+  rightText->setText(tgui::String::join(
       {
           unchangedPartRight,
           " dev. y:",
@@ -413,7 +443,7 @@ void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) {
           " curtosi angoli:",
           " " + tgui::String(histograms[1].GetKurtosis()),
       },
-      '\n')));
+      '\n'));
 }
 
 }  // namespace bt
