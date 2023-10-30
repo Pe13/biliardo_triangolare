@@ -15,8 +15,9 @@
 
 namespace bt {
 
-App::App(const double l, const double r1, const double r2, const BiliardoType type)
-    : biliardo_(l, r1, r2, type), gui_(window_) {
+App::App(const double l, const double r1, const double r2, const BiliardoType type, const sf::ContextSettings& settings)
+    : biliardo_(l, r1, r2, type), window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
+      gui_(window_) {
   gui_.activate(this);
 
   window_.setPosition(sf::Vector2i(100, 100));
@@ -174,12 +175,10 @@ void App::saveHistogram(const std::string& filename) {
 
   auto& histograms = multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]];
 
-  for (auto& h: histograms) {
+  for (const auto& h : histograms) {
     h.GetKurtosis();
     h.GetSkewness();
   }
-
-//  gStyle->SetOptStat("ksrme");
 
   TCanvas canvas = TCanvas();
   canvas.SetCanvasSize(1920, 826);
@@ -192,20 +191,18 @@ void App::saveHistogram(const std::string& filename) {
   canvas.cd(2);
   histograms[1].Draw();
 
-//  canvas.UseCurrentStyle();
-
   if (filename.empty()) {
     std::time_t t = std::time(nullptr);  // get time now
-    std::tm* now = std::localtime(&t);
-    canvas.SaveAs((boost::format("grafico_%1%-%2%-%3%_%4%:%5%:%6%.png") % now->tm_mday % (now->tm_mon + 1) %
-                   (now->tm_year + 1900) % now->tm_hour % now->tm_min % now->tm_sec)
-                      .str()
-                      .c_str());
+                                         //    std::tm* now = std::localtime(&t);
+    std::tm now{};
+    localtime_r(&t, &now);
+    canvas.SaveSource((boost::format("grafico_%1%_%2%_%3%__%4%_%5%_%6%.root") % now.tm_mday % (now.tm_mon + 1) %
+                       (now.tm_year + 1900) % now.tm_hour % now.tm_min % now.tm_sec)
+                          .str()
+                          .c_str());
   } else {
-    canvas.SaveAs(filename.c_str());
+    canvas.SaveSource((filename + ".root").c_str());
   }
-
-//  gStyle->SetOptStat(0);
 }
 
 }  // namespace bt
