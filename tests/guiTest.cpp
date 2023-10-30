@@ -11,9 +11,8 @@
 #include "Gui.hpp"
 
 #include <TGUI/String.hpp>
-//#include <TGUI/Widgets/EditBox.hpp>
 
-TEST_CASE("Testing the string parser for the user input") {
+TEST_CASE("Testing the string formatter for the user input") {
   using String = tgui::String;
   using namespace bt;
 
@@ -50,6 +49,15 @@ TEST_CASE("Testing the string parser for the user input") {
   CORRECT;
 
   s = "3e5e3";
+  WRONG;
+
+  s = "35e";
+  WRONG;
+
+  s = "5e-";
+  WRONG;
+
+  s = "5E,";
   WRONG;
 
   s = "4e+4";
