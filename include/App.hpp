@@ -25,7 +25,7 @@ class App {
 
   Designer designer_{};
 
-  sf::RenderWindow window_{{1280, 720}, "Biliardo trinagolare", sf::Style::Default};
+  sf::RenderWindow window_;
   sf::Event event_{};
 
   Gui gui_;
@@ -42,13 +42,13 @@ class App {
   void handleEvents();
   bool changeBiliardoType(BiliardoType type);
 
-  /// @brief
-  /// Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e la parte grafica
+  /**
+   * @brief Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e la parte grafica
+   */
   void modifyBiliardo();
 
-
  public:
-  App(double l, double r1, double r2, BiliardoType type);
+  App(double l, double r1, double r2, BiliardoType type, const sf::ContextSettings& settings);
   void start();
 
   void pause();
@@ -60,8 +60,12 @@ class App {
   bool nextHistogram();
   bool previousHistogram();
 
-  void saveHistogram(const std::string& filename="");
-
+  /**
+   * @brief Salva l'istogramma selezionato in una macro root
+   * @param filename Nome del file che si vuole generare (senza estensione). Se lasciato vuoto il nome sarà dato in base
+   * alla data e ora attuale
+   */
+  void saveHistogram(const std::string& filename = "");
 };
 
 }  // namespace bt
