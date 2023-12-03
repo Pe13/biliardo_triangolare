@@ -1,96 +1,189 @@
 //
 // Created by paolo on 14/06/2023.
 //
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include <TBenchmark.h>
-#include <TH1D.h>
 
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+
+#include <algorithm>
+#include <array>
 #include <boost/implicit_cast.hpp>
 #include <chrono>
 #include <cmath>
-#include <execution>
-#include <iostream>
 #include <random>
+#include <stdexcept>
 
 #include "Biliardo.hpp"
 #include "doctest.h"
 
-TEST_CASE("Choosing the best method to launch multiple particles") {
-  TBenchmark benchmark;
+TEST_CASE("Testing Biliardo constructor") {
+  SUBCASE("Negative parameters") {
+    auto uniformDist = std::uniform_real_distribution(0.1, 1.1);
+    auto rng = std::default_random_engine(
+        boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count()));
+    auto biliardo = bt::Biliardo(1, 1, 1);
 
-  double r1 = 30;
-  double r2 = 10;
-  double l = 100;
+    for (int _ = 0; _ < 10; _++) {
+      double l = uniformDist(rng) < 0.51 ? uniformDist(rng) : -uniformDist(rng);
+      double r1 = uniformDist(rng) < 0.51 ? uniformDist(rng) : -uniformDist(rng);
+      double r2 = uniformDist(rng) < 0.51 ? uniformDist(rng) : -uniformDist(rng);
 
-  double muY = 0;
-  double sigmaY = r1 / 5;
-  double muT = 0;
-  double sigmaT = M_PI / 8;
-  unsigned int N = 1e6;
-
-  bt::Biliardo biliardo(l, r1, r2, bt::leftBounded);
-
-  std::cout << "launching async...\n";
-
-  for (int _ = 0; _ < 10; _++) {
-    benchmark.Start("single async");
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
-
-    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms);
-    benchmark.Show("single async");
+      biliardo = bt::Biliardo(l, r1, r2);
+      CHECK(doctest::Approx(biliardo.l()) == std::abs(l));
+      CHECK(doctest::Approx(biliardo.r1()) == std::abs(r1));
+      CHECK(doctest::Approx(biliardo.r2()) == std::abs(r2));
+    }
   }
 
-  std::cout << "launching sync...\n";
+  SUBCASE("Null parameters") {
+    CHECK_THROWS_WITH_AS(bt::Biliardo(0, 1, -1), "Il parametro l fornito è nullo", std::invalid_argument);
+    CHECK_THROWS_WITH_AS(bt::Biliardo(2, 0, -1), "Il parametro r1 fornito è nullo", std::invalid_argument);
+    CHECK_THROWS_WITH_AS(bt::Biliardo(2, 1, 0), "Il parametro r2 fornito è nullo", std::invalid_argument);
+  }
 
-  for (int _ = 0; _ < 10; _++) {
-    benchmark.Start("single sync");
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
-
-    biliardo.syncMultipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms);
-    benchmark.Show("single sync");
+  SUBCASE("Invalid BiliardoType") {
+    CHECK_THROWS_AS(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(3)), std::invalid_argument);
+    CHECK_THROWS_AS(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(-1)), std::invalid_argument);
+    CHECK_NOTHROW(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(1)));
   }
 }
 
-TEST_CASE("Choosing the best method to fill histograms") {
-  std::default_random_engine rng{
-      boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count())};
-  std::uniform_real_distribution<double> dist{-1, 1};
+TEST_CASE("Testing Biliardo::changeType inviolability") {
+  auto biliardo = bt::Biliardo(1, 1, 1);
 
-  TBenchmark benchmark;
+  CHECK(biliardo.changeType(bt::leftBounded) == true);
+  CHECK(biliardo.type() == bt::leftBounded);
 
-  benchmark.Start("async");
+  CHECK(biliardo.changeType(bt::open) == true);
+  CHECK(biliardo.type() == bt::open);
 
-  for (int _ = 0; _ < 100; _++) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -1, 1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -1, 1)};
+  CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(-3)) == false);
+  CHECK(biliardo.type() == bt::open);  // controllo che il tipo non sia cambiato
 
-    std::vector<std::array<double, 2>> v(1e7);
-    std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> { return {dist(rng), dist(rng)}; });
+  CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
+  CHECK(biliardo.type() == bt::open);
+}
 
-    std::for_each(v.begin(), v.end(), [&](const auto &arr) {
-      std::for_each(std::execution::par_unseq, arr.begin(), arr.end(),
-                    [&](const auto &item) { histograms[&item - arr.data()].Fill(item); });
-    });
+TEST_CASE("Testing bouncing algorithm consistency") {
+  class Bouncer {
+    const bt::Biliardo* biliardo_;
+
+    double m_;
+
+   public:
+    explicit Bouncer(const bt::Biliardo& biliardo)
+        : biliardo_{&biliardo}, m_{(biliardo_->r2() - biliardo_->r1()) / biliardo_->l()} {}
+
+    [[nodiscard]] double topBounce(const double m) const {
+      if (m_ == 0) {
+        return -m;
+      } else {
+        double _m_ = -1 / m_;  // coefficiente angolare della normale alla sponda superiore
+        return (2 * _m_ + (_m_ * _m_ - 1) * m) / (1 - _m_ * _m_ + 2 * _m_ * m);
+      }
+    }
+
+    [[nodiscard]] double bottomBounce(const double m) const {
+      if (m_ == 0) {
+        return -m;
+      } else {
+        double _m_ = 1 / m_;  // coefficiente angolare della normale alla sponda superiore
+        return (2 * _m_ + (_m_ * _m_ - 1) * m) / (1 - _m_ * _m_ + 2 * _m_ * m);
+      }
+    }
+
+    void checkAngle(double angle) const {
+      // controllo che entrambi gli algoritmi applicati due volte ritornino l'angolo di partenza
+      double doubleBouncedAngle = angle;
+      biliardo_->collideTop(doubleBouncedAngle);
+      biliardo_->collideTop(doubleBouncedAngle);
+      CHECK(doctest::Approx(angle) == doubleBouncedAngle);
+    }
+  };
+
+  SUBCASE("Checking that algorithm are involution functions") {
+    constexpr int biliardoCases = 21;
+    static_assert(biliardoCases % 2 == 1);
+    for (int i = -((biliardoCases - 1) / 2 - 1); i < (biliardoCases - 1) / 2 - 1; i++) {
+      auto biliardo = bt::Biliardo{1, 50. + 50. * static_cast<double>(i) / ((biliardoCases - 1) / 2), 50};
+      auto bouncer = Bouncer{biliardo};
+      const int angleCases = 20;
+      for (int j = 0; j < angleCases; j++) {
+        double angle = -M_PI / 2 + M_PI * j / angleCases;
+        SUBCASE("bt:Biliardo::collideTop") {
+          double doubleBouncedAngle = angle;
+          biliardo.collideTop(doubleBouncedAngle);
+          biliardo.collideTop(doubleBouncedAngle);
+          CHECK(doctest::Approx(angle) == doubleBouncedAngle);
+        }
+        SUBCASE("bt:Biliardo::collideBottom") {
+          double doubleBouncedAngle = angle;
+          biliardo.collideBottom(angle);
+          biliardo.collideBottom(angle);
+          CHECK(doctest::Approx(angle) == doubleBouncedAngle);
+        }
+
+        SUBCASE("Bouncer::topBounce") {
+          double doubleBouncedDir = bouncer.topBounce(bouncer.topBounce(std::tan(angle)));
+          double doubleBouncedAngle = std::atan(doubleBouncedDir);
+          CHECK(doctest::Approx(angle) == doubleBouncedAngle);
+        }
+
+        SUBCASE("Bouncer::bottomBounce") {
+          double doubleBouncedDir = bouncer.bottomBounce(bouncer.bottomBounce(std::tan(angle)));
+          double doubleBouncedAngle = std::atan(doubleBouncedDir);
+          CHECK(doctest::Approx(angle) == doubleBouncedAngle);
+        }
+      }
+    }
   }
 
-  benchmark.Show("async");
+  SUBCASE("Randomized tests") {
+    auto rng = std::default_random_engine(
+        boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count()));
+    auto uniformDist = std::uniform_real_distribution(0.1, 1.1);
+    auto anglesDist = std::uniform_real_distribution(-M_PI / 2, M_PI / 2);
+    for (int _ = 0; _ < 10; _++) {
+      double l = uniformDist(rng);
+      double r1 = uniformDist(rng);
+      double r2 = uniformDist(rng);
 
-  benchmark.Start("sync");
+      auto biliardo = bt::Biliardo(l, r1, r2);
+      auto bouncer = Bouncer{biliardo};
 
-  for (int _ = 0; _ < 100; _++) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -1, 1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -1, 1)};
+      std::array<double, 10> angles{};
+      std::generate(angles.begin(), angles.end(), [&]() { return anglesDist(rng); });
 
-    std::vector<std::array<double, 2>> v(1e7);
-    std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> { return {dist(rng), dist(rng)}; });
+      for (const double angle : angles) {
+        SUBCASE("collideTop") {
+          double bouncedDir = bouncer.topBounce(std::tan(angle));
+          double bouncedAngle = std::atan(bouncedDir);
+          double angleCopy = angle;
+          biliardo.collideTop(angleCopy);
+          // il mio algoritmo gestisce e crea anche angoli fuori dall'intervallo [-PI/2; PI/2] mentre quello che sto
+          // usando per testarlo no, quindi se il risultato esce dal range ce lo reinserisco
+          if (angleCopy > M_PI / 2) {
+            angleCopy -= M_PI;
+          } else if (angleCopy < -M_PI / 2) {
+            angleCopy += M_PI;
+          }
+          CHECK(doctest::Approx(bouncedAngle) == angleCopy);
+        }
 
-    std::for_each(v.begin(), v.end(), [&](const auto &arr) {
-      histograms[0].Fill(arr[0]);
-      histograms[1].Fill(arr[1]);
-    });
+        SUBCASE("collideBottom") {
+          double bouncedDir = bouncer.bottomBounce(std::tan(angle));
+          double bouncedAngle = std::atan(bouncedDir);
+          double angleCopy = angle;
+          biliardo.collideBottom(angleCopy);
+          // il mio algoritmo gestisce e crea anche angoli fuori dall'intervallo [-PI/2; PI/2] mentre quello che sto
+          // usando per testarlo no, quindi se il risultato esce dal range ce lo reinserisco
+          if (angleCopy > M_PI / 2) {
+            angleCopy -= M_PI;
+          } else if (angleCopy < -M_PI / 2) {
+            angleCopy += M_PI;
+          }
+          CHECK(doctest::Approx(bouncedAngle) == angleCopy);
+        }
+      }
+    }
   }
-
-  benchmark.Show("sync");
 }
