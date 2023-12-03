@@ -19,7 +19,8 @@ void Biliardo::BiliardoFunctions::leftCollisionOut(const double& c, const double
 
 void Biliardo::BiliardoFunctions::leftCollision(double& x, double& y, const double& c, double& direction,
                                                 LastHit& lastHit, std::vector<double>& output) const {
-  collideLeft(direction);
+
+  collideSide(direction);
   x = 0;
   y = c;
   output.push_back(x);
@@ -37,7 +38,7 @@ void Biliardo::BiliardoFunctions::rightCollisionOut(const double& a, const doubl
 void Biliardo::BiliardoFunctions::rightCollision(double& x, double& y, const double& a, const double& c,
                                                  LastHit& lastHit, double& direction, const double& l,
                                                  std::vector<double>& output) const {
-  collideRight(direction);
+  collideSide(direction);
   x = l;
   y = c + a * l;
   output.push_back(x);
