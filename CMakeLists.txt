@@ -12,14 +12,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
 
 # rimuove le ottimizzazioni se si deve profilare l'eseguibile
-if (PROFILE)
+if (PROFILE OR VALGRIND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 endif ()
 
-# abilita l'address sanitizer e l'undefined-behaviour sanitizer in debug mode
-string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
-string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+# abilita l'address sanitizer e l'undefined-behaviour sanitizer in debug mode quando non si usa valgrind
+if (NOT VALGRIND)
+    string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+    string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+endif ()
 
 find_package(ROOT 6.26 COMPONENTS CONFIG REQUIRED)
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
@@ -39,4 +41,8 @@ target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::P
 #   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
 if (BUILD_TESTING)
     add_subdirectory(tests)
+endif ()
+
+if (BUILD_BENCHMARK)
+    add_subdirectory(benchmarks)
 endif ()
