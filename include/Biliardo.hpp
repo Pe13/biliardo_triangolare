@@ -21,8 +21,7 @@ namespace bt {
 
 class Biliardo {
   class BiliardoFunctions {  // la definisco qui perché ne devo creare un istanza all'interno del Biliardo
-    void collideLeft(double& angle) const { angle = -angle; }
-    void collideRight(double& angle) const { angle = -angle; }
+    void collideSide(double& angle) const { angle = -angle; }
 
     void leftCollisionOut(const double& c, const double& direction, std::vector<double>& output) const;
 
@@ -59,9 +58,6 @@ class Biliardo {
   std::normal_distribution<double> yNormalDist_;
   std::normal_distribution<double> thetaNormalDist_{0, M_PI / 8};
 
-  void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
-  void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }
-
   void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
                                   std::vector<double>& output) const;
 
@@ -71,7 +67,7 @@ class Biliardo {
   void launch(unsigned int N, std::array<TH1D, 2>& histograms);
 
  public:
-  Biliardo(double l, double r1, double r2, BiliardoType type);
+  Biliardo(double l, double r1, double r2, BiliardoType type = leftBounded);
   ~Biliardo() = default;
 
   [[nodiscard]] BiliardoType type() const;
@@ -86,6 +82,7 @@ class Biliardo {
   [[nodiscard]] const double& l() const { return l_; }
   [[nodiscard]] const double& r1() const { return r1_; }
   [[nodiscard]] const double& r2() const { return r2_; }
+  [[nodiscard]] const double& theta() const { return theta_; }
 
   // no by reference se no ambigua
   // metodi per settare l, r1, e r2; ritornano delle const reference così si possono settare i parametri e al contempo
@@ -142,6 +139,9 @@ class Biliardo {
     yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
     return true;
   }
+
+  void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
+  void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }
 
   /**
    * @brief Lancia una singola particella da disegnare fornendo tutti i parametri iniziali, NON effettua controlli sugli
