@@ -16,18 +16,32 @@
 
 namespace bt {
 
-// TODO testare il costruttore
-// TODO testare l'algoritmo che calcola i rimbalzi
-// TODO testare che changeType non permetta di assegnare un tipo invalido
 // TODO testare che i vari metodi con controllo dell'input funzionino
 
 Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
     : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)}, yNormalDist_(0, r1_ / 5) {
-  if (r1 <= 0 || r2 <= 0) {
-    throw std::runtime_error("r1 e r2 devono essere maggiori di 0");
+
+  // controllo che i parametri siano validi
+  if (l <= 0 || r1_ <= 0 || r2_ <= 0) {
+    std::array<std::string, 3> argName = {"l", "r1", "r2"};
+    std::array<double *, 3> argList = {&l_, &r1_, &r2_};
+
+    for (int i = 0; i < 3; i++) {
+      if (*argList[i] < 0) { // se sono negativi uso il loro modulo e informo l'utente con un warning
+        *argList[i] = -*argList[i];
+        if (i == 1) { // nel caso r1 sia negativo modifico anche la distribuzione gaussiana delle y
+          yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
+        }
+        std::cerr << "Warning: il parametro \"" << argName[i]
+                  << "\" fornito è negativo, al suo posto verrà stato utilizzato il suo modulo\n";
+      } else if (*argList[i] == 0) { // se invece anche solo uno è nullo lancio un'eccezione
+        throw std::invalid_argument("Il parametro " + argName[i] + " fornito è nullo");
+      }
+    }
   }
+
   if (type < 0 || type > 2) {
-    throw std::runtime_error("Il tipo fornito per la costruzione del Biliardo non è valido");
+    throw std::invalid_argument("Il tipo fornito per la costruzione del Biliardo non è valido");
   }
 }
 
@@ -71,7 +85,8 @@ bool Biliardo::isOut(const LastHit &lastHit) const {
   }
 }
 
-void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output) const {
+void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection,
+                                std::vector<double> &output) const {
   double x = 0;
   double y = initialY;
   double direction = initialDirection;
@@ -199,10 +214,10 @@ void Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<d
 
 bool Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<double> &output, bool shouldCheck) {
   if (shouldCheck && std::abs(initialDirection) > M_PI / 2) {
-      std::cerr << "Warning: il parametro initialDirection vale" << initialDirection
-                << "ma il suo modulo deve essere minore di " << M_PI / 2 << '\n';
-      return false;
-    }
+    std::cerr << "Warning: il parametro initialDirection vale" << initialDirection
+              << "ma il suo modulo deve essere minore di " << M_PI / 2 << '\n';
+    return false;
+  }
   double initialY = (2 * uniformDist_(rng_) - 1) * r1_;
   launchForDrawing(initialY, initialDirection, output);
   return true;
@@ -215,10 +230,10 @@ void Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double>
 
 bool Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double> &output, bool shouldCheck) {
   if (shouldCheck && std::abs(initialY) > r1_) {
-      std::cerr << "Warning: il parametro initialY vale" << initialY << "ma il suo modulo deve essere minore di " << r1_
-                << '\n';
-      return false;
-    }
+    std::cerr << "Warning: il parametro initialY vale" << initialY << "ma il suo modulo deve essere minore di " << r1_
+              << '\n';
+    return false;
+  }
   double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
   launchForDrawing(initialY, initialDirection, output);
   return true;
