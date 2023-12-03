@@ -89,51 +89,43 @@ class Biliardo {
   // immagazzinare una loro reference
   // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
   // in caso di errore il parametro non viene modificato
-  template <class T>
-  const double& l(T l, bool shouldCheck = true) {
-    static_assert(std::is_arithmetic_v<T>);
+  const double& l(double l, bool shouldCheck = true) {
     if (shouldCheck && l <= 0) {
       std::cerr << "il parametro \"l\" deve essere positivo; è stato fornito" << l << '\n';
       return l_;
     }
-    l_ = static_cast<double>(l);
+    l_ = l;
     theta_ = std::atan((r2_ - r1_) / l_);
     return l_;
   }
-  template <class T>
-  const double& r1(T r1, bool shouldCheck = true) {
-    static_assert(std::is_arithmetic_v<T>);
+  const double& r1(double r1, bool shouldCheck = true) {
     if (shouldCheck && r1 <= 0) {
       std::cerr << "il parametro \"r1\" deve essere positivo; è stato fornito " << r1 << '\n';
       return r1_;
     }
-    r1_ = static_cast<double>(r1);
+    r1_ = r1;
     theta_ = std::atan((r2_ - r1_) / l_);
     yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
     return r1_;
   }
-  template <class T>
-  const double& r2(T r2, bool shouldCheck = true) {
-    static_assert(std::is_arithmetic_v<T>);
+  const double& r2(double r2, bool shouldCheck = true) {
     if (shouldCheck && r2 <= 0) {
       std::cerr << "il parametro \"r2\" deve essere positivo; è stato fornito" << r2 << '\n';
       return r2_;
     }
-    r2_ = static_cast<double>(r2);
+    r2_ = r2;
     theta_ = std::atan((r2_ - r1_) / l_);
     return r2_;
   }
-  template <typename T>
-  bool modify(T r1, T r2, T l, bool shouldCheck = true) {
-    static_assert(std::is_arithmetic_v<T>);
+  bool modify(double r1, double r2, double l, bool shouldCheck = true) {
     if (shouldCheck && (r1 <= 0 || r2 <= 0 || l <= 0)) {
       std::cerr << "Uno dei parametri forniti era negativo o nullo\n";
       return false;
     }
 
-    r1_ = static_cast<double>(r1);
-    r2_ = static_cast<double>(r2);
-    l_ = static_cast<double>(l);
+    r1_ = r1;
+    r2_ = r2;
+    l_ = l;
 
     theta_ = std::atan((r2_ - r1_) / l_);
     yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
