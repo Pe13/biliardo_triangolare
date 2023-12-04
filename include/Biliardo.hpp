@@ -89,48 +89,10 @@ class Biliardo {
   // immagazzinare una loro reference
   // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
   // in caso di errore il parametro non viene modificato
-  const double& l(double l, bool shouldCheck = true) {
-    if (shouldCheck && l <= 0) {
-      std::cerr << "il parametro \"l\" deve essere positivo; è stato fornito" << l << '\n';
-      return l_;
-    }
-    l_ = l;
-    theta_ = std::atan((r2_ - r1_) / l_);
-    return l_;
-  }
-  const double& r1(double r1, bool shouldCheck = true) {
-    if (shouldCheck && r1 <= 0) {
-      std::cerr << "il parametro \"r1\" deve essere positivo; è stato fornito " << r1 << '\n';
-      return r1_;
-    }
-    r1_ = r1;
-    theta_ = std::atan((r2_ - r1_) / l_);
-    yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
-    return r1_;
-  }
-  const double& r2(double r2, bool shouldCheck = true) {
-    if (shouldCheck && r2 <= 0) {
-      std::cerr << "il parametro \"r2\" deve essere positivo; è stato fornito" << r2 << '\n';
-      return r2_;
-    }
-    r2_ = r2;
-    theta_ = std::atan((r2_ - r1_) / l_);
-    return r2_;
-  }
-  bool modify(double r1, double r2, double l, bool shouldCheck = true) {
-    if (shouldCheck && (r1 <= 0 || r2 <= 0 || l <= 0)) {
-      std::cerr << "Uno dei parametri forniti era negativo o nullo\n";
-      return false;
-    }
-
-    r1_ = r1;
-    r2_ = r2;
-    l_ = l;
-
-    theta_ = std::atan((r2_ - r1_) / l_);
-    yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
-    return true;
-  }
+  const double& l(double l, bool shouldCheck = true);
+  const double& r1(double r1, bool shouldCheck = true);
+  const double& r2(double r2, bool shouldCheck = true);
+  bool modify(double r1, double r2, double l, bool shouldCheck = true);
 
   void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
   void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }

@@ -183,6 +183,97 @@ void Biliardo::launchForDrawing(const double &initialY, const double &initialDir
   output.push_back(initialDirection);
 }
 
+Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
+    : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)}, yNormalDist_(0, r1_ / 5) {
+  // controllo che i parametri siano validi
+  if (l <= 0 || r1_ <= 0 || r2_ <= 0) {
+    std::array<std::string, 3> argName = {"l", "r1", "r2"};
+    std::array<double *, 3> argList = {&l_, &r1_, &r2_};
+
+    for (int i = 0; i < 3; i++) {
+      if (*argList[i] < 0) {  // se sono negativi uso il loro modulo e informo l'utente con un warning
+        *argList[i] = -*argList[i];
+        if (i == 1) {  // nel caso r1 sia negativo modifico anche la distribuzione gaussiana delle y
+          yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
+        }
+        std::cerr << "Warning: il parametro \"" << argName[i]
+                  << "\" fornito è negativo, al suo posto verrà stato utilizzato il suo modulo\n";
+      } else if (*argList[i] == 0) {  // se invece anche solo uno è nullo lancio un'eccezione
+        throw std::invalid_argument("Il parametro " + argName[i] + " fornito è nullo");
+      }
+    }
+  }
+
+  if (type < 0 || type > 2) {
+    throw std::invalid_argument("Il tipo fornito per la costruzione del Biliardo non è valido");
+  }
+}
+
+BiliardoType Biliardo::type() const { return type_; }
+
+bool Biliardo::changeType(const bt::BiliardoType type) {
+  if (type >= 0 && type <= 2) {
+    type_ = type;
+    return true;
+  }
+  std::cerr << "Warning: il tipo di biliardo richiesto non corrisponde a nessun tipo valido\n";
+  return false;
+}
+
+const double &Biliardo::l(double l, bool shouldCheck) {
+  if (shouldCheck && l <= 0) {
+    std::cerr << "il parametro \"l\" deve essere positivo; è stato fornito" << l << '\n';
+    return l_;
+  }
+  l_ = l;
+  theta_ = std::atan((r2_ - r1_) / l_);
+  return l_;
+}
+
+const double &Biliardo::r1(double r1, bool shouldCheck) {
+  if (shouldCheck && r1 <= 0) {
+    std::cerr << "il parametro \"r1\" deve essere positivo; è stato fornito " << r1 << '\n';
+    return r1_;
+  }
+  r1_ = r1;
+  theta_ = std::atan((r2_ - r1_) / l_);
+  yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
+  return r1_;
+}
+
+const double &Biliardo::r2(double r2, bool shouldCheck) {
+  if (shouldCheck && r2 <= 0) {
+    std::cerr << "il parametro \"r2\" deve essere positivo; è stato fornito" << r2 << '\n';
+    return r2_;
+  }
+  r2_ = r2;
+  theta_ = std::atan((r2_ - r1_) / l_);
+  return r2_;
+}
+bool Biliardo::modify(double r1, double r2, double l, bool shouldCheck) {
+  if (shouldCheck && (r1 <= 0 || r2 <= 0 || l <= 0)) {
+    std::array<std::string, 3> argName = {"l", "r1", "r2"};
+    std::array<double *, 3> argList = {&l_, &r1_, &r2_};
+
+    for (int i = 0; i < 3; i++) {
+      if (*argList[i] <= 0) {
+        std::cerr << "Warning: il parametro \"" << argName[i]
+                  << "\" fornito non è positivo\n";
+      }
+    }
+    std::cerr << "Il biliardo non è stato modificato.\n";
+    return false;
+  }
+
+  r1_ = r1;
+  r2_ = r2;
+  l_ = l;
+
+  theta_ = std::atan((r2_ - r1_) / l_);
+  yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
+  return true;
+}
+
 bool Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output,
                                 bool shouldCheck) {
   if (shouldCheck) {
