@@ -113,11 +113,11 @@ void Gui::singleLaunchBtnPressed(bt::App* app) const {
   if (!isY && !isT) {  // se ne y ne teta sono indicate le genera entrambe
     app->biliardo_.launchForDrawing(newLaunch);
   } else if (isY && isT) {  // se invece sono entrambe indicate le usa semplicemente
-    app->biliardo_.launchForDrawing(y, t, newLaunch);
+    app->biliardo_.launchForDrawing(y, t, newLaunch, false);
   } else if (isY) {  // altrimenti genera solo quella mancante
-    app->biliardo_.launchForDrawingNoDir(y, newLaunch);
+    app->biliardo_.launchForDrawingNoDir(y, newLaunch, false);
   } else {
-    app->biliardo_.launchForDrawingNoY(t, newLaunch);
+    app->biliardo_.launchForDrawingNoY(t, newLaunch, false);
   }
 
   app->reRun();
@@ -183,104 +183,104 @@ void Gui::create() {
 
   // bottoni per cambiare tipo di biliardo
   wrapper->add(biliardoButtonsWrapper, "buttonsWrapper");
-  biliardoButtonsWrapper->addSpace(.1);
+  biliardoButtonsWrapper->addSpace(.1f);
   biliardoButtonsWrapper->add(biliardoApertoBtn, "biliardoAperto");
-  biliardoButtonsWrapper->addSpace(.1);
+  biliardoButtonsWrapper->addSpace(.1f);
   biliardoButtonsWrapper->add(biliardoChiusoSxBtn, "biliardoChiusoSx");
-  biliardoButtonsWrapper->addSpace(.1);
+  biliardoButtonsWrapper->addSpace(.1f);
   biliardoButtonsWrapper->add(biliardoChiusoDxBtn, "biliardoChiusoDx");
-  biliardoButtonsWrapper->addSpace(.1);
+  biliardoButtonsWrapper->addSpace(.1f);
 
   // bottone e campi per modificare il biliardo
-  wrapper->add(newBiliardoWrapper, 2, "newBiliardoWrapper");
-  newBiliardoWrapper->addSpace(.05);
-  newBiliardoWrapper->add(leftNewBiliardoWrapper, .425, "leftNewBiliardoWrapper");
-  leftNewBiliardoWrapper->add(r1Label, .7, "r1Label");
+  wrapper->add(newBiliardoWrapper, 2.f, "newBiliardoWrapper");
+  newBiliardoWrapper->addSpace(.05f);
+  newBiliardoWrapper->add(leftNewBiliardoWrapper, .425f, "leftNewBiliardoWrapper");
+  leftNewBiliardoWrapper->add(r1Label, .7f, "r1Label");
   leftNewBiliardoWrapper->add(r1Input, "r1Input");
-  leftNewBiliardoWrapper->add(r2Label, .7, "r2Label");
+  leftNewBiliardoWrapper->add(r2Label, .7f, "r2Label");
   leftNewBiliardoWrapper->add(r2Input, "r2Input");
-  newBiliardoWrapper->addSpace(.05);
-  newBiliardoWrapper->add(rightNewBiliardoWrapper, .425, "rightNewBiliardoWrapper");
-  rightNewBiliardoWrapper->add(lLabel, .41, "lLabel");
-  rightNewBiliardoWrapper->add(lInput, .588, "lInput");
-  rightNewBiliardoWrapper->addSpace(.2);
-  rightNewBiliardoWrapper->add(newBiliardoBtn, .8, "newBiliardoBtn");
-  newBiliardoWrapper->addSpace(.05);
+  newBiliardoWrapper->addSpace(.05f);
+  newBiliardoWrapper->add(rightNewBiliardoWrapper, .425f, "rightNewBiliardoWrapper");
+  rightNewBiliardoWrapper->add(lLabel, .41f, "lLabel");
+  rightNewBiliardoWrapper->add(lInput, .588f, "lInput");
+  rightNewBiliardoWrapper->addSpace(.2f);
+  rightNewBiliardoWrapper->add(newBiliardoBtn, .8f, "newBiliardoBtn");
+  newBiliardoWrapper->addSpace(.05f);
 
-  wrapper->addSpace(.02);
+  wrapper->addSpace(.02f);
 
   // bottone e campi per lanciare la singola particella
-  wrapper->add(singleLaunchWrapper, 1, "singleLaunchWrapper");
-  singleLaunchWrapper->addSpace(.05);
-  singleLaunchWrapper->add(heightWrapper, .28, "heightWrapper");
-  heightWrapper->add(heightLabel, .7, "heightLabel");
+  wrapper->add(singleLaunchWrapper, 1.f, "singleLaunchWrapper");
+  singleLaunchWrapper->addSpace(.05f);
+  singleLaunchWrapper->add(heightWrapper, .28f, "heightWrapper");
+  heightWrapper->add(heightLabel, .7f, "heightLabel");
   heightWrapper->add(heightInput, "heightInput");
-  singleLaunchWrapper->addSpace(.03);
-  singleLaunchWrapper->add(angleWrapper, .28, "angleWrapper");
-  angleWrapper->add(angleLabel, .7, "angleLabel");
+  singleLaunchWrapper->addSpace(.03f);
+  singleLaunchWrapper->add(angleWrapper, .28f, "angleWrapper");
+  angleWrapper->add(angleLabel, .7f, "angleLabel");
   angleWrapper->add(angleInput, "angleInput");
-  singleLaunchWrapper->addSpace(.03);
-  singleLaunchWrapper->add(singleLaunchBtnWrapper, .28, "singleLaunchBtnWrapper");
-  singleLaunchBtnWrapper->addSpace(.2);
-  singleLaunchBtnWrapper->add(singleLaunchBtn, .8, "singleLaunchBtn");
-  singleLaunchWrapper->addSpace(.05);
+  singleLaunchWrapper->addSpace(.03f);
+  singleLaunchWrapper->add(singleLaunchBtnWrapper, .28f, "singleLaunchBtnWrapper");
+  singleLaunchBtnWrapper->addSpace(.2f);
+  singleLaunchBtnWrapper->add(singleLaunchBtn, .8f, "singleLaunchBtn");
+  singleLaunchWrapper->addSpace(.05f);
 
-  wrapper->addSpace(.01);
+  wrapper->addSpace(.01f);
 
   // bottoni per navigare tra i singoli lanci
-  wrapper->add(navigateLaunchesWrapper, .5, "navigateLaunchesWrapper");
-  navigateLaunchesWrapper->addSpace(.1);
+  wrapper->add(navigateLaunchesWrapper, .5f, "navigateLaunchesWrapper");
+  navigateLaunchesWrapper->addSpace(.1f);
   navigateLaunchesWrapper->add(previousLaunchBtn, "previousLaunchBtn");
-  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->addSpace(.1f);
   navigateLaunchesWrapper->add(nextLaunchBtn, "nextLaunchBtn");
-  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->addSpace(.1f);
   navigateLaunchesWrapper->add(pauseBtn, "pauseBtn");
-  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->addSpace(.1f);
   navigateLaunchesWrapper->add(reRunBtn, "reRunBtn");
-  navigateLaunchesWrapper->addSpace(.1);
+  navigateLaunchesWrapper->addSpace(.1f);
 
-  wrapper->addSpace(.02);
+  wrapper->addSpace(.02f);
 
   // bottone e campi per lanciare N particelle
-  wrapper->add(multipleLaunchWrapper, 2.5, "multipleLaunchWrapper");
-  multipleLaunchWrapper->addSpace(.05);
-  multipleLaunchWrapper->add(leftMultipleLaunchWrapper, .4, "leftMultipleLaunchWrapper");
-  leftMultipleLaunchWrapper->add(numberLabel, .8, "numberLabel");
-  leftMultipleLaunchWrapper->add(numberInput, .7, "numberInput");
-  leftMultipleLaunchWrapper->add(muYLabel, .8, "muYLabel");
-  leftMultipleLaunchWrapper->add(muYInput, .7, "muYInput");
-  leftMultipleLaunchWrapper->add(sigmaYLabel, .8, "sigmaYLabel");
-  leftMultipleLaunchWrapper->add(sigmaYInput, .7, "sigmaYInput");
-  multipleLaunchWrapper->addSpace(.1);
-  multipleLaunchWrapper->add(rightMultipleLaunchWrapper, .4, "rightMultipleLaunchWrapper");
-  rightMultipleLaunchWrapper->add(muTLabel, 1.1, "mutLabel");
+  wrapper->add(multipleLaunchWrapper, 2.5f, "multipleLaunchWrapper");
+  multipleLaunchWrapper->addSpace(.05f);
+  multipleLaunchWrapper->add(leftMultipleLaunchWrapper, .4f, "leftMultipleLaunchWrapper");
+  leftMultipleLaunchWrapper->add(numberLabel, .8f, "numberLabel");
+  leftMultipleLaunchWrapper->add(numberInput, .7f, "numberInput");
+  leftMultipleLaunchWrapper->add(muYLabel, .8f, "muYLabel");
+  leftMultipleLaunchWrapper->add(muYInput, .7f, "muYInput");
+  leftMultipleLaunchWrapper->add(sigmaYLabel, .8f, "sigmaYLabel");
+  leftMultipleLaunchWrapper->add(sigmaYInput, .7f, "sigmaYInput");
+  multipleLaunchWrapper->addSpace(.1f);
+  multipleLaunchWrapper->add(rightMultipleLaunchWrapper, .4f, "rightMultipleLaunchWrapper");
+  rightMultipleLaunchWrapper->add(muTLabel, 1.1f, "mutLabel");
   rightMultipleLaunchWrapper->add(muTInput, "muTInput");
-  rightMultipleLaunchWrapper->add(sigmaTLabel, 1.1, "sigmaTLabel");
+  rightMultipleLaunchWrapper->add(sigmaTLabel, 1.1f, "sigmaTLabel");
   rightMultipleLaunchWrapper->add(sigmaTInput, "sigmaTInput");
-  rightMultipleLaunchWrapper->addSpace(.8);
-  rightMultipleLaunchWrapper->add(multipleLaunchBtn, 1.7, "multipleLaunchBtn");
-  multipleLaunchWrapper->addSpace(.05);
+  rightMultipleLaunchWrapper->addSpace(.8f);
+  rightMultipleLaunchWrapper->add(multipleLaunchBtn, 1.7f, "multipleLaunchBtn");
+  multipleLaunchWrapper->addSpace(.05f);
 
-  wrapper->addSpace(.02);
+  wrapper->addSpace(.02f);
 
   // bottoni per navigare tra gli istogrammi
-  wrapper->add(navigateHistogramsWrapper, .5, "navigateHistogramsWrapper");
-  navigateHistogramsWrapper->addSpace(.1);
+  wrapper->add(navigateHistogramsWrapper, .5f, "navigateHistogramsWrapper");
+  navigateHistogramsWrapper->addSpace(.1f);
   navigateHistogramsWrapper->add(previousHistogramBtn, "previousHistogramBtn");
-  navigateHistogramsWrapper->addSpace(.1);
+  navigateHistogramsWrapper->addSpace(.1f);
   navigateHistogramsWrapper->add(nextHistogramBtn, "nextHistogramBtn");
-  navigateHistogramsWrapper->addSpace(.1);
+  navigateHistogramsWrapper->addSpace(.1f);
   navigateHistogramsWrapper->add(saveHistogramBtn, "saveHistogramBtn");
-  navigateHistogramsWrapper->addSpace(.1);
+  navigateHistogramsWrapper->addSpace(.1f);
 
-  wrapper->addSpace(.03);
+  wrapper->addSpace(.03f);
 
   // area di testo per i dati statistici
-  wrapper->add(textWrapper, 4, "textWrapper");
-  textWrapper->add(leftText, .45, "leftText");
-  textWrapper->addSpace(.08);
-  textWrapper->add(rightText, .45, "rightText");
-  textWrapper->addSpace(.02);
+  wrapper->add(textWrapper, 4.f, "textWrapper");
+  textWrapper->add(leftText, .45f, "leftText");
+  textWrapper->addSpace(.08f);
+  textWrapper->add(rightText, .45f, "rightText");
+  textWrapper->addSpace(.02f);
 }
 
 void Gui::style() const {
