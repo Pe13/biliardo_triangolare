@@ -2,9 +2,6 @@
 // Created by paolo on 11/10/2023.
 //
 
-#define CORRECT CHECK(format(s) == s.toLower())
-#define WRONG CHECK(format(s) == "")
-
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
@@ -16,55 +13,63 @@ TEST_CASE("Testing the string formatter for the user input") {
   using String = tgui::String;
   using namespace bt;
 
+  auto isCorrect = [](String& s) {
+      CHECK(format(s) == s.toLower());
+  };
+  
+  auto isWrong = [](String& s) {
+    CHECK(format(s) == "");
+  };
+  
   String s;
 
   s = "156378";
-  CORRECT;
+  isCorrect(s);
 
   s = "-7382";
-  CORRECT;
+  isCorrect(s);
 
   s = "+43789";
-  CORRECT;
+  isCorrect(s);
 
   s = "3478-43";
-  WRONG;
+  isWrong(s);
 
   s = "483974.74983";
-  CORRECT;
+  isCorrect(s);
 
   s = "4839.4389.29";
-  WRONG;
+  isWrong(s);
 
   s = "4839..98320.8239";
-  WRONG;
+  isWrong(s);
 
   s = "4839,,98320,8239";
-  WRONG;
+  isWrong(s);
 
   s = "231e11";
-  CORRECT;
+  isCorrect(s);
 
   s = "3E4";
-  CORRECT;
+  isCorrect(s);
 
   s = "3e5e3";
-  WRONG;
+  isWrong(s);
 
   s = "35e";
-  WRONG;
+  isWrong(s);
 
   s = "5e-";
-  WRONG;
+  isWrong(s);
 
   s = "5E,";
-  WRONG;
+  isWrong(s);
 
   s = "4e+4";
-  CORRECT;
+  isCorrect(s);
 
   s = "-4e+4";
-  CORRECT;
+  isCorrect(s);
 
   s = "  62 374  ";
   CHECK(format(s) == "62374");
@@ -76,6 +81,6 @@ TEST_CASE("Testing the string formatter for the user input") {
   CHECK(format(s) == "423.3");
 
   s = "a3829";
-  WRONG;
+  isWrong(s);
 
 }
