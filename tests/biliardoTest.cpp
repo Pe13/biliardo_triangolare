@@ -47,20 +47,28 @@ TEST_CASE("Testing Biliardo constructor input checking") {
   }
 }
 
-TEST_CASE("Testing Biliardo::changeType inviolability") {
+TEST_CASE("Testing Biliardo::changeType") {
   auto biliardo = bt::Biliardo(1, 1, 1);
 
-  CHECK(biliardo.changeType(bt::leftBounded) == true);
-  CHECK(biliardo.type() == bt::leftBounded);
+  SUBCASE("Testing that it works") {
+    CHECK(biliardo.changeType(bt::leftBounded) == true);
+    CHECK(biliardo.type() == bt::leftBounded);
 
-  CHECK(biliardo.changeType(bt::open) == true);
-  CHECK(biliardo.type() == bt::open);
+    CHECK(biliardo.changeType(bt::rightBounded) == true);
+    CHECK(biliardo.type() == bt::rightBounded);
 
-  CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(-3)) == false);
-  CHECK(biliardo.type() == bt::open);  // controllo che il tipo non sia cambiato
+    CHECK(biliardo.changeType(bt::open) == true);
+    CHECK(biliardo.type() == bt::open);
+  }
 
-  CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
-  CHECK(biliardo.type() == bt::open);
+  SUBCASE("Testing its inviolability") {
+    auto type = biliardo.type();
+    CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(-3)) == false);
+    CHECK(biliardo.type() == type);  // controllo che il tipo non sia cambiato
+
+    CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
+    CHECK(biliardo.type() == type);
+  }
 }
 
 TEST_CASE("Testing bouncing algorithm consistency") {
