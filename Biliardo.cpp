@@ -345,33 +345,34 @@ bool Biliardo::changeType(const bt::BiliardoType type) {
 const double &Biliardo::l(double l, bool shouldCheck) {
   if (shouldCheck && l <= 0) {
     std::cerr << "il parametro \"l\" deve essere positivo; è stato fornito" << l << '\n';
-    return l_;
+  } else {
+    l_ = l;
+    theta_ = std::atan((r2_ - r1_) / l_);
   }
-  l_ = l;
-  theta_ = std::atan((r2_ - r1_) / l_);
   return l_;
 }
 
 const double &Biliardo::r1(double r1, bool shouldCheck) {
   if (shouldCheck && r1 <= 0) {
     std::cerr << "il parametro \"r1\" deve essere positivo; è stato fornito " << r1 << '\n';
-    return r1_;
+  } else {
+    r1_ = r1;
+    theta_ = std::atan((r2_ - r1_) / l_);
+    yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
   }
-  r1_ = r1;
-  theta_ = std::atan((r2_ - r1_) / l_);
-  yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
   return r1_;
 }
 
 const double &Biliardo::r2(double r2, bool shouldCheck) {
   if (shouldCheck && r2 <= 0) {
     std::cerr << "il parametro \"r2\" deve essere positivo; è stato fornito" << r2 << '\n';
-    return r2_;
+  } else {
+    r2_ = r2;
+    theta_ = std::atan((r2_ - r1_) / l_);
   }
-  r2_ = r2;
-  theta_ = std::atan((r2_ - r1_) / l_);
   return r2_;
 }
+
 bool Biliardo::modify(double r1, double r2, double l, bool shouldCheck) {
   if (shouldCheck && (r1 <= 0 || r2 <= 0 || l <= 0)) {
     std::array<std::string, 3> argName = {"l", "r1", "r2"};
