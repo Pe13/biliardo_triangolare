@@ -15,17 +15,29 @@
 #include "Biliardo.hpp"
 #include "doctest.h"
 
+struct BiliardoGenerator {
+  static std::default_random_engine rng;
+  template <typename D>
+  static bt::Biliardo generate(D& distribution, bt::BiliardoType type = bt::leftBounded) {
+    return {distribution(rng), distribution(rng), distribution(rng), type};
+  }
+};
+
+auto BiliardoGenerator::rng = std::default_random_engine(
+    boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count()));
+
 TEST_CASE("Testing Biliardo constructor input checking") {
   SUBCASE("Negative parameters") {
     auto uniformDist = std::uniform_real_distribution(0.1, 1.1);
-    auto rng = std::default_random_engine(
-        boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count()));
     auto biliardo = bt::Biliardo(1, 1, 1);
 
     for (int _ = 0; _ < 10; _++) {
-      double l = uniformDist(rng) < 0.51 ? uniformDist(rng) : -uniformDist(rng);
-      double r1 = uniformDist(rng) < 0.51 ? uniformDist(rng) : -uniformDist(rng);
-      double r2 = uniformDist(rng) < 0.51 ? uniformDist(rng) : -uniformDist(rng);
+      double l = uniformDist(BiliardoGenerator::rng) < 0.51 ? uniformDist(BiliardoGenerator::rng)
+                                                            : -uniformDist(BiliardoGenerator::rng);
+      double r1 = uniformDist(BiliardoGenerator::rng) < 0.51 ? uniformDist(BiliardoGenerator::rng)
+                                                             : -uniformDist(BiliardoGenerator::rng);
+      double r2 = uniformDist(BiliardoGenerator::rng) < 0.51 ? uniformDist(BiliardoGenerator::rng)
+                                                             : -uniformDist(BiliardoGenerator::rng);
 
       biliardo = bt::Biliardo(l, r1, r2);
       CHECK(doctest::Approx(biliardo.l()) == std::abs(l));
@@ -169,20 +181,14 @@ TEST_CASE("Testing bouncing algorithm consistency") {
   }
 
   SUBCASE("Randomized tests") {
-    auto rng = std::default_random_engine(
-        boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count()));
-    auto uniformDist = std::uniform_real_distribution(0.1, 1.1);
+    auto uniformDist = std::uniform_real_distribution<double>(0.1, 1.1);
     auto anglesDist = std::uniform_real_distribution(-M_PI / 2, M_PI / 2);
     for (int _ = 0; _ < 10; _++) {
-      double l = uniformDist(rng);
-      double r1 = uniformDist(rng);
-      double r2 = uniformDist(rng);
-
-      auto biliardo = bt::Biliardo(l, r1, r2);
+      auto biliardo = BiliardoGenerator::generate(uniformDist);
       auto bouncer = Bouncer{biliardo};
 
       std::array<double, 10> angles{};
-      std::generate(angles.begin(), angles.end(), [&]() { return anglesDist(rng); });
+      std::generate(angles.begin(), angles.end(), [&]() { return anglesDist(BiliardoGenerator::rng); });
 
       for (const double angle : angles) {
         bouncer.checkAngle(angle);
