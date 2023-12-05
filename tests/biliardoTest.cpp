@@ -15,7 +15,7 @@
 #include "Biliardo.hpp"
 #include "doctest.h"
 
-TEST_CASE("Testing Biliardo constructor") {
+TEST_CASE("Testing Biliardo constructor input checking") {
   SUBCASE("Negative parameters") {
     auto uniformDist = std::uniform_real_distribution(0.1, 1.1);
     auto rng = std::default_random_engine(
@@ -91,12 +91,35 @@ TEST_CASE("Testing bouncing algorithm consistency") {
       }
     }
 
+    static void fixAngle(double& angle) {
+      // il mio algoritmo gestisce e crea anche angoli fuori dall'intervallo [-PI/2; PI/2] mentre quello che sto
+      // usando per testarlo no, quindi se il risultato esce dal range ce lo reinserisco
+      if (angle > M_PI / 2) {
+        angle -= M_PI;
+      } else if (angle < -M_PI / 2) {
+        angle += M_PI;
+      }
+    }
+
     void checkAngle(double angle) const {
-      // controllo che entrambi gli algoritmi applicati due volte ritornino l'angolo di partenza
-      double doubleBouncedAngle = angle;
-      biliardo_->collideTop(doubleBouncedAngle);
-      biliardo_->collideTop(doubleBouncedAngle);
-      CHECK(doctest::Approx(angle) == doubleBouncedAngle);
+      SUBCASE("collideTop") {
+        double bouncedDir = topBounce(std::tan(angle));
+        double bouncedAngle = std::atan(bouncedDir);
+        double angleCopy = angle;
+        biliardo_->collideTop(angleCopy);
+
+        fixAngle(angleCopy);
+        CHECK(doctest::Approx(bouncedAngle) == angleCopy);
+      }
+
+      SUBCASE("collideBottom") {
+        double bouncedDir = bottomBounce(std::tan(angle));
+        double bouncedAngle = std::atan(bouncedDir);
+        double angleCopy = angle;
+        biliardo_->collideBottom(angleCopy);
+        fixAngle(angleCopy);
+        CHECK(doctest::Approx(bouncedAngle) == angleCopy);
+      }
     }
   };
 
@@ -154,35 +177,7 @@ TEST_CASE("Testing bouncing algorithm consistency") {
       std::generate(angles.begin(), angles.end(), [&]() { return anglesDist(rng); });
 
       for (const double angle : angles) {
-        SUBCASE("collideTop") {
-          double bouncedDir = bouncer.topBounce(std::tan(angle));
-          double bouncedAngle = std::atan(bouncedDir);
-          double angleCopy = angle;
-          biliardo.collideTop(angleCopy);
-          // il mio algoritmo gestisce e crea anche angoli fuori dall'intervallo [-PI/2; PI/2] mentre quello che sto
-          // usando per testarlo no, quindi se il risultato esce dal range ce lo reinserisco
-          if (angleCopy > M_PI / 2) {
-            angleCopy -= M_PI;
-          } else if (angleCopy < -M_PI / 2) {
-            angleCopy += M_PI;
-          }
-          CHECK(doctest::Approx(bouncedAngle) == angleCopy);
-        }
-
-        SUBCASE("collideBottom") {
-          double bouncedDir = bouncer.bottomBounce(std::tan(angle));
-          double bouncedAngle = std::atan(bouncedDir);
-          double angleCopy = angle;
-          biliardo.collideBottom(angleCopy);
-          // il mio algoritmo gestisce e crea anche angoli fuori dall'intervallo [-PI/2; PI/2] mentre quello che sto
-          // usando per testarlo no, quindi se il risultato esce dal range ce lo reinserisco
-          if (angleCopy > M_PI / 2) {
-            angleCopy -= M_PI;
-          } else if (angleCopy < -M_PI / 2) {
-            angleCopy += M_PI;
-          }
-          CHECK(doctest::Approx(bouncedAngle) == angleCopy);
-        }
+        bouncer.checkAngle(angle);
       }
     }
   }
