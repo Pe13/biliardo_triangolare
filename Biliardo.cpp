@@ -18,44 +18,6 @@ namespace bt {
 
 // TODO testare che i vari metodi con controllo dell'input funzionino
 
-Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
-    : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)}, yNormalDist_(0, r1_ / 5) {
-
-  // controllo che i parametri siano validi
-  if (l <= 0 || r1_ <= 0 || r2_ <= 0) {
-    std::array<std::string, 3> argName = {"l", "r1", "r2"};
-    std::array<double *, 3> argList = {&l_, &r1_, &r2_};
-
-    for (int i = 0; i < 3; i++) {
-      if (*argList[i] < 0) { // se sono negativi uso il loro modulo e informo l'utente con un warning
-        *argList[i] = -*argList[i];
-        if (i == 1) { // nel caso r1 sia negativo modifico anche la distribuzione gaussiana delle y
-          yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
-        }
-        std::cerr << "Warning: il parametro \"" << argName[i]
-                  << "\" fornito è negativo, al suo posto verrà stato utilizzato il suo modulo\n";
-      } else if (*argList[i] == 0) { // se invece anche solo uno è nullo lancio un'eccezione
-        throw std::invalid_argument("Il parametro " + argName[i] + " fornito è nullo");
-      }
-    }
-  }
-
-  if (type < 0 || type > 2) {
-    throw std::invalid_argument("Il tipo fornito per la costruzione del Biliardo non è valido");
-  }
-}
-
-BiliardoType Biliardo::type() const { return type_; }
-
-bool Biliardo::changeType(const bt::BiliardoType type) {
-  if (type >= 0 && type <= 2) {
-    type_ = type;
-    return true;
-  }
-  std::cerr << "Warning: il tipo di biliardo richiesto non corrisponde a nessun tipo valido\n";
-  return false;
-}
-
 void Biliardo::registerTopBottomCollision(const double &x, double &y, const double &a, const double &c,
                                           std::vector<double> &output) const {
   y = a * x + c;
@@ -85,8 +47,168 @@ bool Biliardo::isOut(const LastHit &lastHit) const {
   }
 }
 
-void Biliardo::launchForDrawing(const double &initialY, const double &initialDirection,
-                                std::vector<double> &output) const {
+std::array<double, 2> Biliardo::generateParticle() {
+  double y;
+  double direction;
+  do {
+    y = yNormalDist_(rng_);
+  } while (y <= -r1_ && y >= r1_);
+  do {
+    direction = thetaNormalDist_(rng_);
+  } while (direction <= -M_PI / 2 && direction >= M_PI / 2);
+
+  return {y, direction};
+}
+
+void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
+  LastHit lastHit = left;
+  double x = 0;
+
+  double &y = launch[0];
+  double &direction = launch[1];
+
+  bool out = false;
+  while (!out) {
+    // retta direttrice passante per il punto: ax + c
+    double a = std::tan(direction);
+    double c = y - std::tan(direction) * x;
+
+    // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
+    // meno): bx + d
+    double b = std::tan(theta_);
+    double d = r1_;
+
+    switch (lastHit) {
+      case left:
+        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
+        if (x > 0 && x < l_) {
+          y = a * x + c;
+          collideTop(direction);
+          lastHit = top;
+        } else {
+          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
+          if (x > 0 && x < l_) {
+            y = a * x + c;
+            collideBottom(direction);
+            lastHit = bottom;
+          } else {
+            x = l_;
+            y = a * x + c;
+            direction = -direction;
+            lastHit = right;
+            out = isOut(lastHit);
+
+            break;
+          }
+        }
+        break;
+
+      case right:
+        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
+        if (x > 0 && x < l_) {
+          y = a * x + c;
+          collideTop(direction);
+          lastHit = top;
+        } else {
+          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
+          if (x > 0 && x < l_) {
+            y = a * x + c;
+            collideBottom(direction);
+            lastHit = bottom;
+          } else {
+            x = 0;
+            y = c;
+            direction = -direction;
+            lastHit = left;
+            out = isOut(lastHit);
+            break;
+          }
+        }
+        break;
+
+      case top:
+        if (std::abs(c) < r1_) {
+          x = 0;
+          y = c;
+          direction = -direction;
+          lastHit = left;
+          out = isOut(lastHit);
+          break;
+        } else {
+          x = (-d - c) / (a + b);
+          if (x > 0 && x < l_) {
+            y = a * x + c;
+            collideBottom(direction);
+            lastHit = bottom;
+          } else {
+            x = l_;
+            y = a * x + c;
+            direction = -direction;
+            lastHit = right;
+            out = isOut(lastHit);
+            break;
+          }
+        }
+        break;
+      case bottom:
+        if (std::abs(c) < r1_) {
+          x = 0;
+          y = c;
+          direction = -direction;
+          lastHit = left;
+          out = isOut(lastHit);
+          break;
+        } else {
+          x = (d - c) / (a - b);
+          if (x > 0 && x < l_) {
+            y = a * x + c;
+            collideTop(direction);
+            lastHit = top;
+          } else {
+            x = l_;
+            y = a * x + c;
+            direction = -direction;
+            lastHit = right;
+            out = isOut(lastHit);
+            break;
+          }
+        }
+        break;
+    }
+  }
+}
+
+void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
+  for (unsigned int _ = 0; _ < N; _++) {
+    auto particle = generateParticle();
+
+    launchForHistograms(particle);
+
+    histograms[0].Fill(particle[0]);
+    histograms[1].Fill(particle[1]);
+  }
+}
+
+void Biliardo::asyncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
+  std::vector<std::array<double, 2>> v(N);
+
+  std::cout << "generating asyncLaunch...\n";
+  std::generate(v.begin(), v.end(), [this]() { return generateParticle(); });
+
+  std::cout << "launching...\n";
+  std::for_each(std::execution::par_unseq, v.begin(), v.end(), [this](auto &launch) { launchForHistograms(launch); });
+
+  std::cout << "Filling histograms...\n";
+  std::for_each(v.begin(), v.end(), [&](const auto &arr) {
+    std::for_each(std::execution::par_unseq, arr.begin(), arr.end(),
+                  [&](const auto &item) { histograms[&item - arr.data()].Fill(item); });
+  });
+
+  std::cout << "Done \n\n";
+}
+
+void Biliardo::launchForDrawing_(const double &initialY, const double &initialDirection,
+                                 std::vector<double> &output) const {
   double x = 0;
   double y = initialY;
   double direction = initialDirection;
@@ -257,8 +379,7 @@ bool Biliardo::modify(double r1, double r2, double l, bool shouldCheck) {
 
     for (int i = 0; i < 3; i++) {
       if (*argList[i] <= 0) {
-        std::cerr << "Warning: il parametro \"" << argName[i]
-                  << "\" fornito non è positivo\n";
+        std::cerr << "Warning: il parametro \"" << argName[i] << "\" fornito non è positivo\n";
       }
     }
     std::cerr << "Il biliardo non è stato modificato.\n";
@@ -275,7 +396,7 @@ bool Biliardo::modify(double r1, double r2, double l, bool shouldCheck) {
 }
 
 bool Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output,
-                                bool shouldCheck) {
+                                bool shouldCheck) const {
   if (shouldCheck) {
     if (std::abs(initialY) > r1_) {
       std::cerr << "Warning: il parametro initialY vale" << initialY << "ma il suo modulo deve essere minore di " << r1_
@@ -288,19 +409,14 @@ bool Biliardo::launchForDrawing(const double &initialY, const double &initialDir
       return false;
     }
   }
-  launchForDrawing(initialY, initialDirection, output);
+  launchForDrawing_(initialY, initialDirection, output);
   return true;
 }
 
 void Biliardo::launchForDrawing(std::vector<double> &output) {
   double initialY = (2 * uniformDist_(rng_) - 1) * r1_;
   double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
-  launchForDrawing(initialY, initialDirection, output);
-}
-
-void Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<double> &output) {
-  double initialY = (2 * uniformDist_(rng_) - 1) * r1_;
-  launchForDrawing(initialY, initialDirection, output);
+  launchForDrawing_(initialY, initialDirection, output);
 }
 
 bool Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<double> &output, bool shouldCheck) {
@@ -310,13 +426,8 @@ bool Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<d
     return false;
   }
   double initialY = (2 * uniformDist_(rng_) - 1) * r1_;
-  launchForDrawing(initialY, initialDirection, output);
+  launchForDrawing_(initialY, initialDirection, output);
   return true;
-}
-
-void Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double> &output) {
-  double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
-  launchForDrawing(initialY, initialDirection, output);
 }
 
 bool Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double> &output, bool shouldCheck) {
@@ -326,305 +437,24 @@ bool Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double>
     return false;
   }
   double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
-  launchForDrawing(initialY, initialDirection, output);
+  launchForDrawing_(initialY, initialDirection, output);
   return true;
 }
 
-void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  for (unsigned int _ = 0; _ < N; _++) {
-    double x = 0;
-    double y;
-    double direction;
-    do {
-      y = yNormalDist_(rng_);
-    } while (y <= -r1_ && y >= r1_);
-    do {
-      direction = thetaNormalDist_(rng_);
-    } while (direction <= -M_PI / 2 && direction >= M_PI / 2);
+void Biliardo::multipleLaunch(double muY, double sigmaY, double muT, double sigmaT, unsigned int N,
+                              std::array<TH1D, 2> &histograms, bool async) {
+  yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
+  thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
 
-    LastHit lastHit = left;
+  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la sequenza non dovrebbe mai
+  // ripetersi
+  rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
-    bool out = false;
-    while (!out) {
-      // retta direttrice passante per il punto: ax + c
-      double a = std::tan(direction);
-      double c = y - std::tan(direction) * x;
-
-      // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
-      // meno): bx + d
-      double b = std::tan(theta_);
-      double d = r1_;
-
-      switch (lastHit) {
-        case left:
-          x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideTop(direction);
-            lastHit = top;
-          } else {
-            x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideBottom(direction);
-              lastHit = bottom;
-            } else {
-              x = l_;
-              y = a * x + c;
-              direction = -direction;
-              lastHit = right;
-              out = isOut(lastHit);
-
-              break;
-            }
-          }
-          break;
-
-        case right:
-          x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideTop(direction);
-            lastHit = top;
-          } else {
-            x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideBottom(direction);
-              lastHit = bottom;
-            } else {
-              x = 0;
-              y = c;
-              direction = -direction;
-              lastHit = left;
-              out = isOut(lastHit);
-              break;
-            }
-          }
-          break;
-
-        case top:
-          if (std::abs(c) < r1_) {
-            x = 0;
-            y = c;
-            direction = -direction;
-            lastHit = left;
-            out = isOut(lastHit);
-            break;
-          } else {
-            x = (-d - c) / (a + b);
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideBottom(direction);
-              lastHit = bottom;
-            } else {
-              x = l_;
-              y = a * x + c;
-              direction = -direction;
-              lastHit = right;
-              out = isOut(lastHit);
-              break;
-            }
-          }
-          break;
-        case bottom:
-          if (std::abs(c) < r1_) {
-            x = 0;
-            y = c;
-            direction = -direction;
-            lastHit = left;
-            out = isOut(lastHit);
-            break;
-          } else {
-            x = (d - c) / (a - b);
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideTop(direction);
-              lastHit = top;
-            } else {
-              x = l_;
-              y = a * x + c;
-              direction = -direction;
-              lastHit = right;
-              out = isOut(lastHit);
-              break;
-            }
-          }
-          break;
-      }
-    }
-    histograms[0].Fill(y);
-    histograms[1].Fill(direction);
+  if (async) {
+    asyncLaunch(N, histograms);
+  } else {
+    syncLaunch(N, histograms);
   }
-}
-
-void Biliardo::launch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  std::vector<std::array<double, 2>> v(N);
-
-  std::cout << "generating launch...\n";
-  std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> {
-    double y;
-    double direction;
-    do {
-      y = yNormalDist_(rng_);
-    } while (y <= -r1_ && y >= r1_);
-    do {
-      direction = thetaNormalDist_(rng_);
-    } while (direction <= -M_PI / 2 && direction >= M_PI / 2);
-
-    return {y, direction};
-  });
-
-  std::cout << "launching...\n";
-  std::for_each(std::execution::par_unseq, v.begin(), v.end(), [&](auto &launch) {
-    LastHit lastHit = left;
-    double x = 0;
-
-    double &y = launch[0];
-    double &direction = launch[1];
-
-    bool out = false;
-    while (!out) {
-      // retta direttrice passante per il punto: ax + c
-      double a = std::tan(direction);
-      double c = y - std::tan(direction) * x;
-
-      // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
-      // meno): bx + d
-      double b = std::tan(theta_);
-      double d = r1_;
-
-      switch (lastHit) {
-        case left:
-          x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideTop(direction);
-            lastHit = top;
-          } else {
-            x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideBottom(direction);
-              lastHit = bottom;
-            } else {
-              x = l_;
-              y = a * x + c;
-              direction = -direction;
-              lastHit = right;
-              out = isOut(lastHit);
-
-              break;
-            }
-          }
-          break;
-
-        case right:
-          x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideTop(direction);
-            lastHit = top;
-          } else {
-            x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideBottom(direction);
-              lastHit = bottom;
-            } else {
-              x = 0;
-              y = c;
-              direction = -direction;
-              lastHit = left;
-              out = isOut(lastHit);
-              break;
-            }
-          }
-          break;
-
-        case top:
-          if (std::abs(c) < r1_) {
-            x = 0;
-            y = c;
-            direction = -direction;
-            lastHit = left;
-            out = isOut(lastHit);
-            break;
-          } else {
-            x = (-d - c) / (a + b);
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideBottom(direction);
-              lastHit = bottom;
-            } else {
-              x = l_;
-              y = a * x + c;
-              direction = -direction;
-              lastHit = right;
-              out = isOut(lastHit);
-              break;
-            }
-          }
-          break;
-        case bottom:
-          if (std::abs(c) < r1_) {
-            x = 0;
-            y = c;
-            direction = -direction;
-            lastHit = left;
-            out = isOut(lastHit);
-            break;
-          } else {
-            x = (d - c) / (a - b);
-            if (x > 0 && x < l_) {
-              y = a * x + c;
-              collideTop(direction);
-              lastHit = top;
-            } else {
-              x = l_;
-              y = a * x + c;
-              direction = -direction;
-              lastHit = right;
-              out = isOut(lastHit);
-              break;
-            }
-          }
-          break;
-      }
-    }
-  });
-
-  std::cout << "Filling histograms...\n";
-  std::for_each(v.begin(), v.end(), [&](const auto &arr) {
-    std::for_each(std::execution::par_unseq, arr.begin(), arr.end(),
-                  [&](const auto &item) { histograms[&item - arr.data()].Fill(item); });
-  });
-
-  std::cout << "Done \n\n";
-}
-
-void Biliardo::syncMultipleLaunch(const double muY, const double sigmaY, const double muT, const double sigmaT,
-                                  const unsigned int N, std::array<TH1D, 2> &histograms) {
-  yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
-  thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
-
-  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la sequenza non dovrebbe mai
-  // ripetersi
-  rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
-
-  syncLaunch(N, histograms);
-}
-
-void Biliardo::multipleLaunch(const double muY, const double sigmaY, const double muT, const double sigmaT,
-                              const unsigned int N, std::array<TH1D, 2> &histograms) {
-  yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
-  thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
-
-  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la sequenza non dovrebbe mai
-  // ripetersi
-  rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
-
-  launch(N, histograms);
 }
 
 }  // namespace bt

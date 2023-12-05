@@ -63,8 +63,23 @@ class Biliardo {
 
   [[nodiscard]] bool isOut(const LastHit& lastHit) const;
 
+  [[nodiscard]] std::array<double, 2> generateParticle();
+  void launchForHistograms(std::array<double, 2>& launch) const;
   void syncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);
-  void launch(unsigned int N, std::array<TH1D, 2>& histograms);
+  void asyncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);
+
+  /**
+   * @brief Lancia una singola particella da disegnare fornendo tutti i parametri iniziali, NON effettua controlli sugli
+   * input.
+   *
+   * @param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
+   * @param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
+   * @param output il vettore che viene riempito con il risultato del lancio
+   *
+   * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
+   * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
+   */
+  void launchForDrawing_(const double& initialY, const double& initialDirection, std::vector<double>& output) const;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type = leftBounded);
@@ -98,19 +113,6 @@ class Biliardo {
   void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }
 
   /**
-   * @brief Lancia una singola particella da disegnare fornendo tutti i parametri iniziali, NON effettua controlli sugli
-   * input.
-   *
-   * @param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
-   * @param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
-   * @param output il vettore che viene riempito con il risultato del lancio
-   *
-   * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
-   * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
-   */
-  void launchForDrawing(const double& initialY, const double& initialDirection, std::vector<double>& output) const;
-
-  /**
    * @brief Lancia una singola particella da disegnare fornendo tutti i parametri iniziali.
    *
    * @param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
@@ -124,8 +126,8 @@ class Biliardo {
    * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
-  [[nodiscard]] bool launchForDrawing(double const& initialY, double const& initialDirection,
-                                      std::vector<double>& output, bool shouldCheck);
+  bool launchForDrawing(const double& initialY, const double& initialDirection, std::vector<double>& output,
+                        bool shouldCheck = true) const;
 
   /**
    * @brief Lancia una singola particella generando i parametri secondo due distribuzioni uniformi tra tutti i valori
@@ -137,18 +139,6 @@ class Biliardo {
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
   void launchForDrawing(std::vector<double>& output);
-
-  /**
-   * @brief Lancia una singola particella fornendo solo la direzione iniziale e generando l'altezza iniziale secondo una
-   * distribuzione uniforme tra tutti i valori accettati. NON effettua il controllo sull'input.
-   *
-   * @param initialDirection Direzione iniziale della particella (compresa tra [-PI/2; PI/2])
-   * @param output Il vettore che viene riempito con il risultato del lancio
-   *
-   * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
-   * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
-   */
-  void launchForDrawingNoY(double const& initialDirection, std::vector<double>& output);
 
   /**
    * @brief Lancia una singola particella fornendo solo la direzione iniziale e generando l'altezza iniziale secondo una
@@ -165,19 +155,7 @@ class Biliardo {
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
 
-  [[nodiscard]] bool launchForDrawingNoY(double const& initialDirection, std::vector<double>& output, bool shouldCheck);
-
-  /**
-   * @brief Lancia una singola particella fornendo solo l'altezza iniziale e generando la direzione iniziale secondo una
-   * distribuzione uniforme tra tutti i valori accettati. NON effettua il controllo sull'input.
-   *
-   * @param initialY Altezza iniziale della particella (compresa tra [-r1; r1])
-   * @param output Il vettore che viene riempito con il risultato del lancio
-   *
-   * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
-   * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
-   */
-  void launchForDrawingNoDir(const double& initialY, std::vector<double>& output);
+  bool launchForDrawingNoY(double const& initialDirection, std::vector<double>& output, bool shouldCheck = true);
 
   /**
    * @brief Lancia una singola particella fornendo solo l'altezza iniziale e generando la direzione iniziale secondo una
@@ -191,16 +169,14 @@ class Biliardo {
    * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
-  [[nodiscard]] bool launchForDrawingNoDir(const double& initialY, std::vector<double>& output, bool shouldCheck);
+  bool launchForDrawingNoDir(const double& initialY, std::vector<double>& output, bool shouldCheck = true);
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void syncMultipleLaunch(double muY, double sigmaY, double muT, double sigmaT, unsigned int N,
-                          std::array<TH1D, 2>& histograms);
   void multipleLaunch(double muY, double sigmaY, double muT, double sigmaT, unsigned int N,
-                      std::array<TH1D, 2>& histograms);
+                      std::array<TH1D, 2>& histograms, bool async = true);
 };
 
 }  // namespace bt
