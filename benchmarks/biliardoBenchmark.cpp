@@ -72,7 +72,7 @@ static void launchParticlesAsync(benchmark::State &state) {
     std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
                              TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms);
+    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
   }
 }
 BENCHMARK(launchParticlesAsync);
@@ -94,7 +94,7 @@ static void launchParticlesSync(benchmark::State &state) {
     std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
                              TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    biliardo.syncMultipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms);
+    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
   }
 }
 BENCHMARK(launchParticlesSync);
