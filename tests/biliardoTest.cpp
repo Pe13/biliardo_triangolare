@@ -17,9 +17,15 @@
 
 struct BiliardoGenerator {
   static std::default_random_engine rng;
+
   template <typename D>
   static bt::Biliardo generate(D& distribution, bt::BiliardoType type = bt::leftBounded) {
     return {distribution(rng), distribution(rng), distribution(rng), type};
+  }
+
+  template <typename D>
+  static std::array<double, 3> generateParameters(D& distribution) {
+    return {distribution(rng), distribution(rng), distribution(rng)};
   }
 };
 
@@ -80,6 +86,108 @@ TEST_CASE("Testing Biliardo::changeType") {
 
     CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
     CHECK(biliardo.type() == type);
+  }
+}
+
+TEST_CASE("Testing parameters setters") {
+  auto biliardo = bt::Biliardo{1, 1, 1};
+  auto positiveDistribution = std::uniform_real_distribution<double>(0.1, 100);
+
+  SUBCASE("l") {
+    auto isValueSetTo = [&biliardo](const double value) {
+      CHECK(biliardo.l() == value);
+      CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+    };
+
+    double positiveValue = positiveDistribution(BiliardoGenerator::rng);
+    biliardo.l(positiveValue);
+    isValueSetTo(positiveValue);
+
+    double negativeValue = -positiveValue;
+    biliardo.l(negativeValue);
+    isValueSetTo(positiveValue);
+
+    biliardo.l(0);
+    isValueSetTo(positiveValue);
+
+    biliardo.l(negativeValue, false);
+    isValueSetTo(negativeValue);
+  }
+
+  SUBCASE("r1") {
+    auto isValueSetTo = [&biliardo](const double value) {
+      CHECK(biliardo.r1() == value);
+      CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+      CHECK(biliardo.yNormalDist().mean() == 0);
+      CHECK(biliardo.yNormalDist().stddev() == biliardo.r1() / 5);
+    };
+
+    double positiveValue = positiveDistribution(BiliardoGenerator::rng);
+    biliardo.r1(positiveValue);
+    isValueSetTo(positiveValue);
+
+    double negativeValue = -positiveValue;
+    biliardo.r1(negativeValue);
+    isValueSetTo(positiveValue);
+
+    biliardo.r1(0);
+    isValueSetTo(positiveValue);
+
+    biliardo.r1(negativeValue, false);
+    isValueSetTo(negativeValue);
+  }
+
+  SUBCASE("r2") {
+    auto isValueSetTo = [&biliardo](const double value) {
+      CHECK(biliardo.r2() == value);
+      CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+    };
+
+    double positiveValue = positiveDistribution(BiliardoGenerator::rng);
+    biliardo.r2(positiveValue);
+    isValueSetTo(positiveValue);
+
+    double negativeValue = -positiveValue;
+    biliardo.r2(negativeValue);
+    isValueSetTo(positiveValue);
+
+    biliardo.r2(0);
+    isValueSetTo(positiveValue);
+
+    biliardo.r2(negativeValue, false);
+    isValueSetTo(negativeValue);
+  }
+
+  SUBCASE("modify") {
+    auto areParametersSetTo = [&biliardo](const std::array<double, 3>& parameters) {
+      CHECK(biliardo.r1() == parameters[0]);
+      CHECK(biliardo.r2() == parameters[1]);
+      CHECK(biliardo.l() == parameters[2]);
+      CHECK(biliardo.theta() == std::atan((parameters[1] - parameters[0]) / parameters[2]));
+      CHECK(biliardo.yNormalDist().mean() == 0);
+      CHECK(biliardo.yNormalDist().stddev() == parameters[0] / 5);
+    };
+
+    std::array<double, 3> rightParameters = BiliardoGenerator::generateParameters(positiveDistribution);
+
+    CHECK(biliardo.modify(rightParameters[0], rightParameters[1], rightParameters[2]) == true);
+    areParametersSetTo(rightParameters);
+
+    auto wrongParameters = rightParameters;
+    wrongParameters[1] *= -1;
+    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2]) == false);
+    areParametersSetTo(rightParameters);
+
+    wrongParameters[2] *= -1;
+    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2]) == false);
+    areParametersSetTo(rightParameters);
+
+    wrongParameters[0] *= -1;
+    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2]) == false);
+    areParametersSetTo(rightParameters);
+
+    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2], false) == true);
+    areParametersSetTo(wrongParameters);
   }
 }
 
@@ -158,6 +266,7 @@ TEST_CASE("Testing bouncing algorithm consistency") {
           biliardo.collideTop(doubleBouncedAngle);
           CHECK(doctest::Approx(angle) == doubleBouncedAngle);
         }
+
         SUBCASE("bt:Biliardo::collideBottom") {
           double doubleBouncedAngle = angle;
           biliardo.collideBottom(angle);
