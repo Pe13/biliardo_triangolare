@@ -16,6 +16,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "Gui.hpp"
+
 namespace bt {
 
 void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
@@ -127,7 +129,7 @@ Designer::Designer() {
 void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
 
 void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
-                          const tgui::VerticalLayout::Ptr& wrapper) {
+                          const Gui& gui) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
   topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
   simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
@@ -140,7 +142,7 @@ void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histogr
   calcBordiBiliardo(biliardo);
   calcClearBiliardo(biliardo);
 
-  wrapper->setSize(rightOffset_, window.getSize().y);
+  gui.setSize(rightOffset_, static_cast<float>(window.getSize().y));
 
   window.clear(sf::Color::Black);
   window.draw(bordiBiliardo_);
@@ -151,11 +153,10 @@ void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histogr
   window.display();
 }
 
-void Designer::changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window,
-                          const tgui::VerticalLayout::Ptr& wrapper) {
+void Designer::changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui) {
   auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
                                         TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
-  changeSize(biliardo, histograms, window, wrapper);
+  changeSize(biliardo, histograms, window, gui);
 }
 
 void Designer::changeBiliardo(const bt::Biliardo& biliardo, sf::RenderWindow& window) {

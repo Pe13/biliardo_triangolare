@@ -17,8 +17,7 @@ namespace bt {
 
 App::App(const double l, const double r1, const double r2, const BiliardoType type, const sf::ContextSettings& settings)
     : biliardo_(l, r1, r2, type), window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
-      gui_(window_) {
-  gui_.activate(this);
+      gui_(window_, this) {
 
   window_.setPosition(sf::Vector2i(100, 100));
 
@@ -54,7 +53,7 @@ std::array<TH1D, 2>& App::newHistograms() {
 
 void App::handleEvents() {
   while (window_.pollEvent(event_)) {
-    gui_.gui.handleEvent(event_);
+    gui_.handleEvent(event_);
     switch (event_.type) {
       case sf::Event::Closed:
         window_.close();
@@ -71,10 +70,10 @@ void App::handleEvents() {
 
         // creo un'altra immagine dell'istogramma in accordo con la nuova dimensione della finestra
         if (multipleLaunches_[biliardo_.type()].empty()) {
-          designer_.changeSize(biliardo_, window_, gui_.wrapper);
+          designer_.changeSize(biliardo_, window_, gui_);
         } else {
           designer_.changeSize(biliardo_, multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]],
-                               window_, gui_.wrapper);
+                               window_, gui_);
         }
         break;
 
@@ -88,7 +87,7 @@ void App::start() {
   designer_.initWindow(window_);
   while (window_.isOpen()) {
     handleEvents();
-    gui_.gui.draw();
+    gui_.draw();
     designer_(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]], window_);
     window_.display();
   }
@@ -180,7 +179,7 @@ void App::saveHistogram(const std::string& filename) {
     h.GetSkewness();
   }
 
-  TCanvas canvas = TCanvas();
+  auto canvas = TCanvas();
   canvas.SetCanvasSize(1920, 826);
 
   canvas.Divide(2);

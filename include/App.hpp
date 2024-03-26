@@ -2,6 +2,8 @@
 // Created by paolo on 23/05/2023.
 //
 
+//TODO Creare dei metodi pubblici per evitare di avere gui come friend
+
 #ifndef BILIARDO_TRIANGOLARE_INCLUDE_APP_HPP_
 #define BILIARDO_TRIANGOLARE_INCLUDE_APP_HPP_
 
@@ -16,10 +18,10 @@
 
 namespace bt {
 
-struct Gui;
+class Gui;
 
 class App {
-  friend struct Gui;
+  friend class Gui;
 
   Biliardo biliardo_;
 
@@ -49,6 +51,7 @@ class App {
 
  public:
   App(double l, double r1, double r2, BiliardoType type, const sf::ContextSettings& settings);
+  ~App() = default;
   void start();
 
   void pause();

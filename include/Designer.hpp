@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "Biliardo.hpp"
+#include "Gui.hpp"
 
 namespace bt {
 
@@ -62,9 +63,8 @@ class Designer {
 
   void initWindow(sf::RenderWindow& window);
 
-  void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
-                  const tgui::VerticalLayout::Ptr& wrapper);
-  void changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const tgui::VerticalLayout::Ptr& wrapper);
+  void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window, const Gui& gui);
+  void changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui);
   void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
   void calcBordiBiliardo(const Biliardo& biliardo);
   void reRun(const std::vector<double>& points);

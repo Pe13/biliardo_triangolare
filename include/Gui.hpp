@@ -174,76 +174,73 @@ void forEach(iterator begin, iterator end, Function&& f) {
 
 class App;
 
-struct Gui {
-  tgui::Gui gui;
+class Gui {
+  tgui::Gui gui_;
 
-  tgui::VerticalLayout::Ptr wrapper{tgui::VerticalLayout::create()};
+  tgui::VerticalLayout::Ptr wrapper_{tgui::VerticalLayout::create()};
 
   // bottoni per cambiare tipo di biliardo
-  tgui::HorizontalLayout::Ptr biliardoButtonsWrapper{tgui::HorizontalLayout::create()};
-  tgui::Button::Ptr biliardoApertoBtn{tgui::Button::create("Biliardo\naperto")};
-  tgui::Button::Ptr biliardoChiusoDxBtn{tgui::Button::create("Biliardo\nchiuso Dx")};
-  tgui::Button::Ptr biliardoChiusoSxBtn{tgui::Button::create("Biliardo\nchiuso Sx")};
+  tgui::HorizontalLayout::Ptr biliardoButtonsWrapper_{tgui::HorizontalLayout::create()};
+  tgui::Button::Ptr biliardoApertoBtn_{tgui::Button::create("Biliardo\naperto")};
+  tgui::Button::Ptr biliardoChiusoDxBtn_{tgui::Button::create("Biliardo\nchiuso Dx")};
+  tgui::Button::Ptr biliardoChiusoSxBtn_{tgui::Button::create("Biliardo\nchiuso Sx")};
 
   // bottone e campi per modificare il biliardo
-  tgui::HorizontalLayout::Ptr newBiliardoWrapper{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr leftNewBiliardoWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr r1Label{tgui::Label::create("r1:")};
-  tgui::EditBox::Ptr r1Input{tgui::EditBox::create()};
-  tgui::Label::Ptr r2Label{tgui::Label::create("r2:")};
-  tgui::EditBox::Ptr r2Input{tgui::EditBox::create()};
-  tgui::VerticalLayout::Ptr rightNewBiliardoWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr lLabel{tgui::Label::create("l:")};
-  tgui::EditBox::Ptr lInput{tgui::EditBox::create()};
-  tgui::Button::Ptr newBiliardoBtn{tgui::Button::create("Conferma")};
+  tgui::HorizontalLayout::Ptr newBiliardoWrapper_{tgui::HorizontalLayout::create()};
+  tgui::VerticalLayout::Ptr leftNewBiliardoWrapper_{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr r1Label_{tgui::Label::create("r1:")};
+  tgui::EditBox::Ptr r1Input_{tgui::EditBox::create()};
+  tgui::Label::Ptr r2Label_{tgui::Label::create("r2:")};
+  tgui::EditBox::Ptr r2Input_{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr rightNewBiliardoWrapper_{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr lLabel_{tgui::Label::create("l:")};
+  tgui::EditBox::Ptr lInput_{tgui::EditBox::create()};
+  tgui::Button::Ptr newBiliardoBtn_{tgui::Button::create("Conferma")};
 
   // bottone e campi per lanciare la singola particella
-  tgui::HorizontalLayout::Ptr singleLaunchWrapper{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr heightWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr heightLabel{tgui::Label::create("Altezza:")};
-  tgui::EditBox::Ptr heightInput{tgui::EditBox::create()};
-  tgui::VerticalLayout::Ptr angleWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr angleLabel{tgui::Label::create("Angolo (rad):")};
-  tgui::EditBox::Ptr angleInput{tgui::EditBox::create()};
-  tgui::VerticalLayout::Ptr singleLaunchBtnWrapper{tgui::VerticalLayout::create()};
-  tgui::Button::Ptr singleLaunchBtn{tgui::Button::create("Lancio singolo")};
+  tgui::HorizontalLayout::Ptr singleLaunchWrapper_{tgui::HorizontalLayout::create()};
+  tgui::VerticalLayout::Ptr heightWrapper_{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr heightLabel_{tgui::Label::create("Altezza:")};
+  tgui::EditBox::Ptr heightInput_{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr angleWrapper_{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr angleLabel_{tgui::Label::create("Angolo (rad):")};
+  tgui::EditBox::Ptr angleInput_{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr singleLaunchBtnWrapper_{tgui::VerticalLayout::create()};
+  tgui::Button::Ptr singleLaunchBtn_{tgui::Button::create("Lancio singolo")};
 
   // bottoni per navigare tra i singoli lanci
-  tgui::HorizontalLayout::Ptr navigateLaunchesWrapper{tgui::HorizontalLayout::create()};
-  tgui::Button::Ptr nextLaunchBtn{tgui::Button::create("→")};
-  tgui::Button::Ptr previousLaunchBtn{tgui::Button::create("←")};
-  tgui::Button::Ptr pauseBtn{tgui::Button::create("▶")};
-  tgui::Button::Ptr reRunBtn{tgui::Button::create("⟳")};
+  tgui::HorizontalLayout::Ptr navigateLaunchesWrapper_{tgui::HorizontalLayout::create()};
+  tgui::Button::Ptr nextLaunchBtn_{tgui::Button::create("→")};
+  tgui::Button::Ptr previousLaunchBtn_{tgui::Button::create("←")};
+  tgui::Button::Ptr pauseBtn_{tgui::Button::create("▶")};
+  tgui::Button::Ptr reRunBtn_{tgui::Button::create("⟳")};
 
   // bottone e campi per lanciare N particelle
-  tgui::HorizontalLayout::Ptr multipleLaunchWrapper{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr leftMultipleLaunchWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr muYLabel{tgui::Label::create("µy:")};
-  tgui::EditBox::Ptr muYInput{tgui::EditBox::create()};
-  tgui::Label::Ptr sigmaYLabel{tgui::Label::create("σy:")};
-  tgui::EditBox::Ptr sigmaYInput{tgui::EditBox::create()};
-  tgui::Label::Ptr muTLabel{tgui::Label::create("µθ:")};
-  tgui::EditBox::Ptr muTInput{tgui::EditBox::create()};
-  tgui::Label::Ptr sigmaTLabel{tgui::Label::create("σθ:")};
-  tgui::EditBox::Ptr sigmaTInput{tgui::EditBox::create()};
-  tgui::VerticalLayout::Ptr rightMultipleLaunchWrapper{tgui::VerticalLayout::create()};
-  tgui::Label::Ptr numberLabel{tgui::Label::create("Numero:")};
-  tgui::EditBox::Ptr numberInput{tgui::EditBox::create()};
-  tgui::Button::Ptr multipleLaunchBtn{tgui::Button::create("Lancio multiplo")};
+  tgui::HorizontalLayout::Ptr multipleLaunchWrapper_{tgui::HorizontalLayout::create()};
+  tgui::VerticalLayout::Ptr leftMultipleLaunchWrapper_{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr muYLabel_{tgui::Label::create("µy:")};
+  tgui::EditBox::Ptr muYInput_{tgui::EditBox::create()};
+  tgui::Label::Ptr sigmaYLabel_{tgui::Label::create("σy:")};
+  tgui::EditBox::Ptr sigmaYInput_{tgui::EditBox::create()};
+  tgui::Label::Ptr muTLabel_{tgui::Label::create("µθ:")};
+  tgui::EditBox::Ptr muTInput_{tgui::EditBox::create()};
+  tgui::Label::Ptr sigmaTLabel_{tgui::Label::create("σθ:")};
+  tgui::EditBox::Ptr sigmaTInput_{tgui::EditBox::create()};
+  tgui::VerticalLayout::Ptr rightMultipleLaunchWrapper_{tgui::VerticalLayout::create()};
+  tgui::Label::Ptr numberLabel_{tgui::Label::create("Numero:")};
+  tgui::EditBox::Ptr numberInput_{tgui::EditBox::create()};
+  tgui::Button::Ptr multipleLaunchBtn_{tgui::Button::create("Lancio multiplo")};
 
   // bottoni per navigare tra gli istogrammi e salvarli
-  tgui::HorizontalLayout::Ptr navigateHistogramsWrapper{tgui::HorizontalLayout::create()};
-  tgui::Button::Ptr nextHistogramBtn{tgui::Button::create("→")};
-  tgui::Button::Ptr previousHistogramBtn{tgui::Button::create("←")};
-  tgui::Button::Ptr saveHistogramBtn{tgui::Button::create("Salva\nGrafico")};
+  tgui::HorizontalLayout::Ptr navigateHistogramsWrapper_{tgui::HorizontalLayout::create()};
+  tgui::Button::Ptr nextHistogramBtn_{tgui::Button::create("→")};
+  tgui::Button::Ptr previousHistogramBtn_{tgui::Button::create("←")};
+  tgui::Button::Ptr saveHistogramBtn_{tgui::Button::create("Salva\nGrafico")};
 
   // area di testo per i dati statistici
-  tgui::HorizontalLayout::Ptr textWrapper{tgui::HorizontalLayout::create()};
-  //  tgui::VerticalLayout::Ptr leftTextWrapper{tgui::VerticalLayout::create()};
-  tgui::TextArea::Ptr leftText{tgui::TextArea::create()};
-  tgui::TextArea::Ptr rightText{tgui::TextArea::create()};
-
-  explicit Gui(sf::RenderWindow& window);
+  tgui::HorizontalLayout::Ptr textWrapper_{tgui::HorizontalLayout::create()};
+  tgui::TextArea::Ptr leftText_{tgui::TextArea::create()};
+  tgui::TextArea::Ptr rightText_{tgui::TextArea::create()};
 
   void newBiliardoBtnPressed(App* app) const;
   void singleLaunchBtnPressed(App* app) const;
@@ -253,6 +250,14 @@ struct Gui {
   void style() const;
   void activate(App* app) const;
   void setDefaultText() const;
+
+ public:
+  Gui(sf::RenderWindow& window, App* app);
+
+  void handleEvent(sf::Event& event);
+  void draw();
+  void setSize(float width, float height) const;
+
   void setSingleLaunchText(const std::vector<double>& launch) const;
   void setStatisticsText(const std::array<TH1D, 2>& histograms) const;
 };
