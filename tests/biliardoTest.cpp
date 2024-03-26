@@ -29,7 +29,7 @@ struct BiliardoGenerator {
   }
 };
 
-auto BiliardoGenerator::rng = std::default_random_engine(
+std::default_random_engine BiliardoGenerator::rng = std::default_random_engine(
     boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count()));
 
 TEST_CASE("Testing Biliardo constructor input checking") {
