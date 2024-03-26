@@ -98,6 +98,8 @@ class Biliardo {
   [[nodiscard]] const double& r1() const { return r1_; }
   [[nodiscard]] const double& r2() const { return r2_; }
   [[nodiscard]] const double& theta() const { return theta_; }
+  [[nodiscard]] const auto& yNormalDist() const { return yNormalDist_; }
+  [[nodiscard]] const auto& thetaNormalDist() const { return thetaNormalDist_; }
 
   // no by reference se no ambigua
   // metodi per settare l, r1, e r2; ritornano delle const reference così si possono settare i parametri e al contempo
