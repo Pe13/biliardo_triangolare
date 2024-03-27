@@ -15,6 +15,8 @@
 
 #include "Biliardo.hpp"
 
+// TODO Testare con biliardi di forme differenti
+
 static void fillHistogramsAsync(benchmark::State &state) {
   std::default_random_engine rng{
       boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count())};
