@@ -179,14 +179,29 @@ void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
 }
 
 void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  for (unsigned int _ = 0; _ < N; _++) {
-    auto particle = generateParticle();
+  //  for (unsigned int _ = 0; _ < N; _++) {
+  //    auto particle = generateParticle();
+  //
+  //    launchForHistograms(particle);
+  //
+  //    histograms[0].Fill(particle[0]);
+  //    histograms[1].Fill(particle[1]);
+  //  }
 
-    launchForHistograms(particle);
+  std::vector<std::array<double, 2>> v(N);
 
-    histograms[0].Fill(particle[0]);
-    histograms[1].Fill(particle[1]);
-  }
+  std::cout << "generating syncLaunch...\n";
+  std::generate(v.begin(), v.end(), [this]() { return generateParticle(); });
+
+  std::cout << "launching...\n";
+  std::for_each(v.begin(), v.end(), [this](auto &launch) { launchForHistograms(launch); });
+
+  std::cout << "Filling histograms...\n";
+  std::for_each(v.begin(), v.end(), [&](const auto &arr) {
+    std::for_each(arr.begin(), arr.end(), [&](const auto &item) { histograms[&item - arr.data()].Fill(item); });
+  });
+
+  std::cout << "Done \n\n";
 }
 
 void Biliardo::asyncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {

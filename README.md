@@ -50,11 +50,24 @@ motivi sono molteplici:
 - I vantaggi legati alla possibilità di riferirsi ai puntatori delle sottoclassi con dei puntatori della classe madre
   non verrebbero sfruttati significativamente, viste le poche istanze della classe che si creano
 - I metodi legati alla gestione degli urti delle particelle, che sarebbero chiaramente dichiarati come puramente
-  virtuali nella classe madre,
+  virtuali nella classe madre, dovrebbero richiedere gli stessi argomenti per ogni tipo di biliardo. Ma i metodi
+  specializzati delle sottoclassi hanno davvero bisogno di un sottoinsieme di quest'ultimi, ciò porterebbe alla
+  creazione di un metodo che non utilizza tutti i parametri che accetta. (vedi appendice
+  [Vecchio codice problematico](#vecchio-codice-problematico))
+
+Per gestire i vari tipi di biliardo si utilizza invece il membro privato `type_` di tipo `BiliardoType`, un *enum* utile
+anche per indicizzare gli array che contengono i dati riguardo i vari tipi di biliardo, e la *nested class*
+`BiliardoFunctions` la quale espone i metodi che accettano tutti i parametri ed internamente chiama quelli
+specializzati.
+
+#### Lanci multipli
+
+Per la simulazione di lanci multipli vengono utilizzati gli algoritmi della *standard library* per poter sfruttare le
+*execution policy* migliorando le prestazioni 
 
 ## Compilare, testare ed eseguire
 
-Dopo aver clonato il repository ed aver installato tutte le dipendenze, digitare i seguenti comandi per configurare la
+Una volta clonato il repository ed aver installato tutte le dipendenze, digitare i seguenti comandi per configurare la
 build con cmake:
 
 ```shell
@@ -89,3 +102,52 @@ visualizzarli lanciare l'eseguibile aggiungendo `--help`
 ## Risultati ottenuti
 
 ## Strategie di test
+
+# Appendice
+
+## Vecchio codice problematico
+
+```c++
+// include/Biliardo.hpp
+class Biliardo {
+ protected:
+  virtual void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
+                                         std::vector<double>& output) const = 0;
+  ...
+};
+
+// include/BiliardoChiusoDx.hpp
+class BiliardoChiusoDx : public Biliardo {
+  ...
+  void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
+                                 std::vector<double>& output) const override;
+  ...
+};
+
+// BiliardoChiusoDx.cpp
+void BiliardoChiusoDx::registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
+                                             std::vector<double>& output) const {
+  output.push_back(0);
+  output.push_back(c);
+  output.push_back(dir);
+}
+
+// include/BiliardoChiusoSx.hpp
+class BiliardoChiusoSx : public Biliardo {
+ protected:
+  void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
+                             std::vector<double>& output) const override;
+  ...
+};
+
+// BiliardoChiusoSx.cpp
+void BiliardoChiusoSx::registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
+                                             std::vector<double>& output) const {
+  collideLeft(dir);
+  x = 0;
+  y = c;
+  output.push_back(x);
+  output.push_back(y);
+  lastHit = left;
+}
+```
