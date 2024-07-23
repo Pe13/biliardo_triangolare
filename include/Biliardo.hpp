@@ -20,6 +20,15 @@
 namespace bt {
 
 class Biliardo {
+  struct CollisionParameters {
+    LastHit lastHit;
+
+    double x;
+    double y;
+
+    double direction;
+  };
+
   class BiliardoFunctions {  // la definisco qui perché ne devo creare un istanza all'interno del Biliardo
     void collideSide(double& angle) const { angle = -angle; }
 
@@ -65,6 +74,7 @@ class Biliardo {
   [[nodiscard]] bool isOut(const LastHit& lastHit) const;
 
   [[nodiscard]] std::array<double, 2> generateParticle();
+  [[nodiscard]] bool findNextCollision (CollisionParameters& parameters) const;
   void launchForHistograms(std::array<double, 2>& launch) const;
   void syncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);
   void asyncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);

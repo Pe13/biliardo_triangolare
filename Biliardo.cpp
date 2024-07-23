@@ -64,51 +64,59 @@ std::array<double, 2> Biliardo::generateParticle() {
   return {y, direction};
 }
 
-void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
-  LastHit lastHit = left;
-  double x = 0;
-
-  double &y = launch[0];
-  double &direction = launch[1];
-
+bool Biliardo::findNextCollision(CollisionParameters &parameters) const {
   bool out = false;
+
+  // retta direttrice passante per il punto: ax + c
+  double a = std::tan(parameters.direction);
+  double c = parameters.y - a * parameters.x;
 
   // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
   // meno): bx + d
   const double &b = slope_;
   const double &d = r1_;
 
-  while (!out) {
-    // retta direttrice passante per il punto: ax + c
-    double a = std::tan(direction);
-    double c = y - std::tan(direction) * x;
-
-    x = (d - c) / (a - b); // ascissa dell'intersezione con la sponda superiore
-    if (x > 0 && x < l_ && lastHit != top) {
-      y = a * x + c;
-      collideTop(direction);
-      lastHit = top;
+  parameters.x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
+  if (parameters.x > 0 && parameters.x < l_ && parameters.lastHit != top) {
+    parameters.y = a * parameters.x + c;
+    collideTop(parameters.direction);
+    parameters.lastHit = top;
+  } else {
+    parameters.x = -(d + c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
+    if (parameters.x > 0 && parameters.x < l_ && parameters.lastHit != bottom) {
+      parameters.y = a * parameters.x + c;
+      collideBottom(parameters.direction);
+      parameters.lastHit = bottom;
+    } else if (std::abs(c) <= r1_ && parameters.lastHit != left) {
+      parameters.x = 0;
+      parameters.y = c;
+      parameters.direction = -parameters.direction;
+      parameters.lastHit = left;
+      out = isOut(parameters.lastHit);
     } else {
-      x = (-d - c) / (a + b); // ascissa dell'intersezione con la sponda inferiore
-      if (x > 0 && x < l_ && lastHit != bottom) {
-        y = a * x + c;
-        collideBottom(direction);
-        lastHit = bottom;
-      } else if (std::abs(c) <= r1_ && lastHit != left) {
-        x = 0;
-        y = c;
-        direction = -direction;
-        lastHit = left;
-        out = isOut(lastHit);
-      } else {
-        x = l_;
-        y = a * x + c;
-        direction = -direction;
-        lastHit = right;
-        out = isOut(lastHit);
-      }
+      parameters.x = l_;
+      parameters.y = a * parameters.x + c;
+      parameters.direction = -parameters.direction;
+      parameters.lastHit = right;
+      out = isOut(parameters.lastHit);
     }
   }
+
+  return out;
+}
+
+void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
+  CollisionParameters parameters = {
+      left,       // lastHit
+      0,          // x
+      launch[0],  // y
+      launch[1],  // direction
+  };
+
+  while (!findNextCollision(parameters)) {}
+
+  launch[0] = parameters.y;
+  launch[1] = parameters.direction;
 }
 
 void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
