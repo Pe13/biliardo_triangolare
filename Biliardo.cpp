@@ -41,9 +41,6 @@ bool Biliardo::isOut(const LastHit &lastHit) const {
         return true;
       }
       return false;
-
-    default:
-      return false;
   }
 }
 
