@@ -26,22 +26,29 @@ void Biliardo::registerTopBottomCollision(const double &x, double &y, const doub
 }
 
 bool Biliardo::isOut(const LastHit &lastHit) const {
+  bool result = false;
   switch (type_) {
     case open:
-      return true;
+      result = true;
+      break;
 
     case rightBounded:
       if (lastHit == left) {
-        return true;
+        result = true;
+      } else {
+        result = false;
       }
-      return false;
+      break;
 
     case leftBounded:
       if (lastHit == right) {
-        return true;
+        result = true;
+      } else {
+        result = false;
       }
-      return false;
+      break;
   }
+  return result;
 }
 
 std::array<double, 2> Biliardo::generateParticle() {
