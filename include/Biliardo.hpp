@@ -49,6 +49,7 @@ class Biliardo {
   double r2_;
 
   double theta_;
+  double slope_ {std::tan(theta_)};
 
   BiliardoFunctions functions_;
 

@@ -65,112 +65,41 @@ void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
   double &direction = launch[1];
 
   bool out = false;
+
+  // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
+  // meno): bx + d
+  const double &b = slope_;
+  const double &d = r1_;
+
   while (!out) {
     // retta direttrice passante per il punto: ax + c
     double a = std::tan(direction);
     double c = y - std::tan(direction) * x;
 
-    // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
-    // meno): bx + d
-    double b = std::tan(theta_);
-    double d = r1_;
-
-    switch (lastHit) {
-      case left:
-        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-        if (x > 0 && x < l_) {
-          y = a * x + c;
-          collideTop(direction);
-          lastHit = top;
-        } else {
-          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideBottom(direction);
-            lastHit = bottom;
-          } else {
-            x = l_;
-            y = a * x + c;
-            direction = -direction;
-            lastHit = right;
-            out = isOut(lastHit);
-
-            break;
-          }
-        }
-        break;
-
-      case right:
-        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-        if (x > 0 && x < l_) {
-          y = a * x + c;
-          collideTop(direction);
-          lastHit = top;
-        } else {
-          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideBottom(direction);
-            lastHit = bottom;
-          } else {
-            x = 0;
-            y = c;
-            direction = -direction;
-            lastHit = left;
-            out = isOut(lastHit);
-            break;
-          }
-        }
-        break;
-
-      case top:
-        if (std::abs(c) < r1_) {
-          x = 0;
-          y = c;
-          direction = -direction;
-          lastHit = left;
-          out = isOut(lastHit);
-          break;
-        } else {
-          x = (-d - c) / (a + b);
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideBottom(direction);
-            lastHit = bottom;
-          } else {
-            x = l_;
-            y = a * x + c;
-            direction = -direction;
-            lastHit = right;
-            out = isOut(lastHit);
-            break;
-          }
-        }
-        break;
-      case bottom:
-        if (std::abs(c) < r1_) {
-          x = 0;
-          y = c;
-          direction = -direction;
-          lastHit = left;
-          out = isOut(lastHit);
-          break;
-        } else {
-          x = (d - c) / (a - b);
-          if (x > 0 && x < l_) {
-            y = a * x + c;
-            collideTop(direction);
-            lastHit = top;
-          } else {
-            x = l_;
-            y = a * x + c;
-            direction = -direction;
-            lastHit = right;
-            out = isOut(lastHit);
-            break;
-          }
-        }
-        break;
+    x = (d - c) / (a - b); // ascissa dell'intersezione con la sponda superiore
+    if (x > 0 && x < l_ && lastHit != top) {
+      y = a * x + c;
+      collideTop(direction);
+      lastHit = top;
+    } else {
+      x = (-d - c) / (a + b); // ascissa dell'intersezione con la sponda inferiore
+      if (x > 0 && x < l_ && lastHit != bottom) {
+        y = a * x + c;
+        collideBottom(direction);
+        lastHit = bottom;
+      } else if (std::abs(c) <= r1_ && lastHit != left) {
+        x = 0;
+        y = c;
+        direction = -direction;
+        lastHit = left;
+        out = isOut(lastHit);
+      } else {
+        x = l_;
+        y = a * x + c;
+        direction = -direction;
+        lastHit = right;
+        out = isOut(lastHit);
+      }
     }
   }
 }
