@@ -120,8 +120,8 @@ using iterator = std::vector<tgui::Widget::Ptr>::const_iterator;
  *
  * Questa funzione template accetta un intervallo [begin, end) di tgui::Widget::Ptr e applica la funzione lambda fornita
  * a ciascun elemento all'interno dell'intervallo se questo può essere convertito in un puntatore del tipo specificato,
- * tenendo traccia dell'indice dell'elemento. La funzione lambda deve avere il seguente prototipo: `void lambda(const
- * std::shared_ptr<T>& element, unsigned int index)`.
+ * tenendo traccia dell'indice dell'elemento. La funzione lambda deve avere il seguente prototipo: void lambda(const
+ * std::shared_ptr<T>& element, unsigned int index).
  */
 template <typename T, typename Function>
 unsigned int forEachIndexed(iterator begin, iterator end, Function&& f, unsigned int index = 0) {
@@ -154,7 +154,7 @@ unsigned int forEachIndexed(iterator begin, iterator end, Function&& f, unsigned
  *
  * Questa funzione template accetta un intervallo [begin, end) e applica la funzione lambda fornita a ciascun elemento
  * all'interno dell'intervallo se questo può essere convertito in un puntatore del tipo specificato. La funzione lambda
- * deve avere il seguente prototipo: `void lambda(const std::shared_ptr<T>& element)`.
+ * deve avere il seguente prototipo: void lambda(const std::shared_ptr<T>& element).
  */
 template <typename T, typename Function>
 void forEach(iterator begin, iterator end, Function&& f) {
