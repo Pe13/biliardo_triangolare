@@ -108,7 +108,7 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
                                   }
                                 });
 
-  unsigned int N_;
+  unsigned int N_{};
   boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
   try {
     N_ = safeDoubleToUInt(N);
