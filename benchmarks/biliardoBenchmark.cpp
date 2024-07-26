@@ -57,7 +57,7 @@ static void fillHistogramsSync(benchmark::State &state) {
 }
 BENCHMARK(fillHistogramsSync);
 
-static void launchParticlesAsync(benchmark::State &state) {
+static void launchParticlesAsyncLeftBounded(benchmark::State &state) {
   double r1 = 30;
   double r2 = 10;
   double l = 100;
@@ -77,9 +77,9 @@ static void launchParticlesAsync(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
   }
 }
-BENCHMARK(launchParticlesAsync);
+BENCHMARK(launchParticlesAsyncLeftBounded);
 
-static void launchParticlesSync(benchmark::State &state) {
+static void launchParticlesSyncLeftBounded(benchmark::State &state) {
   double r1 = 30;
   double r2 = 10;
   double l = 100;
@@ -99,6 +99,94 @@ static void launchParticlesSync(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
   }
 }
-BENCHMARK(launchParticlesSync);
+BENCHMARK(launchParticlesSyncLeftBounded);
+
+static void launchParticlesAsyncRightBounded(benchmark::State &state) {
+  double r1 = 30;
+  double r2 = 10;
+  double l = 100;
+
+  double muY = 0;
+  double sigmaY = r1 / 5;
+  double muT = 0;
+  double sigmaT = M_PI / 8;
+  unsigned int N = 1e6;
+
+  bt::Biliardo biliardo(l, r1, r2, bt::rightBounded);
+
+  for (auto _ : state) {
+    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+
+    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
+  }
+}
+BENCHMARK(launchParticlesAsyncRightBounded);
+
+static void launchParticlesSyncRightBounded(benchmark::State &state) {
+  double r1 = 30;
+  double r2 = 10;
+  double l = 100;
+
+  double muY = 0;
+  double sigmaY = r1 / 5;
+  double muT = 0;
+  double sigmaT = M_PI / 8;
+  unsigned int N = 1e6;
+
+  bt::Biliardo biliardo(l, r1, r2, bt::rightBounded);
+
+  for (auto _ : state) {
+    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+
+    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
+  }
+}
+BENCHMARK(launchParticlesSyncRightBounded);
+
+static void launchParticlesAsyncOpen(benchmark::State &state) {
+  double r1 = 30;
+  double r2 = 10;
+  double l = 100;
+
+  double muY = 0;
+  double sigmaY = r1 / 5;
+  double muT = 0;
+  double sigmaT = M_PI / 8;
+  unsigned int N = 1e6;
+
+  bt::Biliardo biliardo(l, r1, r2, bt::open);
+
+  for (auto _ : state) {
+    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+
+    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
+  }
+}
+BENCHMARK(launchParticlesAsyncOpen);
+
+static void launchParticlesSyncOpen(benchmark::State &state) {
+  double r1 = 30;
+  double r2 = 10;
+  double l = 100;
+
+  double muY = 0;
+  double sigmaY = r1 / 5;
+  double muT = 0;
+  double sigmaT = M_PI / 8;
+  unsigned int N = 1e6;
+
+  bt::Biliardo biliardo(l, r1, r2, bt::open);
+
+  for (auto _ : state) {
+    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+
+    biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
+  }
+}
+BENCHMARK(launchParticlesSyncOpen);
 
 BENCHMARK_MAIN();
