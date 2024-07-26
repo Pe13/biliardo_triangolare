@@ -99,7 +99,7 @@ void Designer::calcStep(const std::vector<double>& points) {
   step_ = static_cast<float>(static_cast<double>(speed_) / (distance * ratio_));
 }
 
-Designer::Designer() {
+Designer::Designer(sf::RenderWindow& window) {
   // rimuovo le statistics box dai grafici dato che le indico tutte sulla sinistra
   //  gStyle->SetOptStat(0);
   gStyle->SetOptStat("ksrme");
@@ -124,9 +124,15 @@ Designer::Designer() {
 
   particle_.setFillColor(sf::Color::White);
   particle_.setPointCount(10);
-}
 
-void Designer::initWindow(sf::RenderWindow& window) { window.draw(frame_); }
+  rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
+  topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
+  simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
+  simulationHeight_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
+
+  calcFrame(window.getSize());
+  window.draw(frame_);
+}
 
 void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
                           const Gui& gui) {

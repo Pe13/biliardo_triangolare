@@ -17,8 +17,7 @@ namespace bt {
 
 App::App(const double l, const double r1, const double r2, const BiliardoType type, const sf::ContextSettings& settings)
     : biliardo_(l, r1, r2, type), window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
-      gui_(window_, this) {
-
+      designer_(window_), gui_(window_, this) {
   window_.setPosition(sf::Vector2i(100, 100));
 
   // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
@@ -84,7 +83,6 @@ void App::handleEvents() {
 }
 
 void App::start() {
-  designer_.initWindow(window_);
   while (window_.isOpen()) {
     handleEvents();
     gui_.draw();

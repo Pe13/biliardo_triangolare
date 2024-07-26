@@ -25,10 +25,10 @@ class App {
 
   Biliardo biliardo_;
 
-  Designer designer_{};
-
   sf::RenderWindow window_;
   sf::Event event_{};
+
+  Designer designer_;
 
   Gui gui_;
 

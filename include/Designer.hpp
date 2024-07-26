@@ -58,10 +58,8 @@ class Designer {
   void calcStep(const std::vector<double>& points);
 
  public:
-  Designer();
+  Designer(sf::RenderWindow& window);
   ~Designer() = default;
-
-  void initWindow(sf::RenderWindow& window);
 
   void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window, const Gui& gui);
   void changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui);
