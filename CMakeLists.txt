@@ -31,7 +31,6 @@ find_package(Boost 1.35 COMPONENTS container REQUIRED)
 add_executable(biliardo_triangolare
         main.cpp App.cpp
         Biliardo.cpp Designer.cpp
-        BiliardoFunctions.cpp
         Gui.cpp)
 
 target_include_directories(biliardo_triangolare PRIVATE include)

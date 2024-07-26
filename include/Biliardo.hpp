@@ -14,7 +14,6 @@
 #include <random>
 #include <vector>
 
-#include "BiliardoFunctions.hpp"
 #include "types.hpp"
 
 namespace bt {
@@ -29,28 +28,6 @@ class Biliardo {
     double direction;
   };
 
-  class BiliardoFunctions {  // la definisco qui perché ne devo creare un istanza all'interno del Biliardo
-    void collideSide(double& angle) const { angle = -angle; }
-
-    void leftCollisionOut(const double& c, const double& direction, std::vector<double>& output) const;
-
-    void leftCollision(double& x, double& y, const double& c, double& direction, LastHit& lastHit,
-                       std::vector<double>& output) const;
-
-    void rightCollisionOut(const double& a, const double& c, const double& direction, const double& l,
-                           std::vector<double>& output) const;
-    void rightCollision(double& x, double& y, const double& a, const double& c, LastHit& lastHit, double& direction,
-                        const double& l, std::vector<double>& output) const;
-
-   public:
-    void registerLeftCollision(BiliardoType type, double& x, double& y, const double& c, double& direction,
-                               LastHit& lastHit, std::vector<double>& output) const;
-
-    void registerRightCollision(BiliardoType type, double& x, double& y, const double& a, const double& c,
-                                LastHit& lastHit, double& direction, const double& l,
-                                std::vector<double>& output) const;
-  };
-
   BiliardoType type_;
 
   double l_;
@@ -58,9 +35,7 @@ class Biliardo {
   double r2_;
 
   double theta_;
-  double slope_ {std::tan(theta_)};
-
-  BiliardoFunctions functions_;
+  double slope_{std::tan(theta_)};
 
   std::default_random_engine rng_{
       boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count())};
@@ -68,13 +43,10 @@ class Biliardo {
   std::normal_distribution<double> yNormalDist_;
   std::normal_distribution<double> thetaNormalDist_{0, M_PI / 8};
 
-  void registerTopBottomCollision(double const& x, double& y, double const& a, double const& c,
-                                  std::vector<double>& output) const;
-
   [[nodiscard]] bool isOut(const LastHit& lastHit) const;
 
   [[nodiscard]] std::array<double, 2> generateParticle();
-  [[nodiscard]] bool findNextCollision (CollisionParameters& parameters) const;
+  [[nodiscard]] bool findNextCollision(CollisionParameters& parameters) const;
   void launchForHistograms(std::array<double, 2>& launch) const;
   void syncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);
   void asyncLaunch(unsigned int N, std::array<TH1D, 2>& histograms);

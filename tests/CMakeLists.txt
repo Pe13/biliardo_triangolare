@@ -5,7 +5,7 @@ project(tests)
 include(CTest)
 
 # test biliardo
-add_executable(test_biliardo biliardoTest.cpp ../Biliardo.cpp ../BiliardoFunctions.cpp)
+add_executable(test_biliardo biliardoTest.cpp ../Biliardo.cpp)
 
 target_include_directories(test_biliardo PRIVATE ../include)
 target_link_libraries(test_biliardo PRIVATE ROOT::Core ROOT::Hist ROOT::Physics sfml-graphics)

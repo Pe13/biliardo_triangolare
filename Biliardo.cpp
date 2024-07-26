@@ -18,13 +18,6 @@ namespace bt {
 
 // TODO testare che i vari metodi con controllo dell'input funzionino
 
-void Biliardo::registerTopBottomCollision(const double &x, double &y, const double &a, const double &c,
-                                          std::vector<double> &output) const {
-  y = a * x + c;
-  output.push_back(x);
-  output.push_back(y);
-}
-
 bool Biliardo::isOut(const LastHit &lastHit) const {
   bool result = false;
   switch (type_) {
@@ -113,22 +106,14 @@ void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
       launch[1],  // direction
   };
 
-  while (!findNextCollision(parameters)) {}
+  while (!findNextCollision(parameters)) {
+  }
 
   launch[0] = parameters.y;
   launch[1] = parameters.direction;
 }
 
 void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  //  for (unsigned int _ = 0; _ < N; _++) {
-  //    auto particle = generateParticle();
-  //
-  //    launchForHistograms(particle);
-  //
-  //    histograms[0].Fill(particle[0]);
-  //    histograms[1].Fill(particle[1]);
-  //  }
-
   std::vector<std::array<double, 2>> v(N);
 
   std::cout << "generating syncLaunch...\n";
@@ -165,99 +150,22 @@ void Biliardo::asyncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms
 
 void Biliardo::launchForDrawing_(const double &initialY, const double &initialDirection,
                                  std::vector<double> &output) const {
-  double x = 0;
-  double y = initialY;
-  double direction = initialDirection;
-  LastHit lastHit = left;
+  CollisionParameters parameters = {
+      left,              // lastHit
+      0,                 // x
+      initialY,          // y
+      initialDirection,  // direction
+  };
 
-  output.push_back(x);
-  output.push_back(y);
+  do {
+    output.push_back(parameters.x);
+    output.push_back(parameters.y);
+  } while (!findNextCollision(parameters));
 
-  // ad ogni iterazione vengono aggiunti due elementi al vettore ma nell'ultima viene aggiunto alla fine anche l'angolo
-  // di uscita, quindi il vettore alla fine dell'ultima iterazione avrà un numero di elementi dispari
-  while (output.size() % 2 == 0) {
-    // retta direttrice passante per il punto: ax + c
-    double a = std::tan(direction);
-    double c = y - std::tan(direction) * x;
+  output.push_back(parameters.x);
+  output.push_back(parameters.y);
 
-    // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
-    // meno): bx + d
-    double b = std::tan(theta_);
-    double d = r1_;
-
-    switch (lastHit) {
-      case left:
-        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-        if (x > 0 && x < l_) {
-          registerTopBottomCollision(x, y, a, c, output);
-          collideTop(direction);
-          lastHit = top;
-        } else {
-          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-          if (x > 0 && x < l_) {
-            registerTopBottomCollision(x, y, a, c, output);
-            collideBottom(direction);
-            lastHit = bottom;
-          } else {
-            functions_.registerRightCollision(type_, x, y, a, c, lastHit, direction, l_, output);
-            break;
-          }
-        }
-        break;
-
-      case right:
-        x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
-        if (x > 0 && x < l_) {
-          registerTopBottomCollision(x, y, a, c, output);
-          collideTop(direction);
-          lastHit = top;
-        } else {
-          x = (-d - c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
-          if (x > 0 && x < l_) {
-            registerTopBottomCollision(x, y, a, c, output);
-            collideBottom(direction);
-            lastHit = bottom;
-          } else {
-            functions_.registerLeftCollision(type_, x, y, c, direction, lastHit, output);
-            break;
-          }
-        }
-        break;
-
-      case top:
-        if (std::abs(c) < r1_) {
-          functions_.registerLeftCollision(type_, x, y, c, direction, lastHit, output);
-          break;
-        } else {
-          x = (-d - c) / (a + b);
-          if (x > 0 && x < l_) {
-            registerTopBottomCollision(x, y, a, c, output);
-            collideBottom(direction);
-            lastHit = bottom;
-          } else {
-            functions_.registerRightCollision(type_, x, y, a, c, lastHit, direction, l_, output);
-            break;
-          }
-        }
-        break;
-      case bottom:
-        if (std::abs(c) < r1_) {
-          functions_.registerLeftCollision(type_, x, y, c, direction, lastHit, output);
-          break;
-        } else {
-          x = (d - c) / (a - b);
-          if (x > 0 && x < l_) {
-            registerTopBottomCollision(x, y, a, c, output);
-            collideTop(direction);
-            lastHit = top;
-          } else {
-            functions_.registerRightCollision(type_, x, y, a, c, lastHit, direction, l_, output);
-            break;
-          }
-        }
-        break;
-    }
-  }
+  output.push_back(-parameters.direction);  // l'angolo è stato specchiato come se avesse rimbalzato
   output.push_back(initialDirection);
 }
 
