@@ -148,7 +148,7 @@ void Biliardo::asyncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms
   std::cout << "Done \n\n";
 }
 
-void Biliardo::launchForDrawing_(const double &initialY, const double &initialDirection,
+void Biliardo::launchForDrawing_(const double initialY, const double initialDirection,
                                  std::vector<double> &output) const {
   CollisionParameters parameters = {
       left,              // lastHit
@@ -260,7 +260,7 @@ bool Biliardo::modify(double r1, double r2, double l, bool shouldCheck) {
   return true;
 }
 
-bool Biliardo::launchForDrawing(const double &initialY, const double &initialDirection, std::vector<double> &output,
+bool Biliardo::launchForDrawing(const double initialY, const double initialDirection, std::vector<double> &output,
                                 bool shouldCheck) const {
   if (shouldCheck) {
     if (std::abs(initialY) > r1_) {
@@ -284,7 +284,7 @@ void Biliardo::launchForDrawing(std::vector<double> &output) {
   launchForDrawing_(initialY, initialDirection, output);
 }
 
-bool Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<double> &output, bool shouldCheck) {
+bool Biliardo::launchForDrawingNoY(const double initialDirection, std::vector<double> &output, bool shouldCheck) {
   if (shouldCheck && std::abs(initialDirection) > M_PI / 2) {
     std::cerr << "Warning: il parametro initialDirection vale" << initialDirection
               << "ma il suo modulo deve essere minore di " << M_PI / 2 << '\n';
@@ -295,7 +295,7 @@ bool Biliardo::launchForDrawingNoY(const double &initialDirection, std::vector<d
   return true;
 }
 
-bool Biliardo::launchForDrawingNoDir(const double &initialY, std::vector<double> &output, bool shouldCheck) {
+bool Biliardo::launchForDrawingNoDir(const double initialY, std::vector<double> &output, bool shouldCheck) {
   if (shouldCheck && std::abs(initialY) > r1_) {
     std::cerr << "Warning: il parametro initialY vale" << initialY << "ma il suo modulo deve essere minore di " << r1_
               << '\n';

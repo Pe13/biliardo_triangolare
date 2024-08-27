@@ -62,7 +62,7 @@ class Biliardo {
    * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
-  void launchForDrawing_(const double& initialY, const double& initialDirection, std::vector<double>& output) const;
+  void launchForDrawing_(double initialY, double initialDirection, std::vector<double>& output) const;
 
  public:
   Biliardo(double l, double r1, double r2, BiliardoType type = leftBounded);
@@ -111,7 +111,7 @@ class Biliardo {
    * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
-  bool launchForDrawing(const double& initialY, const double& initialDirection, std::vector<double>& output,
+  bool launchForDrawing(double initialY, double initialDirection, std::vector<double>& output,
                         bool shouldCheck = true) const;
 
   /**
@@ -140,7 +140,7 @@ class Biliardo {
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
 
-  bool launchForDrawingNoY(double const& initialDirection, std::vector<double>& output, bool shouldCheck = true);
+  bool launchForDrawingNoY(double initialDirection, std::vector<double>& output, bool shouldCheck = true);
 
   /**
    * @brief Lancia una singola particella fornendo solo l'altezza iniziale e generando la direzione iniziale secondo una
@@ -154,7 +154,7 @@ class Biliardo {
    * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i bordi del biliardo.
    * Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
    */
-  bool launchForDrawingNoDir(const double& initialY, std::vector<double>& output, bool shouldCheck = true);
+  bool launchForDrawingNoDir(double initialY, std::vector<double>& output, bool shouldCheck = true);
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.
