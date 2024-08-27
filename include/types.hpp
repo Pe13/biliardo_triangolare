@@ -6,7 +6,7 @@
 #define BILIARDO_TRIANGOLARE_INCLUDE_TYPES_HPP_
 
 namespace bt {
-enum BiliardoType { open = 0, rightBounded = 1, leftBounded = 2 };
+enum BiliardoType: unsigned { open = 0, rightBounded = 1, leftBounded = 2 };
 enum LastHit { left, right, top, bottom };
 
 }  // namespace bt

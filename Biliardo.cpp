@@ -190,7 +190,7 @@ Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
     }
   }
 
-  if (type < 0 || type > 2) {
+  if (type > 2) {
     throw std::invalid_argument("Il tipo fornito per la costruzione del Biliardo non è valido");
   }
 }
@@ -198,7 +198,7 @@ Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
 BiliardoType Biliardo::type() const { return type_; }
 
 bool Biliardo::changeType(const bt::BiliardoType type) {
-  if (type >= 0 && type <= 2) {
+  if (type <= 2) {
     type_ = type;
     return true;
   }
