@@ -206,7 +206,7 @@ bool Biliardo::changeType(const bt::BiliardoType type) {
   return false;
 }
 
-const double &Biliardo::l(double l, bool shouldCheck) {
+const double &Biliardo::l(const double l, const bool shouldCheck) {
   if (shouldCheck && l <= 0) {
     std::cerr << "il parametro \"l\" deve essere positivo; è stato fornito" << l << '\n';
   } else {
@@ -216,7 +216,7 @@ const double &Biliardo::l(double l, bool shouldCheck) {
   return l_;
 }
 
-const double &Biliardo::r1(double r1, bool shouldCheck) {
+const double &Biliardo::r1(const double r1, const bool shouldCheck) {
   if (shouldCheck && r1 <= 0) {
     std::cerr << "il parametro \"r1\" deve essere positivo; è stato fornito " << r1 << '\n';
   } else {
@@ -227,7 +227,7 @@ const double &Biliardo::r1(double r1, bool shouldCheck) {
   return r1_;
 }
 
-const double &Biliardo::r2(double r2, bool shouldCheck) {
+const double &Biliardo::r2(const double r2, const bool shouldCheck) {
   if (shouldCheck && r2 <= 0) {
     std::cerr << "il parametro \"r2\" deve essere positivo; è stato fornito" << r2 << '\n';
   } else {
@@ -237,7 +237,7 @@ const double &Biliardo::r2(double r2, bool shouldCheck) {
   return r2_;
 }
 
-bool Biliardo::modify(double r1, double r2, double l, bool shouldCheck) {
+bool Biliardo::modify(const double r1, const double r2, const double l, const bool shouldCheck) {
   if (shouldCheck && (r1 <= 0 || r2 <= 0 || l <= 0)) {
     std::array<std::string, 3> argName = {"l", "r1", "r2"};
     std::array<double *, 3> argList = {&l_, &r1_, &r2_};
