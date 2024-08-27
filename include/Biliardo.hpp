@@ -84,9 +84,6 @@ class Biliardo {
   [[nodiscard]] const auto& yNormalDist() const { return yNormalDist_; }
   [[nodiscard]] const auto& thetaNormalDist() const { return thetaNormalDist_; }
 
-  // no by reference se no ambigua
-  // metodi per settare l, r1, e r2; ritornano delle const reference così si possono settare i parametri e al contempo
-  // immagazzinare una loro reference
   // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
   // in caso di errore il parametro non viene modificato
   const double& l(double l, bool shouldCheck = true);
