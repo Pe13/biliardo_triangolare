@@ -82,7 +82,7 @@ class Biliardo {
   [[nodiscard]] const double& r2() const { return r2_; }
   [[nodiscard]] const double& theta() const { return theta_; }
   [[nodiscard]] const auto& yNormalDist() const { return yNormalDist_; }
-  [[nodiscard]] const auto& thetaNormalDist() const { return thetaNormalDist_; }
+//  [[nodiscard]] const auto& thetaNormalDist() const { return thetaNormalDist_; }
 
   // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
   // in caso di errore il parametro non viene modificato
