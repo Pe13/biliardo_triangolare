@@ -22,7 +22,7 @@ const double muT = 0;
 const double sigmaT = M_PI / 8;
 const unsigned int N = 1e6;
 
-static bt::Biliardo biliardo{r1, r2, l};
+static bt::Biliardo biliardo{l, r1, r2};
 
 static void setupLeftBounded([[maybe_unused]] const benchmark::State &state) {
   biliardo.changeType(bt::leftBounded);
@@ -47,7 +47,7 @@ static void launchParticlesAsyncLeftBounded(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
   }
 }
-BENCHMARK(launchParticlesAsyncLeftBounded)->Setup(setupLeftBounded)->Teardown(enableCout)->MinTime(2.0);
+BENCHMARK(launchParticlesAsyncLeftBounded)->Setup(setupLeftBounded)->Teardown(enableCout)->MinTime(5.0);
 
 static void launchParticlesSyncLeftBounded(benchmark::State &state) {
   for (auto _ : state) {
@@ -57,7 +57,7 @@ static void launchParticlesSyncLeftBounded(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
   }
 }
-BENCHMARK(launchParticlesSyncLeftBounded)->Setup(setupLeftBounded)->Teardown(enableCout)->MinTime(2.0);
+BENCHMARK(launchParticlesSyncLeftBounded)->Setup(setupLeftBounded)->Teardown(enableCout)->MinTime(5.0);
 
 static void launchParticlesAsyncRightBounded(benchmark::State &state) {
   for (auto _ : state) {
@@ -67,7 +67,7 @@ static void launchParticlesAsyncRightBounded(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
   }
 }
-BENCHMARK(launchParticlesAsyncRightBounded)->Setup(setupRightBounded)->Teardown(enableCout)->MinTime(10.);
+BENCHMARK(launchParticlesAsyncRightBounded)->Setup(setupRightBounded)->Teardown(enableCout)->MinTime(5.);
 
 static void launchParticlesSyncRightBounded(benchmark::State &state) {
   for (auto _ : state) {
@@ -77,7 +77,7 @@ static void launchParticlesSyncRightBounded(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
   }
 }
-BENCHMARK(launchParticlesSyncRightBounded)->Setup(setupRightBounded)->Teardown(enableCout)->MinTime(10.);
+BENCHMARK(launchParticlesSyncRightBounded)->Setup(setupRightBounded)->Teardown(enableCout)->MinTime(5.);
 
 static void launchParticlesAsyncOpen(benchmark::State &state) {
   for (auto _ : state) {
@@ -87,7 +87,7 @@ static void launchParticlesAsyncOpen(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, true);
   }
 }
-BENCHMARK(launchParticlesAsyncOpen)->Setup(setupOpen)->Teardown(enableCout);
+BENCHMARK(launchParticlesAsyncOpen)->Setup(setupOpen)->Teardown(enableCout)->MinTime(5.);
 
 static void launchParticlesSyncOpen(benchmark::State &state) {
   for (auto _ : state) {
@@ -97,6 +97,6 @@ static void launchParticlesSyncOpen(benchmark::State &state) {
     biliardo.multipleLaunch(muY, sigmaY, muT, sigmaT, N, histograms, false);
   }
 }
-BENCHMARK(launchParticlesSyncOpen)->Setup(setupOpen)->Teardown(enableCout);
+BENCHMARK(launchParticlesSyncOpen)->Setup(setupOpen)->Teardown(enableCout)->MinTime(5.);
 
 BENCHMARK_MAIN();
