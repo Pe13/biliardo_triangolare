@@ -20,6 +20,7 @@
 
 namespace bt {
 
+// dal source code di root https://root.cern.ch/doc/v626/classTPadPainter.html#ad4d9e7f89be8a04559e22f1f279b0fb6
 void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
   if (gVirtualX->InheritsFrom("TGCocoa") && !gROOT->IsBatch() && canvas.GetCanvas() &&
       canvas.GetCanvas()->GetCanvasID() != -1) {
@@ -28,22 +29,20 @@ void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
     const UInt_t w = canvas.GetWw();
     const UInt_t h = canvas.GetWh();
 
-    const unsigned char* pixelData = gVirtualX->GetColorBits(canvas.GetCanvasID(), 0, 0, w, h);
+    const std::unique_ptr<unsigned char[]>
+        pixelData(gVirtualX->GetColorBits(canvas.GetCanvasID(), 0, 0, w, h));
 
     if (pixelData) {
-      histoImage.create(w, h, pixelData);
+      histoImage.create(w, h, pixelData.get());
     }
-    delete[] pixelData;
   } else {
-    TImage* img = TImage::Create();
-    if (img) {
-      img->FromPad(&canvas);
+    const std::unique_ptr<TImage> img(TImage::Create());
+    if (!img) {
+      throw std::runtime_error("Root non è riuscito a creare un'immagine");
     }
-
-    auto rgbaArray = img->GetRgbaArray();
-    histoImage.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8*>(rgbaArray));
-    delete img;
-    delete[] rgbaArray;
+    img->FromPad(&canvas);
+    const std::unique_ptr<unsigned int[]> rgbaArray(img->GetRgbaArray());
+    histoImage.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8*>(rgbaArray.get()));
   }
 }
 
