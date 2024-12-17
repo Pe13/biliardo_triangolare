@@ -19,26 +19,18 @@ namespace bt {
 // TODO testare che i vari metodi con controllo dell'input funzionino
 
 bool Biliardo::isOut(const LastHit &lastHit) const {
-  bool result = false;
+  bool result{};
   switch (type_) {
     case open:
       result = true;
       break;
 
     case rightBounded:
-      if (lastHit == left) {
-        result = true;
-      } else {
-        result = false;
-      }
+      result = lastHit == left;
       break;
 
     case leftBounded:
-      if (lastHit == right) {
-        result = true;
-      } else {
-        result = false;
-      }
+      result = lastHit == right;
       break;
   }
   return result;
