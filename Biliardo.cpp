@@ -44,7 +44,7 @@ bool Biliardo::isOut(const LastHit &lastHit) const {
   return result;
 }
 
-std::array<double, 2> Biliardo::generateParticle() {
+void Biliardo::addParticleToMultipleLaunch(std::vector<Particle> &launch) {
   double y;
   double direction;
   do {
@@ -54,7 +54,7 @@ std::array<double, 2> Biliardo::generateParticle() {
     direction = thetaNormalDist_(rng_);
   } while (direction <= -M_PI / 2 || direction >= M_PI / 2);
 
-  return {y, direction};
+  launch.emplace_back(y, direction);
 }
 
 bool Biliardo::findNextCollision(CollisionParameters &parameters) const {
@@ -64,8 +64,8 @@ bool Biliardo::findNextCollision(CollisionParameters &parameters) const {
   double a = std::tan(parameters.direction);
   double c = parameters.y - a * parameters.x;
 
-  // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla tutta con il
-  // meno): bx + d
+  // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla
+  // tutta con il meno): bx + d
   const double &b = slope_;
   const double &d = r1_;
 
@@ -98,51 +98,59 @@ bool Biliardo::findNextCollision(CollisionParameters &parameters) const {
   return out;
 }
 
-void Biliardo::launchForHistograms(std::array<double, 2> &launch) const {
+void Biliardo::launchForHistograms(Particle &particle) const {
   CollisionParameters parameters = {
-      left,       // lastHit
-      0,          // x
-      launch[0],  // y
-      launch[1],  // direction
+      left,                // lastHit
+      0,                   // x
+      particle.y,          // y
+      particle.direction,  // direction
   };
 
   while (!findNextCollision(parameters)) {
   }
 
-  launch[0] = parameters.y;
-  launch[1] = parameters.direction;
+  particle.y = parameters.y;
+  particle.direction = parameters.direction;
 }
 
 void Biliardo::syncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  std::vector<std::array<double, 2>> v(N);
-
+  std::vector<Particle> launch{};
+  launch.reserve(N);
   std::cout << "generating syncLaunch...\n";
-  std::generate(v.begin(), v.end(), [this]() { return generateParticle(); });
+  // idealmente potrei usare un while sulla size del vector ma sarebbe meno leggibile
+  for (unsigned int i = 0; i < N; i++) {
+    addParticleToMultipleLaunch(launch);
+  }
 
   std::cout << "launching...\n";
-  std::for_each(v.begin(), v.end(), [this](auto &launch) { launchForHistograms(launch); });
+  std::for_each(launch.begin(), launch.end(),
+                [this](auto &particle) { launchForHistograms(particle); });
 
   std::cout << "Filling histograms...\n";
-  std::for_each(v.begin(), v.end(), [&](const auto &arr) {
-    std::for_each(arr.begin(), arr.end(), [&](const auto &item) { histograms[&item - arr.data()].Fill(item); });
+  std::for_each(launch.begin(), launch.end(), [&](const auto &particle) {
+    histograms[0].Fill(particle.y);
+    histograms[1].Fill(particle.direction);
   });
 
   std::cout << "Done \n\n";
 }
 
 void Biliardo::asyncLaunch(const unsigned int N, std::array<TH1D, 2> &histograms) {
-  std::vector<std::array<double, 2>> v(N);
-
+  std::vector<Particle> launch;
+  launch.reserve(N);
   std::cout << "generating asyncLaunch...\n";
-  std::generate(v.begin(), v.end(), [this]() { return generateParticle(); });
+  for (unsigned int i = 0; i < N; i++) {
+    addParticleToMultipleLaunch(launch);
+  }
 
   std::cout << "launching...\n";
-  std::for_each(std::execution::par_unseq, v.begin(), v.end(), [this](auto &launch) { launchForHistograms(launch); });
+  std::for_each(std::execution::par_unseq, launch.begin(), launch.end(),
+                [this](auto &particle) { launchForHistograms(particle); });
 
   std::cout << "Filling histograms...\n";
-  std::for_each(v.begin(), v.end(), [&](const auto &arr) {
-    std::for_each(std::execution::par_unseq, arr.begin(), arr.end(),
-                  [&](const auto &item) { histograms[&item - arr.data()].Fill(item); });
+  std::for_each(launch.begin(), launch.end(), [&](const auto &particle) {
+    histograms[0].Fill(particle.y);
+    histograms[1].Fill(particle.direction);
   });
 
   std::cout << "Done \n\n";
@@ -170,14 +178,16 @@ void Biliardo::launchForDrawing_(const double initialY, const double initialDire
 }
 
 Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
-    : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)}, yNormalDist_(0, r1_ / 5) {
+    : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)},
+      yNormalDist_(0, r1_ / 5) {
   // controllo che i parametri siano validi
   if (l <= 0 || r1_ <= 0 || r2_ <= 0) {
     std::array<std::string, 3> argName = {"l", "r1", "r2"};
     std::array<double *, 3> argList = {&l_, &r1_, &r2_};
 
     for (int i = 0; i < 3; i++) {
-      if (*argList[i] < 0) {  // se sono negativi uso il loro modulo e informo l'utente con un warning
+      if (*argList[i] <
+          0) {  // se sono negativi uso il loro modulo e informo l'utente con un warning
         *argList[i] = -*argList[i];
         if (i == 1) {  // nel caso r1 sia negativo modifico anche la distribuzione gaussiana delle y
           yNormalDist_ = std::normal_distribution<double>(0, r1_ / 5);
@@ -260,12 +270,12 @@ bool Biliardo::modify(const double r1, const double r2, const double l, const bo
   return true;
 }
 
-bool Biliardo::launchForDrawing(const double initialY, const double initialDirection, std::vector<double> &output,
-                                bool shouldCheck) const {
+bool Biliardo::launchForDrawing(const double initialY, const double initialDirection,
+                                std::vector<double> &output, bool shouldCheck) const {
   if (shouldCheck) {
     if (std::abs(initialY) > r1_) {
-      std::cerr << "Warning: il parametro initialY vale" << initialY << "ma il suo modulo deve essere minore di " << r1_
-                << '\n';
+      std::cerr << "Warning: il parametro initialY vale" << initialY
+                << "ma il suo modulo deve essere minore di " << r1_ << '\n';
       return false;
     }
     if (std::abs(initialDirection) > M_PI / 2) {
@@ -284,7 +294,8 @@ void Biliardo::launchForDrawing(std::vector<double> &output) {
   launchForDrawing_(initialY, initialDirection, output);
 }
 
-bool Biliardo::launchForDrawingNoY(const double initialDirection, std::vector<double> &output, bool shouldCheck) {
+bool Biliardo::launchForDrawingNoY(const double initialDirection, std::vector<double> &output,
+                                   bool shouldCheck) {
   if (shouldCheck && std::abs(initialDirection) > M_PI / 2) {
     std::cerr << "Warning: il parametro initialDirection vale" << initialDirection
               << "ma il suo modulo deve essere minore di " << M_PI / 2 << '\n';
@@ -295,10 +306,11 @@ bool Biliardo::launchForDrawingNoY(const double initialDirection, std::vector<do
   return true;
 }
 
-bool Biliardo::launchForDrawingNoDir(const double initialY, std::vector<double> &output, bool shouldCheck) {
+bool Biliardo::launchForDrawingNoDir(const double initialY, std::vector<double> &output,
+                                     bool shouldCheck) {
   if (shouldCheck && std::abs(initialY) > r1_) {
-    std::cerr << "Warning: il parametro initialY vale" << initialY << "ma il suo modulo deve essere minore di " << r1_
-              << '\n';
+    std::cerr << "Warning: il parametro initialY vale" << initialY
+              << "ma il suo modulo deve essere minore di " << r1_ << '\n';
     return false;
   }
   double initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
@@ -311,8 +323,8 @@ void Biliardo::multipleLaunch(double muY, double sigmaY, double muT, double sigm
   yNormalDist_ = std::normal_distribution<double>(muY, sigmaY);
   thetaNormalDist_ = std::normal_distribution<double>(muT, sigmaT);
 
-  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la sequenza non dovrebbe mai
-  // ripetersi
+  // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la
+  // sequenza non dovrebbe mai ripetersi
   rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
   if (async) {
