@@ -13,14 +13,14 @@ string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
 
 # rimuove le ottimizzazioni se si deve profilare l'eseguibile
 if (PROFILE OR VALGRIND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 endif ()
 
 # abilita l'address sanitizer e l'undefined-behaviour sanitizer in debug mode quando non si usa valgrind
 if (NOT VALGRIND)
-    string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
-    string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+  string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
 endif ()
 
 find_package(ROOT 6.26 COMPONENTS CONFIG REQUIRED)
@@ -29,19 +29,29 @@ find_package(TGUI 1.0 REQUIRED)
 find_package(Boost 1.35 COMPONENTS container REQUIRED)
 
 add_executable(biliardo_triangolare
-        main.cpp App.cpp
-        Biliardo.cpp Designer.cpp
-        Gui.cpp)
+               main.cpp App.cpp
+               Biliardo.cpp Designer.cpp
+               Gui.cpp)
 
 target_include_directories(biliardo_triangolare PRIVATE include)
 target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics ROOT::Gpad sfml-graphics TGUI::TGUI)
 
+add_custom_command(
+        TARGET biliardo_triangolare POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/resources/Black.png
+        ${CMAKE_CURRENT_BINARY_DIR}/Black.png &&
+        ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/resources/Black.txt
+        ${CMAKE_CURRENT_BINARY_DIR}/Black.txt
+        )
+
 # se il testing e' abilitato...
-#   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
+# per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
 if (BUILD_TESTING)
-    add_subdirectory(tests)
+  add_subdirectory(tests)
 endif ()
 
 if (BUILD_BENCHMARK)
-    add_subdirectory(benchmarks)
+  add_subdirectory(benchmarks)
 endif ()

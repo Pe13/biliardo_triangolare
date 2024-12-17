@@ -194,7 +194,6 @@ TEST_CASE("Testing parameters setters") {
 TEST_CASE("Testing bouncing algorithm consistency") {
   class Bouncer {
     const bt::Biliardo* biliardo_;
-
     double m_;
 
    public:
