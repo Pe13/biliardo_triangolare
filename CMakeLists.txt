@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # abilita warning
 string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
 
-# rimuove le ottimizzazioni se si deve profilare l'eseguibile
+# rimuovi le ottimizzazioni se si deve profilare l'eseguibile
 if (PROFILE OR VALGRIND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
@@ -28,14 +28,20 @@ find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 find_package(TGUI 1.0 REQUIRED)
 find_package(Boost 1.35 COMPONENTS container REQUIRED)
 
+# compila il backend
+add_subdirectory(libTPool)
+
+# crea l'app per il frontend
 add_executable(biliardo_triangolare
                main.cpp App.cpp
-               Biliardo.cpp Designer.cpp
+               Designer.cpp
                Gui.cpp)
 
+add_dependencies(biliardo_triangolare TPool)
 target_include_directories(biliardo_triangolare PRIVATE include)
-target_link_libraries(biliardo_triangolare PRIVATE ROOT::Core ROOT::Hist ROOT::Physics ROOT::Gpad sfml-graphics TGUI::TGUI)
+target_link_libraries(biliardo_triangolare PRIVATE TPool ROOT::Core ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI)
 
+# copia le texture nella directory di build
 add_custom_command(
         TARGET biliardo_triangolare POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -50,8 +56,4 @@ add_custom_command(
 # per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
 if (BUILD_TESTING)
   add_subdirectory(tests)
-endif ()
-
-if (BUILD_BENCHMARK)
-  add_subdirectory(benchmarks)
 endif ()

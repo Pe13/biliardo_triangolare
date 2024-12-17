@@ -2,6 +2,8 @@
 // Created by paolo on 27/08/2024.
 //
 
+// TODO Testare l'algoritmo di rimbalzo
+
 #include <TH1D.h>
 #include <benchmark/benchmark.h>
 

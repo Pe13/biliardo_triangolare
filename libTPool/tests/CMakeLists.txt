@@ -1,0 +1,10 @@
+# abilita il supporto per i test
+include(CTest)
+
+# test biliardo
+add_executable(TPool_test biliardoTest.cpp ../Biliardo.cpp)
+
+target_include_directories(TPool_test PRIVATE ../include)
+target_link_libraries(TPool_test PRIVATE ROOT::Core ROOT::Hist)
+
+add_test(NAME TPool_test COMMAND TPool_test)
