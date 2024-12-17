@@ -75,19 +75,19 @@ class Biliardo {
 
   [[nodiscard]] BiliardoType type() const;
 
-  /**
-   * @brief Consente di cambiare il tipo del biliardo
-   * @param type Il nuovo tipo che si vuole assegnare
-   * @return restituisce true se il cambio è avvenuto con successo, altrimenti ritorna false
-   */
-  bool changeType(BiliardoType type);
-
   [[nodiscard]] const double& l() const { return l_; }
   [[nodiscard]] const double& r1() const { return r1_; }
   [[nodiscard]] const double& r2() const { return r2_; }
   [[nodiscard]] const double& theta() const { return theta_; }
   [[nodiscard]] const auto& yNormalDist() const { return yNormalDist_; }
   //  [[nodiscard]] const auto& thetaNormalDist() const { return thetaNormalDist_; }
+
+  /**
+   * @brief Consente di cambiare il tipo del biliardo
+   * @param type Il nuovo tipo che si vuole assegnare
+   * @return restituisce true se il cambio è avvenuto con successo, altrimenti ritorna false
+   */
+  bool changeType(BiliardoType type);
 
   // passare false come secondo argomento se si è gia controllato che il valore fornito sia positivo
   // in caso di errore il parametro non viene modificato
