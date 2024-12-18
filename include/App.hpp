@@ -47,7 +47,7 @@ class App {
   /**
    * @brief Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e la parte grafica
    */
-  void modifyBiliardo();
+  void modifyBiliardo(double l, double r1, double r2);
 
  public:
   App(double l, double r1, double r2, BiliardoType type, const sf::ContextSettings& settings);

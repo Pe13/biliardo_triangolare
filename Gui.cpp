@@ -2,6 +2,8 @@
 // Created by paolo on 29/08/2023.
 //
 
+// TODO Far aderire le label ai campi cui si riferiscono, non a quelli sopra
+
 #include "Gui.hpp"
 
 #include <TH1D.h>
@@ -14,54 +16,48 @@
 
 namespace bt {
 
-void Gui::newBiliardoBtnPressed(bt::App* app) const {
-  std::array<double, 3> data{app->biliardo_.r1(), app->biliardo_.r2(), app->biliardo_.l()};
+void Gui::newBiliardoBtnPressed(App* app) const {
+  std::array<std::optional<double>, 3> newParameters{app->biliardo_.r1(), app->biliardo_.r2(),
+                                                     app->biliardo_.l()};
   bool hasChanged = false;
   bool error = false;
 
   forEachIndexed<tgui::EditBox>(
       newBiliardoWrapper_->getWidgets().begin(), newBiliardoWrapper_->getWidgets().end(),
-      [&data, &hasChanged, &error](const tgui::EditBox::Ptr& box, unsigned int i) {
-        if (isValidInput(box->getText(), data[i]) && data[i] > 0) {
-          box->setDefaultText(tgui::String(data[i]));  // aggiorno il testo placeholder dell'EditBox
-          box->setText("");                            // Pulisco l'EditBox
+      [&newParameters, &hasChanged, &error](const tgui::EditBox::Ptr& inputBox,
+                                            const unsigned int i) {
+        newParameters[i] = inputStringToDouble(inputBox->getText());
+
+        if (newParameters[i] && newParameters[i].value() > 0) {
+          inputBox->setDefaultText(tgui::String(newParameters[i].value()));
+          inputBox->setText("");
           hasChanged = true;
-        } else if (!box->getText().empty()) {
-          box->getRenderer()->setTextColor(tgui::Color::Red);
+        } else if (!inputBox->getText().empty()) {
+          inputBox->getRenderer()->setTextColor(tgui::Color::Red);
           error = true;
         }
       });
 
   if (hasChanged && !error) {
-    app->biliardo_.modify(data[0], data[1], data[2], false);
-    sigmaYInput_->setDefaultText(tgui::String(data[0] / 5));  // aggiorno il testo placeholder della sigmaY di default
-    app->modifyBiliardo();
+    app->modifyBiliardo(newParameters[0].value(), newParameters[1].value(),
+                        newParameters[2].value());
+    sigmaYInput_->setDefaultText(tgui::String(
+        app->biliardo_.r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
   }
 }
 
-void Gui::singleLaunchBtnPressed(bt::App* app) const {
-  double y;
-  double t;
-  bool isY;
-  bool isT;
+void Gui::singleLaunchBtnPressed(App* app) const {
+  const std::optional<double> y = inputStringToDouble(heightInput_->getText());
+  const std::optional<double> t = inputStringToDouble(angleInput_->getText());
   bool failed = false;
 
-  // controllo quali input sono presenti
-
-  if (heightInput_->getText().empty()) {
-    isY = false;
-  } else if (isValidInput(heightInput_->getText(), y) && std::abs(y) <= app->biliardo_.r1()) {
-    isY = true;
-  } else {
+  if (!heightInput_->getText().empty() &&
+      (!y.has_value() || std::abs(y.value()) >= app->biliardo_.r1())) {
     heightInput_->getRenderer()->setTextColor(tgui::Color::Red);
     failed = true;
   }
 
-  if (angleInput_->getText().empty()) {
-    isT = false;
-  } else if (isValidInput(angleInput_->getText(), t) && std::abs(t) <= M_PI / 2) {
-    isT = true;
-  } else {
+  if (!angleInput_->getText().empty() && (!t.has_value() || std::abs(t.value()) >= M_PI / 2)) {
     angleInput_->getRenderer()->setTextColor(tgui::Color::Red);
     failed = true;
   }
@@ -70,49 +66,48 @@ void Gui::singleLaunchBtnPressed(bt::App* app) const {
     return;
   }
 
-  // gestisco i vari casi
   auto& newLaunch = app->newSingleLaunch();
-  if (!isY && !isT) {  // se ne y ne teta sono indicate le genera entrambe
-    app->biliardo_.launchForDrawing(newLaunch);
-  } else if (isY && isT) {  // se invece sono entrambe indicate le usa semplicemente
-    app->biliardo_.launchForDrawing(y, t, newLaunch, false);
-  } else if (isY) {  // altrimenti genera solo quella mancante
-    app->biliardo_.launchForDrawingNoDir(y, newLaunch, false);
-  } else {
-    app->biliardo_.launchForDrawingNoY(t, newLaunch, false);
-  }
+  app->biliardo_.launchForDrawing(newLaunch, y, t);
 
   app->reRun();
   setSingleLaunchText(newLaunch);
 }
 
 void Gui::multipleLaunchBtnPressed(App* app) const {
-  // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la "e" e posso fare
-  // un controllo su un possibile overflow
-  std::array<double, 5> data{1e6, 0, app->biliardo_.r1() / 5, 0, M_PI / 8};
-  const double& N = data[0];
-  const double& muY = data[1];
-  const double& sigmaY = data[2];
-  const double& muT = data[3];
-  const double& sigmaT = data[4];
+  // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la
+  // "e" e posso fare un controllo su un possibile overflow
+  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->biliardo_.r1() / 5, 0,
+                                                        M_PI / 8};
+  const double& N = launchParameters[0].value();
+  const double& muY = launchParameters[1].value();
+  const double& sigmaY = launchParameters[2].value();
+  const double& muT = launchParameters[3].value();
+  const double& sigmaT = launchParameters[4].value();
 
   bool error = false;
 
-  // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di default
-  forEachIndexed<tgui::EditBox>(multipleLaunchWrapper_->getWidgets().begin(), multipleLaunchWrapper_->getWidgets().end(),
-                                [&data, &error](const tgui::EditBox::Ptr& box, unsigned int i) {
-                                  if (!isValidInput(box->getText(), data[i]) && !box->getText().empty()) {
-                                    box->getRenderer()->setTextColor(tgui::Color::Red);
-                                    error = true;
-                                  }
-                                });
+  // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di
+  // default
+  forEachIndexed<tgui::EditBox>(
+      multipleLaunchWrapper_->getWidgets().begin(), multipleLaunchWrapper_->getWidgets().end(),
+      [&launchParameters, &error](const tgui::EditBox::Ptr& box, const unsigned int i) {
+        launchParameters[i] = inputStringToDouble(box->getText());
+        if (!launchParameters[i] && !box->getText().empty()) {
+          box->getRenderer()->setTextColor(tgui::Color::Red);
+          error = true;
+        }
+      });
+
+  if (error) {
+    return;
+  }
 
   unsigned int N_{};
-  boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
   try {
+    boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
     N_ = safeDoubleToUInt(N);
-  } catch (
-      std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere sottoclassi di std::bad_cast
+  } catch (std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere
+                              // sottoclassi di std::bad_cast
     numberInput_->getRenderer()->setTextColor(tgui::Color::Red);
     error = true;
   }
@@ -245,7 +240,8 @@ void Gui::create() {
 }
 
 void Gui::style() const {
-  leftText_->setEnabled(false);  // disattivo le TexArea per usarle come label ma con un font più sottile
+  leftText_->setEnabled(
+      false);  // disattivo le TexArea per usarle come label ma con un font più sottile
   rightText_->setEnabled(false);
   leftText_->setTextSize(13);
   rightText_->setTextSize(13);
@@ -255,12 +251,14 @@ void Gui::style() const {
 }
 
 void Gui::activate(App* app) const {
-  // ripristino il colore del testo di default all'ottenimento del focus nel caso questo sia diventato rosso a causa di
-  // un dato non valido inserito
-  forEach<tgui::EditBox>(gui_.getWidgets().begin(), gui_.getWidgets().end(), [](tgui::EditBox::Ptr const& box) {
-    box->onFocus(
-        [box] { box->getRenderer()->setTextColor(tgui::Color::White); });  // box catturato by value se no crash
-  });
+  // ripristino il colore del testo di default all'ottenimento del focus nel caso questo sia
+  // diventato rosso a causa di un dato non valido inserito
+  forEach<tgui::EditBox>(gui_.getWidgets().begin(), gui_.getWidgets().end(),
+                         [](tgui::EditBox::Ptr const& box) {
+                           box->onFocus([box] {
+                             box->getRenderer()->setTextColor(tgui::Color::White);
+                           });  // box catturato by value se no crash
+                         });
 
   // attivo le funzioni dei bottoni per cambiare tipo di biliardo
   biliardoApertoBtn_->onPress(&App::changeBiliardoType, app, open);
@@ -282,7 +280,8 @@ void Gui::activate(App* app) const {
   // attivo il bottone per i lanci singoli
   singleLaunchBtn_->onPress(&Gui::singleLaunchBtnPressed, this, app);
 
-  // imposto i placeholder per gli editbox del lancio multiplo con i valori di default delle distribuzioni normali
+  // imposto i placeholder per gli editbox del lancio multiplo con i valori di default delle
+  // distribuzioni normali
   muYInput_->setDefaultText("0");
   sigmaYInput_->setDefaultText(tgui::String(app->biliardo_.r1() / 5));
   muTInput_->setDefaultText("0");
@@ -347,17 +346,11 @@ Gui::Gui(sf::RenderWindow& window, App* app) : gui_{window} {
   activate(app);
 }
 
-void Gui::handleEvent(sf::Event& event) {
-  gui_.handleEvent(event);
-}
+void Gui::handleEvent(sf::Event& event) { gui_.handleEvent(event); }
 
-void Gui::draw() {
-  gui_.draw();
-}
+void Gui::draw() { gui_.draw(); }
 
-void Gui::setSize(float width, float height) const {
-  wrapper_->setSize(width, height);
-}
+void Gui::setSize(float width, float height) const { wrapper_->setSize(width, height); }
 
 void Gui::setSingleLaunchText(const std::vector<double>& launch) const {
   auto unchangedPartLeft = leftText_->getText().substr(leftText_->getText().find("\nL"));
@@ -387,7 +380,8 @@ void Gui::setSingleLaunchText(const std::vector<double>& launch) const {
 
 void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) const {
   auto unchangedPartLeft = leftText_->getText().substr(0, leftText_->getText().find("\n m"));
-  auto unchangedPartRight = rightText_->getText().substr(0, rightText_->getText().find("\n\n d") + 1);
+  auto unchangedPartRight =
+      rightText_->getText().substr(0, rightText_->getText().find("\n\n d") + 1);
 
   leftText_->setText(tgui::String::join(
       {

@@ -18,14 +18,15 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace bt {
 /**
- * @brief Formatta le stringe di input numerici in modo da invalidarle o renderle comprensibili al metodo
- * std::stod
+ * @brief Formatta le stringe di input numerici in modo da invalidarle o renderle comprensibili al
+ * metodo std::stod
  * @param str Stringa da formattare (non viene modificata)
- * @return La stringa formattata ma in formato std::string così da poter essere usata con i metodi tipo std::stod.
- * Oppure una stringa vuota nel caso non sia valida
+ * @return La stringa formattata ma in formato std::string così da poter essere usata con i metodi
+ * tipo std::stod. Oppure una stringa vuota nel caso non sia valida
  */
 inline std::string format(const tgui::String& str) {
   if (str.empty()) {
@@ -33,7 +34,8 @@ inline std::string format(const tgui::String& str) {
   }
   auto string = str;
 
-  // rimuovo tutti gli apici e gli spazi (che possono essere usati per contare meglio le cifre inserite)
+  // rimuovo tutti gli apici e gli spazi (che possono essere usati per contare meglio le cifre
+  // inserite)
   string.remove('\'');
   string.remove(' ');
 
@@ -68,7 +70,8 @@ inline std::string format(const tgui::String& str) {
   string.insert(0, sign);
 
   // se contiene più di un punto decimale o più di una "e" invalido la stringa
-  if (std::count(string.begin(), string.end(), 'e') > 1 || std::count(string.begin(), string.end(), '.') > 1) {
+  if (std::count(string.begin(), string.end(), 'e') > 1 ||
+      std::count(string.begin(), string.end(), '.') > 1) {
     return "";
   }
   // reinserisco l'eventuale segno all'eventuale esponenziale
@@ -86,27 +89,25 @@ inline std::string format(const tgui::String& str) {
 }
 
 /**
- * @brief Ritorna true se la stringa è un input valido, e in tal caso salva il risultato sotto forma di double nella
- * variabile fornita. In caso di fallimento la variabile non viene modificata
+ * @brief Ritorna true se la stringa è un input valido, e in tal caso salva il risultato sotto forma
+ * di double nella variabile fornita. In caso di fallimento la variabile non viene modificata
  * @param string La stringa da esaminare
- * @param val La variabile in cui salvare l'input
  * @return True se la conversione è andata a buon fine, false altrimenti
  */
-inline bool isValidInput(const tgui::String& string, double& val) {
+inline std::optional<double> inputStringToDouble(const tgui::String& string) {
   try {
-    val = std::stod(format(string));
-    return true;
+    return std::stod(format(string));
   } catch (std::invalid_argument&) {
-    return false;
+    return std::nullopt;
   } catch (std::out_of_range&) {
-    return false;
+    return std::nullopt;
   }
 }
 
 using iterator = std::vector<tgui::Widget::Ptr>::const_iterator;
 /**
- * @brief Applica una funzione lambda a ciascun elemento di un determinato tipo nell'intervallo specificato, tenendo
- * traccia dell'indice.
+ * @brief Applica una funzione lambda a ciascun elemento di un determinato tipo nell'intervallo
+ * specificato, tenendo traccia dell'indice.
  *
  * La funzione è ricorsiva e può gestire anche container nidificati all'interno dell'intervallo.
  *
@@ -118,10 +119,11 @@ using iterator = std::vector<tgui::Widget::Ptr>::const_iterator;
  * @param index L'indice iniziale per tenere traccia della posizione.
  * @return L'indice dell'ultimo elemento processato nell'intervallo.
  *
- * Questa funzione template accetta un intervallo [begin, end) di tgui::Widget::Ptr e applica la funzione lambda fornita
- * a ciascun elemento all'interno dell'intervallo se questo può essere convertito in un puntatore del tipo specificato,
- * tenendo traccia dell'indice dell'elemento. La funzione lambda deve avere il seguente prototipo: void lambda(const
- * std::shared_ptr<T>& element, unsigned int index).
+ * Questa funzione template accetta un intervallo [begin, end) di tgui::Widget::Ptr e applica la
+ * funzione lambda fornita a ciascun elemento all'interno dell'intervallo se questo può essere
+ * convertito in un puntatore del tipo specificato, tenendo traccia dell'indice dell'elemento. La
+ * funzione lambda deve avere il seguente prototipo: void lambda(const std::shared_ptr<T>& element,
+ * unsigned int index).
  */
 template <typename T, typename Function>
 unsigned int forEachIndexed(iterator begin, iterator end, Function&& f, unsigned int index = 0) {
@@ -142,7 +144,8 @@ unsigned int forEachIndexed(iterator begin, iterator end, Function&& f, unsigned
 }
 
 /**
- * @brief Applica una funzione lambda a ciascun elemento di un determinato tipo nell'intervallo specificato.
+ * @brief Applica una funzione lambda a ciascun elemento di un determinato tipo nell'intervallo
+ * specificato.
  *
  * La funzione è ricorsiva e può gestire anche container nidificati all'interno dell'intervallo.
  *
@@ -152,9 +155,10 @@ unsigned int forEachIndexed(iterator begin, iterator end, Function&& f, unsigned
  * @param end Un iteratore che punta alla fine dell'intervallo.
  * @param f La funzione lambda da applicare a ciascun elemento.
  *
- * Questa funzione template accetta un intervallo [begin, end) e applica la funzione lambda fornita a ciascun elemento
- * all'interno dell'intervallo se questo può essere convertito in un puntatore del tipo specificato. La funzione lambda
- * deve avere il seguente prototipo: void lambda(const std::shared_ptr<T>& element).
+ * Questa funzione template accetta un intervallo [begin, end) e applica la funzione lambda fornita
+ * a ciascun elemento all'interno dell'intervallo se questo può essere convertito in un puntatore
+ * del tipo specificato. La funzione lambda deve avere il seguente prototipo: void lambda(const
+ * std::shared_ptr<T>& element).
  */
 template <typename T, typename Function>
 void forEach(iterator begin, iterator end, Function&& f) {

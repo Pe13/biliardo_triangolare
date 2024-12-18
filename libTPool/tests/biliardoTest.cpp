@@ -110,7 +110,7 @@ TEST_CASE("Testing parameters setters") {
     biliardo.l(0);
     isValueSetTo(positiveValue);
 
-    biliardo.l(negativeValue, false);
+    biliardo.l(negativeValue);
     isValueSetTo(negativeValue);
   }
 
@@ -118,8 +118,6 @@ TEST_CASE("Testing parameters setters") {
     auto isValueSetTo = [&biliardo](const double value) {
       CHECK(biliardo.r1() == value);
       CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
-      CHECK(biliardo.yNormalDist().mean() == 0);
-      CHECK(biliardo.yNormalDist().stddev() == biliardo.r1() / 5);
     };
 
     double positiveValue = positiveDistribution(BiliardoGenerator::rng);
@@ -133,7 +131,7 @@ TEST_CASE("Testing parameters setters") {
     biliardo.r1(0);
     isValueSetTo(positiveValue);
 
-    biliardo.r1(negativeValue, false);
+    biliardo.r1(negativeValue);
     isValueSetTo(negativeValue);
   }
 
@@ -154,7 +152,7 @@ TEST_CASE("Testing parameters setters") {
     biliardo.r2(0);
     isValueSetTo(positiveValue);
 
-    biliardo.r2(negativeValue, false);
+    biliardo.r2(negativeValue);
     isValueSetTo(negativeValue);
   }
 
@@ -164,29 +162,27 @@ TEST_CASE("Testing parameters setters") {
       CHECK(biliardo.r2() == parameters[1]);
       CHECK(biliardo.l() == parameters[2]);
       CHECK(biliardo.theta() == std::atan((parameters[1] - parameters[0]) / parameters[2]));
-      CHECK(biliardo.yNormalDist().mean() == 0);
-      CHECK(biliardo.yNormalDist().stddev() == parameters[0] / 5);
     };
 
     std::array<double, 3> rightParameters = BiliardoGenerator::generateParameters(positiveDistribution);
 
-    CHECK(biliardo.modify(rightParameters[0], rightParameters[1], rightParameters[2]) == true);
+    CHECK(biliardo.modify(rightParameters[2], rightParameters[0], rightParameters[1]) == true);
     areParametersSetTo(rightParameters);
 
     auto wrongParameters = rightParameters;
     wrongParameters[1] *= -1;
-    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2]) == false);
+    CHECK(biliardo.modify(wrongParameters[2], wrongParameters[0], wrongParameters[1]) == false);
     areParametersSetTo(rightParameters);
 
     wrongParameters[2] *= -1;
-    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2]) == false);
+    CHECK(biliardo.modify(wrongParameters[2], wrongParameters[0], wrongParameters[1]) == false);
     areParametersSetTo(rightParameters);
 
     wrongParameters[0] *= -1;
-    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2]) == false);
+    CHECK(biliardo.modify(wrongParameters[2], wrongParameters[0], wrongParameters[1]) == false);
     areParametersSetTo(rightParameters);
 
-    CHECK(biliardo.modify(wrongParameters[0], wrongParameters[1], wrongParameters[2], false) == true);
+    CHECK(biliardo.modify(wrongParameters[2], wrongParameters[0], wrongParameters[1]) == true);
     areParametersSetTo(wrongParameters);
   }
 }
