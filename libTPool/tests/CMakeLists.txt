@@ -5,6 +5,6 @@ include(CTest)
 add_executable(TPool_test biliardoTest.cpp ../Biliardo.cpp)
 
 target_include_directories(TPool_test PRIVATE ../include)
-target_link_libraries(TPool_test PRIVATE ROOT::Core ROOT::Hist)
+target_link_libraries(TPool_test PRIVATE ROOT::Core ROOT::Hist TBB::tbb)
 
 add_test(NAME TPool_test COMMAND TPool_test)

@@ -27,6 +27,7 @@ find_package(ROOT 6.26 COMPONENTS CONFIG REQUIRED)
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 find_package(TGUI 1.0 REQUIRED)
 find_package(Boost 1.35 COMPONENTS container REQUIRED)
+find_package(TBB REQUIRED)
 
 # compila il backend
 add_subdirectory(libTPool)
@@ -39,7 +40,7 @@ add_executable(biliardo_triangolare
 
 add_dependencies(biliardo_triangolare TPool)
 target_include_directories(biliardo_triangolare PRIVATE include)
-target_link_libraries(biliardo_triangolare PRIVATE TPool ROOT::Core ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI)
+target_link_libraries(biliardo_triangolare PRIVATE TPool ROOT::Core ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI TBB::tbb)
 
 # copia le texture nella directory di build
 add_custom_command(
