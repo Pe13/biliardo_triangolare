@@ -236,11 +236,12 @@ void Gui::create() {
 }
 
 void Gui::style() const {
-  leftText_->setEnabled(
-      false);  // disattivo le TexArea per usarle come label ma con un font più sottile
+  // disattivo le TexArea per usarle come label ma con un font più sottile
+  leftText_->setEnabled(false);
   rightText_->setEnabled(false);
   leftText_->setTextSize(13);
   rightText_->setTextSize(13);
+
   // usando lo sharedRenderer modifico simultaneamente i due campi di testo
   // ho rimosso la texture di background dal tema se no il background color verrebbe ignorato
   leftText_->getSharedRenderer()->setBackgroundColor(tgui::Color::Black);
@@ -408,5 +409,11 @@ void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) const {
       },
       '\n'));
 }
+
+void Gui::restoreTextOnBiliardoChange(const std::vector<double>& singleLaunch) const {
+  setDefaultText();
+  setSingleLaunchText(singleLaunch);
+}
+
 
 }  // namespace bt

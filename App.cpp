@@ -37,27 +37,27 @@ void App::handleEvents() {
     switch (event_.type) {
       case sf::Event::Closed:
         window_.close();
-      break;  // non necessario ma carino
+        break;  // non necessario ma carino
 
       case sf::Event::Resized:
         // evito che la finestra sia resa troppo piccola
-          if (window_.getSize().x < 1280) {
-            window_.setSize({1280, window_.getSize().y});
-          }
-      if (window_.getSize().y < 720) {
-        window_.setSize({window_.getSize().x, 720});
-      }
+        if (window_.getSize().x < 1280) {
+          window_.setSize({1280, window_.getSize().y});
+        }
+        if (window_.getSize().y < 720) {
+          window_.setSize({window_.getSize().x, 720});
+        }
 
-      // creo un'altra immagine dell'istogramma in accordo con la nuova dimensione della finestra
-      if (multipleLaunches_[biliardo_.type()].empty()) {
-        designer_.changeSize(biliardo_, window_, gui_);
-      } else {
-        designer_.changeSize(
-            biliardo_,
-            multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]],
-            window_, gui_);
-      }
-      break;
+        // creo un'altra immagine dell'istogramma in accordo con la nuova dimensione della finestra
+        if (multipleLaunches_[biliardo_.type()].empty()) {
+          designer_.changeSize(biliardo_, window_, gui_);
+        } else {
+          designer_.changeSize(
+              biliardo_,
+              multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]],
+              window_, gui_);
+        }
+        break;
 
       default:
         break;
@@ -82,12 +82,11 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
         biliardo_.changeType(static_cast<BiliardoType>(i));
     assert(typeChangeResult);
     auto& newLaunch = newSingleLaunch();
-    biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
-    gui_.setSingleLaunchText(newLaunch);  // aggiorno il testo dei dati riguardo il singolo lancio
+    biliardo_.launchForDrawing(newLaunch);
   }
-  [[maybe_unused]] const bool typeChangeResult =
-        biliardo_.changeType(type);
+  [[maybe_unused]] const bool typeChangeResult = biliardo_.changeType(type);
   assert(typeChangeResult);
+  gui_.setSingleLaunchText(singleLaunches_[biliardo_.type()][0]);
   designer_.calcBordiBiliardo(biliardo_);
   reRun();
 }
@@ -103,25 +102,33 @@ void App::start() {
 
 // TODO documentare l'uso di [[maybe_unused]]
 void App::modifyBiliardo(const double l, const double r1, const double r2) {
-  [[maybe_unused]] bool modificationResult = biliardo_.modify(l, r1, r2);
+  [[maybe_unused]] const bool modificationResult = biliardo_.modify(l, r1, r2);
   assert(modificationResult);
-  const BiliardoType biliardoType = biliardo_.type();  // salvo il tipo attuale
+
+  const BiliardoType actualBiliardoType = biliardo_.type();
+
   // rigenero un lancio per ogni tipo di biliardo e rimuovo i vecchi istogrammi
   for (long unsigned int i = 0; i < 3; i++) {
     singleLaunches_[i].clear();
     multipleLaunches_[i].clear();
     assert(biliardo_.changeType(static_cast<BiliardoType>(i)) == true);
     auto& newLaunch = newSingleLaunch();
-    biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
+    biliardo_.launchForDrawing(newLaunch);
   }
-  [[maybe_unused]] bool restoreTypeResult = biliardo_.changeType(biliardoType);
-  assert(restoreTypeResult);  // ripristino il tipo attuale
+
+  [[maybe_unused]] const bool restoreTypeResult = biliardo_.changeType(actualBiliardoType);
+  assert(restoreTypeResult);
+
   // aggiorno la parte grafica
   designer_.changeBiliardo(biliardo_, window_);
+  gui_.restoreTextOnBiliardoChange(singleLaunches_[biliardo_.type()][0]);
+
   // resetto gli indici a 0
   singleLaunchesIndex_ = {0, 0, 0};
   multipleLaunchesIndex_ = {0, 0, 0};
-  reRun();                                  // faccio partire la nuova simulazione
+
+  reRun();  // faccio partire la nuova simulazione
+
   designer_.setCanvas(biliardo_, window_);  // pulisco il grafico
 }
 
@@ -155,14 +162,14 @@ const std::vector<double>& App::singleLaunch(const std::optional<double> initial
   return newLaunch;
 }
 
-const std::array<TH1D, 2>& App::multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
-                                               const double muT, const double sigmaT, const bool async) {
+const std::array<TH1D, 2>& App::multipleLaunch(const unsigned int N, const double muY,
+                                               const double sigmaY, const double muT,
+                                               const double sigmaT, const bool async) {
   auto& histograms = newHistograms();
   biliardo_.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, async);
   designer_.setCanvas(histograms, window_);
   return histograms;
 }
-
 
 bool App::nextLaunch() {
   if (singleLaunchesIndex_[biliardo_.type()] != singleLaunches_[biliardo_.type()].size() - 1) {
