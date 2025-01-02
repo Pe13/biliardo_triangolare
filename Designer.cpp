@@ -57,7 +57,7 @@ void Designer::calcFrame(const sf::Vector2u& size) {
 
 void Designer::calcClearBiliardo(const bt::Biliardo& biliardo) {
   using namespace sf;
-  auto max = static_cast<float>(std::max(biliardo.r1(), biliardo.r2()));
+  const auto max = static_cast<float>(std::max(biliardo.r1(), biliardo.r2()));
   clearBiliardo_.update(
       (std::array<Vertex, 4>{
            sf::Vertex(sf::Vector2f(
@@ -88,7 +88,7 @@ void Designer::calcClearHisto(const sf::Vector2u& size) {
 }
 
 void Designer::calcStep(const std::vector<double>& points) {
-  double distance = std::sqrt(
+  const double distance = std::sqrt(
       (points[pointIndex_] - points[pointIndex_ + 2]) * (points[pointIndex_] - points[pointIndex_ + 2]) +
       (points[pointIndex_ + 1] - points[pointIndex_ + 3]) * (points[pointIndex_ + 1] - points[pointIndex_ + 3]));
   // speedx = stepx * 30
@@ -176,8 +176,8 @@ void Designer::calcBordiBiliardo(const Biliardo& biliardo) {
                     simulationHeight_ * 0.4f / static_cast<float>(std::max(biliardo.r1(), biliardo.r2())));
 
   // calcolo l'offset orizzontale per centrare il biliardo nel riquadro
-  float width = static_cast<float>(biliardo.l()) * ratio_;
-  float horizontalFraction = width / simulationWidth_;
+  const float width = static_cast<float>(biliardo.l()) * ratio_;
+  const float horizontalFraction = width / simulationWidth_;
   simulationXOffset_ = (1.f - horizontalFraction) / 2.f * simulationWidth_ + rightOffset_;
 
   // ordino i Vertex nel buffer in base all'ordine in cui devono essere disegnati
@@ -235,8 +235,8 @@ void Designer::reRun(const std::vector<double>& points) {
 void Designer::pause() { isPaused_ = !isPaused_; }
 
 void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
-  int width = static_cast<int>(static_cast<float>(window.getSize().x) - rightOffset_);
-  int height = static_cast<int>(static_cast<float>(window.getSize().y) - topOffset_);
+  const int width = static_cast<int>(static_cast<float>(window.getSize().x) - rightOffset_);
+  const int height = static_cast<int>(static_cast<float>(window.getSize().y) - topOffset_);
   TCanvas canvas = TCanvas("canvas", "canvas", width, height);
   canvas.SetCanvasSize(width, height);
 

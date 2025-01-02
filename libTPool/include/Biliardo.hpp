@@ -14,9 +14,10 @@
 #include <random>
 #include <vector>
 
-#include "types.hpp"
-
 namespace bt {
+
+enum BiliardoType: unsigned { open = 0, rightBounded = 1, leftBounded = 2 };
+enum LastHit { left, right, top, bottom };
 
 struct LaunchParameters {
   std::optional<double> initialY;
@@ -100,12 +101,12 @@ class Biliardo {
    * @param type Il nuovo tipo che si vuole assegnare
    * @return Restituisce true se il cambio è avvenuto con successo, altrimenti ritorna false
    */
-  bool changeType(BiliardoType type);
+  [[nodiscard]] bool changeType(BiliardoType type);
 
   Biliardo& l(double l);
   Biliardo& r1(double r1);
   Biliardo& r2(double r2);
-  bool modify(double l, double r1, double r2);
+  [[nodiscard]] bool modify(double l, double r1, double r2);
 
   void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
   void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }
@@ -126,17 +127,6 @@ class Biliardo {
    */
   bool launchForDrawing(std::vector<double>& output, std::optional<double> initialY = std::nullopt,
                         std::optional<double> initialDirection = {});
-
-  /**
-   * @brief Lancia una singola particella generando i parametri secondo due distribuzioni uniformi
-   * tra tutti i valori accettati.
-   *
-   * @param output Il vettore che viene riempito con il risultato del lancio
-   *
-   * Lancia una sola particella e riempie un vettore con le posizioni di tutti gli urti tra essa e i
-   * bordi del biliardo. Le ultime due posizioni sono occupate dalle direzioni finale e iniziale.
-   */
-  void launchForDrawing(std::vector<double>& output);
 
   // Questo metodo è in grado di lanciare multiple particelle con un unica
   // chiamata.

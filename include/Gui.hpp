@@ -258,7 +258,7 @@ class Gui {
  public:
   Gui(sf::RenderWindow& window, App* app);
 
-  void handleEvent(sf::Event& event);
+  void handleEvent(const sf::Event& event);
   void draw();
   void setSize(float width, float height) const;
 

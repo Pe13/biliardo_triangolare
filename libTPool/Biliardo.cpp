@@ -5,9 +5,9 @@
 #include "Biliardo.hpp"
 
 #include <TH1D.h>
-#include <assert.h>
 
 #include <array>
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <execution>
@@ -16,8 +16,6 @@
 #include <vector>
 
 namespace bt {
-
-// TODO testare che i vari metodi con controllo dell'input funzionino
 
 bool Biliardo::isOut_(const LastHit &lastHit) const {
   bool result{};
@@ -33,6 +31,9 @@ bool Biliardo::isOut_(const LastHit &lastHit) const {
     case leftBounded:
       result = lastHit == right;
       break;
+
+    default:
+      assert(false);
   }
   return result;
 }
@@ -56,8 +57,8 @@ bool Biliardo::findNextCollision_(CollisionParameters &parameters) const {
   bool out = false;
 
   // retta direttrice passante per il punto: ax + c
-  double a = std::tan(parameters.direction);
-  double c = parameters.y - a * parameters.x;
+  const double a = std::tan(parameters.direction);
+  const double c = parameters.y - a * parameters.x;
 
   // retta alla quale appartiene la sponda superiore (per ottenere quella inferiore basta prenderla
   // tutta con il meno): bx + d
@@ -66,13 +67,13 @@ bool Biliardo::findNextCollision_(CollisionParameters &parameters) const {
 
   parameters.x = (d - c) / (a - b);  // ascissa dell'intersezione con la sponda superiore
   if (parameters.x > 0 && parameters.x < l_ && parameters.lastHit != top) {
-    parameters.y = a * parameters.x + c;
+    parameters.y = b * parameters.x + d;
     collideTop(parameters.direction);
     parameters.lastHit = top;
   } else {
     parameters.x = -(d + c) / (a + b);  // ascissa dell'intersezione con la sponda inferiore
     if (parameters.x > 0 && parameters.x < l_ && parameters.lastHit != bottom) {
-      parameters.y = a * parameters.x + c;
+      parameters.y = -b * parameters.x - d;
       collideBottom(parameters.direction);
       parameters.lastHit = bottom;
     } else if (std::abs(c) <= r1_ && parameters.lastHit != left) {
@@ -176,7 +177,7 @@ void Biliardo::initializeLaunchForDrawingInput_(std::optional<double> &initialY,
     initialY = (2. * uniformDist_(rng_) - 1) * r1_;
   }
   if (!initialDirection) {
-    initialDirection = (2 * uniformDist_(rng_) - 1) * M_PI / 2;
+    initialDirection = (2. * uniformDist_(rng_) - 1) * M_PI / 2;
   }
 }
 
@@ -201,16 +202,17 @@ void Biliardo::launchForDrawing_(std::vector<double> &output, const double initi
   output.push_back(initialDirection);
 }
 
-Biliardo::Biliardo(double l, double r1, double r2, BiliardoType type)
+Biliardo::Biliardo(const double l, const double r1, const double r2, const BiliardoType type)
     : type_{type}, l_{l}, r1_{r1}, r2_{r2}, theta_{std::atan((r2_ - r1_) / l)} {
   if (l <= 0 || r1_ <= 0 || r2_ <= 0) {
-    std::array<std::string, 3> argNames = {"l", "r1", "r2"};
-    std::array<double *, 3> argList = {&l_, &r1_, &r2_};
+    const std::array<std::string, 3> argNames = {"l", "r1", "r2"};
+    const std::array<double *, 3> argList = {&l_, &r1_, &r2_};
 
     for (int i = 0; i < 3; i++) {
       if (*argList[i] <= 0) {
-        throw std::invalid_argument("Il parametro \"" + argNames[i] + "\": " +
-                                    std::to_string(*argList[i]) + " fornito non è positivo");
+        throw std::invalid_argument("Il parametro \"" + argNames[i] +
+                                    "\" deve essere positivo; è stato fornito " + argNames[i] +
+                                    " = " + std::to_string(*argList[i]));
       }
     }
   }
@@ -234,7 +236,8 @@ bool Biliardo::changeType(const BiliardoType type) {
 Biliardo &Biliardo::l(const double l) {
   if (l <= 0) {
     throw std::invalid_argument(
-        std::string{"il parametro \"l\" deve essere positivo; è stato fornito"} + l);
+        std::string{"Il parametro \"l\" deve essere positivo; è stato fornito l = "} +
+        std::to_string(l));
   }
   l_ = l;
   theta_ = std::atan((r2_ - r1_) / l_);
@@ -243,7 +246,7 @@ Biliardo &Biliardo::l(const double l) {
 
 Biliardo &Biliardo::r1(const double r1) {
   if (r1 <= 0) {
-    throw std::invalid_argument("il parametro \"r1\" deve essere positivo; è stato fornito " +
+    throw std::invalid_argument("Il parametro \"r1\" deve essere positivo; è stato fornito r1 = " +
                                 std::to_string(r1));
   }
   r1_ = r1;
@@ -253,8 +256,8 @@ Biliardo &Biliardo::r1(const double r1) {
 
 Biliardo &Biliardo::r2(const double r2) {
   if (r2 <= 0) {
-    throw std::invalid_argument(
-        std::string{"il parametro \"r2\" deve essere positivo; è stato fornito"} + r2);
+    throw std::invalid_argument("Il parametro \"r2\" deve essere positivo; è stato fornito r2 = " +
+                                std::to_string(r2));
   }
   r2_ = r2;
   theta_ = std::atan((r2_ - r1_) / l_);
@@ -295,8 +298,9 @@ bool Biliardo::launchForDrawing(std::vector<double> &output, std::optional<doubl
   return true;
 }
 
-void Biliardo::multipleLaunch(double muY, double sigmaY, double muT, double sigmaT, unsigned int N,
-                              std::array<TH1D, 2> &histograms, bool async) {
+void Biliardo::multipleLaunch(const double muY, const double sigmaY, const double muT,
+                              const double sigmaT, const unsigned int N,
+                              std::array<TH1D, 2> &histograms, const bool async) {
   auto yNormalDist = std::normal_distribution<double>(muY, sigmaY);
   auto thetaNormalDist = std::normal_distribution<double>(muT, sigmaT);
 

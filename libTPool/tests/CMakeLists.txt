@@ -2,7 +2,12 @@
 include(CTest)
 
 # test biliardo
-add_executable(TPool_test biliardoTest.cpp)
+add_executable(TPool_test
+               constructorTests.cpp
+               bouncingAlgorithmTests.cpp
+               parametersSettersTests.cpp
+               typeSetterTests.cpp
+               launchFunctionsTests.cpp)
 
 target_include_directories(TPool_test PRIVATE ../../include)
 target_link_libraries(TPool_test PRIVATE TPool ROOT::Core ROOT::Hist TBB::tbb)

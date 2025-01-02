@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <array>
-#include <boost/implicit_cast.hpp>
 #include <chrono>
 #include <execution>
 #include <random>
@@ -16,7 +15,7 @@
 #include "Biliardo.hpp"
 
 static std::default_random_engine rng{
-    boost::implicit_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count())};
+    static_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count())};
 static std::uniform_real_distribution<double> dist{-1, 1};
 
 static void fillHistogramsAsync(benchmark::State &state) {

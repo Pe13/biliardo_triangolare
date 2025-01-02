@@ -9,34 +9,13 @@
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <boost/format.hpp>
+#include <cassert>
 #include <ctime>
 #include <optional>
 
 #include "Biliardo.hpp"
 
 namespace bt {
-
-App::App(const double l, const double r1, const double r2, const BiliardoType type,
-         const sf::ContextSettings& settings)
-    : biliardo_(l, r1, r2, type),
-      window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
-      designer_(window_), gui_(window_, this) {
-  window_.setPosition(sf::Vector2i(100, 100));
-
-  // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
-  window_.setFramerateLimit(60);
-  window_.clear(sf::Color::White);
-
-  // inizializzo tutti i vector di lanci singoli e setto il biliardo iniziale "aperto"
-  for (int i = 2; i > -1; i--) {
-    biliardo_.changeType(static_cast<BiliardoType>(i));
-    auto& newLaunch = newSingleLaunch();
-    biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
-    gui_.setSingleLaunchText(newLaunch);  // aggiorno il testo dei dati riguardo il singolo lancio
-  }
-  designer_.calcBordiBiliardo(biliardo_);
-  reRun();
-}
 
 std::vector<double>& App::newSingleLaunch() {
   singleLaunches_[biliardo_.type()].emplace_back();
@@ -59,32 +38,56 @@ void App::handleEvents() {
     switch (event_.type) {
       case sf::Event::Closed:
         window_.close();
-        break;  // non necessario ma carino
+      break;  // non necessario ma carino
 
       case sf::Event::Resized:
         // evito che la finestra sia resa troppo piccola
-        if (window_.getSize().x < 1280) {
-          window_.setSize({1280, window_.getSize().y});
-        }
-        if (window_.getSize().y < 720) {
-          window_.setSize({window_.getSize().x, 720});
-        }
+          if (window_.getSize().x < 1280) {
+            window_.setSize({1280, window_.getSize().y});
+          }
+      if (window_.getSize().y < 720) {
+        window_.setSize({window_.getSize().x, 720});
+      }
 
-        // creo un'altra immagine dell'istogramma in accordo con la nuova dimensione della finestra
-        if (multipleLaunches_[biliardo_.type()].empty()) {
-          designer_.changeSize(biliardo_, window_, gui_);
-        } else {
-          designer_.changeSize(
-              biliardo_,
-              multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]],
-              window_, gui_);
-        }
-        break;
+      // creo un'altra immagine dell'istogramma in accordo con la nuova dimensione della finestra
+      if (multipleLaunches_[biliardo_.type()].empty()) {
+        designer_.changeSize(biliardo_, window_, gui_);
+      } else {
+        designer_.changeSize(
+            biliardo_,
+            multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]],
+            window_, gui_);
+      }
+      break;
 
       default:
         break;
     }
   }
+}
+
+App::App(const double l, const double r1, const double r2, const BiliardoType type,
+         const sf::ContextSettings& settings)
+    : biliardo_(l, r1, r2, type),
+      window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
+      designer_(window_), gui_(window_, this) {
+  window_.setPosition(sf::Vector2i(100, 100));
+
+  // limitiamo gli fps per far avanzare più facilmente la pallina a velocità costante
+  window_.setFramerateLimit(60);
+  window_.clear(sf::Color::White);
+
+  // inizializzo tutti i vector di lanci singoli e setto il biliardo iniziale "aperto"
+  for (int i = 0; i < 3; i++) {
+    [[maybe_unused]] const bool typeChangeResult =
+        biliardo_.changeType(static_cast<BiliardoType>(i));
+    assert(typeChangeResult);
+    auto& newLaunch = newSingleLaunch();
+    biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
+    gui_.setSingleLaunchText(newLaunch);  // aggiorno il testo dei dati riguardo il singolo lancio
+  }
+  designer_.calcBordiBiliardo(biliardo_);
+  reRun();
 }
 
 void App::start() {
@@ -96,7 +99,31 @@ void App::start() {
   }
 }
 
-bool App::changeBiliardoType(BiliardoType type) {
+// TODO documentare l'uso di [[maybe_unused]]
+void App::modifyBiliardo(const double l, const double r1, const double r2) {
+  [[maybe_unused]] bool modificationResult = biliardo_.modify(l, r1, r2);
+  assert(modificationResult);
+  const BiliardoType biliardoType = biliardo_.type();  // salvo il tipo attuale
+  // rigenero un lancio per ogni tipo di biliardo e rimuovo i vecchi istogrammi
+  for (int i = 2; i > -1; i--) {
+    singleLaunches_[i].clear();
+    multipleLaunches_[i].clear();
+    assert(biliardo_.changeType(static_cast<BiliardoType>(i)) == true);
+    auto& newLaunch = newSingleLaunch();
+    biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
+  }
+  [[maybe_unused]] bool restoreTypeResult = biliardo_.changeType(biliardoType);
+  assert(restoreTypeResult);  // ripristino il tipo attuale
+  // aggiorno la parte grafica
+  designer_.changeBiliardo(biliardo_, window_);
+  // resetto gli indici a 0
+  singleLaunchesIndex_ = {0, 0, 0};
+  multipleLaunchesIndex_ = {0, 0, 0};
+  reRun();                                  // faccio partire la nuova simulazione
+  designer_.setCanvas(biliardo_, window_);  // pulisco il grafico
+}
+
+bool App::changeBiliardoType(const BiliardoType type) {
   if (biliardo_.changeType(type)) {
     designer_.calcBordiBiliardo(biliardo_);
     reRun();
@@ -109,27 +136,6 @@ bool App::changeBiliardoType(BiliardoType type) {
     return true;
   }
   return false;
-}
-
-void App::modifyBiliardo(const double l, const double r1, const double r2) {
-  biliardo_.modify(l, r1, r2);
-  BiliardoType oldType = biliardo_.type();  // salvo il tipo attuale
-  // rigenero un lancio per ogni tipo di biliardo e rimuovo i vecchi istogrammi
-  for (int i = 2; i > -1; i--) {
-    singleLaunches_[i].clear();
-    multipleLaunches_[i].clear();
-    biliardo_.changeType(static_cast<BiliardoType>(i));
-    auto& newLaunch = newSingleLaunch();
-    biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
-  }
-  biliardo_.changeType(oldType);  // ripristino il tipo attuale
-  // aggiorno la parte grafica
-  designer_.changeBiliardo(biliardo_, window_);
-  // resetto gli indici a 0
-  singleLaunchesIndex_ = {0, 0, 0};
-  multipleLaunchesIndex_ = {0, 0, 0};
-  reRun();                                  // faccio partire la nuova simulazione
-  designer_.setCanvas(biliardo_, window_);  // pulisco il grafico
 }
 
 void App::pause() { designer_.pause(); }
@@ -183,10 +189,10 @@ void App::saveHistogram(const std::string& filename) {
 
   auto& histograms = multipleLaunches_[biliardo_.type()][multipleLaunchesIndex_[biliardo_.type()]];
 
-  for (const auto& h : histograms) {
-    h.GetKurtosis();
-    h.GetSkewness();
-  }
+  // for (const auto& h : histograms) {
+  //   h.GetKurtosis();
+  //   h.GetSkewness();
+  // }
 
   auto canvas = TCanvas();
   canvas.SetCanvasSize(1920, 826);
@@ -200,8 +206,7 @@ void App::saveHistogram(const std::string& filename) {
   histograms[1].Draw();
 
   if (filename.empty()) {
-    std::time_t t = std::time(nullptr);  // get time now
-                                         //    std::tm* now = std::localtime(&t);
+    const std::time_t t = std::time(nullptr);  // get time now
     std::tm now{};
     localtime_r(&t, &now);
     canvas.SaveSource((boost::format("grafico_%1%_%2%_%3%__%4%_%5%_%6%.root") % now.tm_mday %
@@ -210,7 +215,7 @@ void App::saveHistogram(const std::string& filename) {
                           .str()
                           .c_str());
   } else {
-    canvas.SaveSource((filename + ".root").c_str());
+    canvas.SaveSource((filename + ".c++").c_str());
   }
 }
 

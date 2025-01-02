@@ -8,7 +8,6 @@
 
 #include <TH1D.h>
 
-#include <algorithm>
 #include <boost/numeric/conversion/converter.hpp>
 #include <cmath>
 
@@ -26,7 +25,9 @@ void Gui::newBiliardoBtnPressed(App* app) const {
       newBiliardoWrapper_->getWidgets().begin(), newBiliardoWrapper_->getWidgets().end(),
       [&newParameters, &hasChanged, &error](const tgui::EditBox::Ptr& inputBox,
                                             const unsigned int i) {
-        newParameters[i] = inputStringToDouble(inputBox->getText());
+        if (const auto readValue = inputStringToDouble(inputBox->getText())) {
+          newParameters[i] = readValue;
+        }
 
         if (newParameters[i] && newParameters[i].value() > 0) {
           inputBox->setDefaultText(tgui::String(newParameters[i].value()));
@@ -39,8 +40,8 @@ void Gui::newBiliardoBtnPressed(App* app) const {
       });
 
   if (hasChanged && !error) {
-    app->modifyBiliardo(newParameters[0].value(), newParameters[1].value(),
-                        newParameters[2].value());
+    app->modifyBiliardo(newParameters[2].value(), newParameters[0].value(),
+                        newParameters[1].value());
     sigmaYInput_->setDefaultText(tgui::String(
         app->biliardo_.r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
   }
@@ -90,11 +91,13 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
   // default
   forEachIndexed<tgui::EditBox>(
       multipleLaunchWrapper_->getWidgets().begin(), multipleLaunchWrapper_->getWidgets().end(),
-      [&launchParameters, &error](const tgui::EditBox::Ptr& box, const unsigned int i) {
-        launchParameters[i] = inputStringToDouble(box->getText());
-        if (!launchParameters[i] && !box->getText().empty()) {
-          box->getRenderer()->setTextColor(tgui::Color::Red);
-          error = true;
+      [&launchParameters, &error](const tgui::EditBox::Ptr& inputBox, const unsigned int i) {
+        if (!inputBox->getText().empty()) {
+          launchParameters[i] = inputStringToDouble(inputBox->getText());
+          if (!launchParameters[i]) {
+            inputBox->getRenderer()->setTextColor(tgui::Color::Red);
+            error = true;
+          }
         }
       });
 
@@ -104,7 +107,7 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
 
   unsigned int N_{};
   try {
-    boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
+    const boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
     N_ = safeDoubleToUInt(N);
   } catch (std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere
                               // sottoclassi di std::bad_cast
@@ -346,15 +349,15 @@ Gui::Gui(sf::RenderWindow& window, App* app) : gui_{window} {
   activate(app);
 }
 
-void Gui::handleEvent(sf::Event& event) { gui_.handleEvent(event); }
+void Gui::handleEvent(const sf::Event& event) { gui_.handleEvent(event); }
 
 void Gui::draw() { gui_.draw(); }
 
-void Gui::setSize(float width, float height) const { wrapper_->setSize(width, height); }
+void Gui::setSize(const float width, const float height) const { wrapper_->setSize(width, height); }
 
 void Gui::setSingleLaunchText(const std::vector<double>& launch) const {
-  auto unchangedPartLeft = leftText_->getText().substr(leftText_->getText().find("\nL"));
-  auto unchangedPartRight = rightText_->getText().substr(rightText_->getText().find("\n\n d"));
+  const auto unchangedPartLeft = leftText_->getText().substr(leftText_->getText().find("\nL"));
+  const auto unchangedPartRight = rightText_->getText().substr(rightText_->getText().find("\n\n d"));
 
   leftText_->setText(tgui::String::join(
       {
@@ -379,8 +382,8 @@ void Gui::setSingleLaunchText(const std::vector<double>& launch) const {
 }
 
 void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) const {
-  auto unchangedPartLeft = leftText_->getText().substr(0, leftText_->getText().find("\n m"));
-  auto unchangedPartRight =
+  const auto unchangedPartLeft = leftText_->getText().substr(0, leftText_->getText().find("\n m"));
+  const auto unchangedPartRight =
       rightText_->getText().substr(0, rightText_->getText().find("\n\n d") + 1);
 
   leftText_->setText(tgui::String::join(
