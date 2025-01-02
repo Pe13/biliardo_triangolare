@@ -2,8 +2,6 @@
 // Created by paolo on 23/05/2023.
 //
 
-// TODO Creare dei metodi pubblici per evitare di avere gui come friend
-
 #ifndef BILIARDO_TRIANGOLARE_INCLUDE_APP_HPP_
 #define BILIARDO_TRIANGOLARE_INCLUDE_APP_HPP_
 
@@ -21,7 +19,6 @@ namespace bt {
 class Gui;
 
 class App {
-  friend class Gui;
 
   Biliardo biliardo_;
 
@@ -48,6 +45,7 @@ class App {
   ~App() = default;
   void start();
 
+  const Biliardo& biliardo() const {return biliardo_;}
   /**
    * @brief Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e
    * la parte grafica
@@ -57,6 +55,11 @@ class App {
 
   void pause();
   void reRun();
+
+  const std::vector<double>& singleLaunch(std::optional<double> initialY = std::nullopt,
+                                          std::optional<double> initialDirection = std::nullopt);
+  const std::array<TH1D, 2>& multipleLaunch(unsigned int N, double muY, double sigmaY, double muT,
+                                            double sigmaT, bool async = true);
 
   bool nextLaunch();
   bool previousLaunch();

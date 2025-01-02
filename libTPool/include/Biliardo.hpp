@@ -132,7 +132,7 @@ class Biliardo {
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void multipleLaunch(double muY, double sigmaY, double muT, double sigmaT, unsigned int N,
+  void multipleLaunch(unsigned int N, double muY, double sigmaY, double muT, double sigmaT,
                       std::array<TH1D, 2>& histograms, bool async = true);
 };
 

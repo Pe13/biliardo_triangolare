@@ -16,8 +16,8 @@
 namespace bt {
 
 void Gui::newBiliardoBtnPressed(App* app) const {
-  std::array<std::optional<double>, 3> newParameters{app->biliardo_.r1(), app->biliardo_.r2(),
-                                                     app->biliardo_.l()};
+  std::array<std::optional<double>, 3> newParameters{app->biliardo().r1(), app->biliardo().r2(),
+                                                     app->biliardo().l()};
   bool hasChanged = false;
   bool error = false;
 
@@ -43,7 +43,7 @@ void Gui::newBiliardoBtnPressed(App* app) const {
     app->modifyBiliardo(newParameters[2].value(), newParameters[0].value(),
                         newParameters[1].value());
     sigmaYInput_->setDefaultText(tgui::String(
-        app->biliardo_.r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
+        app->biliardo().r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
   }
 }
 
@@ -53,7 +53,7 @@ void Gui::singleLaunchBtnPressed(App* app) const {
   bool failed = false;
 
   if (!heightInput_->getText().empty() &&
-      (!y.has_value() || std::abs(y.value()) >= app->biliardo_.r1())) {
+      (!y.has_value() || std::abs(y.value()) >= app->biliardo().r1())) {
     heightInput_->getRenderer()->setTextColor(tgui::Color::Red);
     failed = true;
   }
@@ -67,17 +67,13 @@ void Gui::singleLaunchBtnPressed(App* app) const {
     return;
   }
 
-  auto& newLaunch = app->newSingleLaunch();
-  app->biliardo_.launchForDrawing(newLaunch, y, t);
-
-  app->reRun();
-  setSingleLaunchText(newLaunch);
+  setSingleLaunchText(app->singleLaunch(y, t));
 }
 
 void Gui::multipleLaunchBtnPressed(App* app) const {
   // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la
   // "e" e posso fare un controllo su un possibile overflow
-  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->biliardo_.r1() / 5, 0,
+  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->biliardo().r1() / 5, 0,
                                                         M_PI / 8};
   const double& N = launchParameters[0].value();
   const double& muY = launchParameters[1].value();
@@ -107,7 +103,7 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
 
   unsigned int N_{};
   try {
-    const boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
+    constexpr boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
     N_ = safeDoubleToUInt(N);
   } catch (std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere
                               // sottoclassi di std::bad_cast
@@ -129,10 +125,7 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
     return;
   }
 
-  auto& histograms = app->newHistograms();
-  app->biliardo_.multipleLaunch(muY, sigmaY, muT, sigmaT, N_, histograms);
-  app->designer_.setCanvas(histograms, app->window_);
-  setStatisticsText(histograms);
+  setStatisticsText(app->multipleLaunch(N_, muY, sigmaY, muT, sigmaT));
 }
 
 void Gui::create() {
@@ -269,9 +262,9 @@ void Gui::activate(App* app) const {
   biliardoChiusoSxBtn_->onPress(&App::changeBiliardoType, app, leftBounded);
 
   // gestisco la modifica del biliardo
-  r1Input_->setDefaultText(tgui::String(app->biliardo_.r1()));
-  r2Input_->setDefaultText(tgui::String(app->biliardo_.r2()));
-  lInput_->setDefaultText(tgui::String(app->biliardo_.l()));
+  r1Input_->setDefaultText(tgui::String(app->biliardo().r1()));
+  r2Input_->setDefaultText(tgui::String(app->biliardo().r2()));
+  lInput_->setDefaultText(tgui::String(app->biliardo().l()));
   newBiliardoBtn_->onPress(&Gui::newBiliardoBtnPressed, this, app);
 
   // attivo i bottoni per navigare tra un lancio e l'altro
@@ -286,7 +279,7 @@ void Gui::activate(App* app) const {
   // imposto i placeholder per gli editbox del lancio multiplo con i valori di default delle
   // distribuzioni normali
   muYInput_->setDefaultText("0");
-  sigmaYInput_->setDefaultText(tgui::String(app->biliardo_.r1() / 5));
+  sigmaYInput_->setDefaultText(tgui::String(app->biliardo().r1() / 5));
   muTInput_->setDefaultText("0");
   sigmaTInput_->setDefaultText(tgui::String(M_PI / 8));
   numberInput_->setDefaultText("1'000'000");
@@ -357,7 +350,8 @@ void Gui::setSize(const float width, const float height) const { wrapper_->setSi
 
 void Gui::setSingleLaunchText(const std::vector<double>& launch) const {
   const auto unchangedPartLeft = leftText_->getText().substr(leftText_->getText().find("\nL"));
-  const auto unchangedPartRight = rightText_->getText().substr(rightText_->getText().find("\n\n d"));
+  const auto unchangedPartRight =
+      rightText_->getText().substr(rightText_->getText().find("\n\n d"));
 
   leftText_->setText(tgui::String::join(
       {

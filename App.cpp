@@ -144,6 +144,24 @@ void App::reRun() {
   designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndex_[biliardo_.type()]]);
 }
 
+const std::vector<double>& App::singleLaunch(const std::optional<double> initialY,
+                                             const std::optional<double> initialDirection) {
+  auto& newLaunch = newSingleLaunch();
+  biliardo_.launchForDrawing(newLaunch, initialY, initialDirection);
+
+  reRun();
+  return newLaunch;
+}
+
+const std::array<TH1D, 2>& App::multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
+                                               const double muT, const double sigmaT, const bool async) {
+  auto& histograms = newHistograms();
+  biliardo_.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, async);
+  designer_.setCanvas(histograms, window_);
+  return histograms;
+}
+
+
 bool App::nextLaunch() {
   if (singleLaunchesIndex_[biliardo_.type()] != singleLaunches_[biliardo_.type()].size() - 1) {
     singleLaunchesIndex_[biliardo_.type()]++;

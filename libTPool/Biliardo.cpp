@@ -298,8 +298,8 @@ bool Biliardo::launchForDrawing(std::vector<double> &output, std::optional<doubl
   return true;
 }
 
-void Biliardo::multipleLaunch(const double muY, const double sigmaY, const double muT,
-                              const double sigmaT, const unsigned int N,
+void Biliardo:: multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
+                              const double muT, const double sigmaT,
                               std::array<TH1D, 2> &histograms, const bool async) {
   auto yNormalDist = std::normal_distribution<double>(muY, sigmaY);
   auto thetaNormalDist = std::normal_distribution<double>(muT, sigmaT);
