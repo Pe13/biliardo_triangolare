@@ -5,7 +5,6 @@
 #include "App.hpp"
 
 #include <TCanvas.h>
-#include <TStyle.h>
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <boost/format.hpp>
@@ -68,7 +67,7 @@ void App::handleEvents() {
 
 App::App(const double l, const double r1, const double r2, const BiliardoType type,
          const sf::ContextSettings& settings)
-    : biliardo_(l, r1, r2, type),
+    : biliardo_(l, r1, r2),
       window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
       designer_(window_), gui_(window_, this) {
   window_.setPosition(sf::Vector2i(100, 100));
@@ -77,7 +76,7 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
   window_.setFramerateLimit(60);
   window_.clear(sf::Color::White);
 
-  // inizializzo tutti i vector di lanci singoli e setto il biliardo iniziale "aperto"
+  // inizializzo tutti i vector di lanci singoli
   for (int i = 0; i < 3; i++) {
     [[maybe_unused]] const bool typeChangeResult =
         biliardo_.changeType(static_cast<BiliardoType>(i));
@@ -86,6 +85,9 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
     biliardo_.launchForDrawing(newLaunch, std::nullopt, std::nullopt);
     gui_.setSingleLaunchText(newLaunch);  // aggiorno il testo dei dati riguardo il singolo lancio
   }
+  [[maybe_unused]] const bool typeChangeResult =
+        biliardo_.changeType(type);
+  assert(typeChangeResult);
   designer_.calcBordiBiliardo(biliardo_);
   reRun();
 }
