@@ -95,6 +95,7 @@ class Biliardo {
   [[nodiscard]] const double& r1() const { return r1_; }
   [[nodiscard]] const double& r2() const { return r2_; }
   [[nodiscard]] const double& theta() const { return theta_; }
+  [[nodiscard]] const double& slope() const { return slope_; }
 
   /**
    * @brief Consente di cambiare il tipo del biliardo

@@ -264,6 +264,7 @@ class Gui {
 
   void setSingleLaunchText(const std::vector<double>& launch) const;
   void setStatisticsText(const std::array<TH1D, 2>& histograms) const;
+  void restoreTextOnBiliardoChange(const std::vector<double>& singleLaunch) const;
 };
 
 }  // namespace bt

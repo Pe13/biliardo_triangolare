@@ -240,7 +240,8 @@ Biliardo &Biliardo::l(const double l) {
         std::to_string(l));
   }
   l_ = l;
-  theta_ = std::atan((r2_ - r1_) / l_);
+  slope_ = (r2_ - r1_) / l_;
+  theta_ = std::atan(slope_);
   return *this;
 }
 
@@ -250,7 +251,8 @@ Biliardo &Biliardo::r1(const double r1) {
                                 std::to_string(r1));
   }
   r1_ = r1;
-  theta_ = std::atan((r2_ - r1_) / l_);
+  slope_ = (r2_ - r1_) / l_;
+  theta_ = std::atan(slope_);
   return *this;
 }
 
@@ -260,7 +262,8 @@ Biliardo &Biliardo::r2(const double r2) {
                                 std::to_string(r2));
   }
   r2_ = r2;
-  theta_ = std::atan((r2_ - r1_) / l_);
+  slope_ = (r2_ - r1_) / l_;
+  theta_ = std::atan(slope_);
   return *this;
 }
 
@@ -283,7 +286,8 @@ bool Biliardo::modify(const double l, const double r1, const double r2) {
   r2_ = r2;
   l_ = l;
 
-  theta_ = std::atan((r2_ - r1_) / l_);
+  slope_ = (r2_ - r1_) / l_;
+  theta_ = std::atan(slope_);
   return true;
 }
 

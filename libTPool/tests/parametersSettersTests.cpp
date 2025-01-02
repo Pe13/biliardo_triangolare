@@ -19,28 +19,32 @@ TEST_CASE("Testing parameters setters") {
     CHECK(biliardo.l() == 4);
     CHECK(biliardo.r1() == oldR1);
     CHECK(biliardo.r2() == oldR2);
-    CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+    CHECK(doctest::Approx(biliardo.slope()) == (biliardo.r2() - biliardo.r1()) / biliardo.l());
+    CHECK(doctest::Approx(biliardo.theta()) == std::atan(biliardo.slope()));
 
     biliardo = bt::Biliardo(oldL, oldR1, oldR2);
     CHECK_NOTHROW(biliardo.r1(10));
     CHECK(biliardo.r1() == 10);
     CHECK(biliardo.l() == oldL);
     CHECK(biliardo.r2() == oldR2);
-    CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+    CHECK(doctest::Approx(biliardo.slope()) == (biliardo.r2() - biliardo.r1()) / biliardo.l());
+    CHECK(doctest::Approx(biliardo.theta()) == std::atan(biliardo.slope()));
 
     biliardo = bt::Biliardo(oldL, oldR1, oldR2);
     CHECK_NOTHROW(biliardo.r2(18));
     CHECK(biliardo.r2() == 18);
     CHECK(biliardo.l() == oldL);
     CHECK(biliardo.r1() == oldR1);
-    CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+    CHECK(doctest::Approx(biliardo.slope()) == (biliardo.r2() - biliardo.r1()) / biliardo.l());
+    CHECK(doctest::Approx(biliardo.theta()) == std::atan(biliardo.slope()));
 
     biliardo = bt::Biliardo(oldL, oldR1, oldR2);
     CHECK(biliardo.modify(6, 14, 24));
     CHECK(biliardo.l() == 6);
     CHECK(biliardo.r1() == 14);
     CHECK(biliardo.r2() == 24);
-    CHECK(biliardo.theta() == std::atan((biliardo.r2() - biliardo.r1()) / biliardo.l()));
+    CHECK(doctest::Approx(biliardo.slope()) == (biliardo.r2() - biliardo.r1()) / biliardo.l());
+    CHECK(doctest::Approx(biliardo.theta()) == std::atan(biliardo.slope()));
   }
 
   SUBCASE("Invalid modifications") {
