@@ -9,7 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # abilita warning
-string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
+string(APPEND CMAKE_CXX_FLAGS
+       " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion"
+       " -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast")
+
 
 # rimuovi le ottimizzazioni se si deve profilare l'eseguibile
 if (PROFILE OR VALGRIND)

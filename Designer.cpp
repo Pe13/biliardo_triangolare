@@ -30,7 +30,7 @@ void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
     const UInt_t h = canvas.GetWh();
 
     const std::unique_ptr<unsigned char[]>
-        pixelData(gVirtualX->GetColorBits(canvas.GetCanvasID(), 0, 0, w, h));
+        pixelData(gVirtualX->GetColorBits(static_cast<long unsigned>(canvas.GetCanvasID()), 0, 0, w, h));
 
     if (pixelData) {
       histoImage.create(w, h, pixelData.get());
@@ -235,9 +235,9 @@ void Designer::reRun(const std::vector<double>& points) {
 void Designer::pause() { isPaused_ = !isPaused_; }
 
 void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
-  const int width = static_cast<int>(static_cast<float>(window.getSize().x) - rightOffset_);
-  const int height = static_cast<int>(static_cast<float>(window.getSize().y) - topOffset_);
-  TCanvas canvas = TCanvas("canvas", "canvas", width, height);
+  const auto width = static_cast<unsigned int>(static_cast<float>(window.getSize().x) - rightOffset_);
+  const auto height = static_cast<unsigned int>(static_cast<float>(window.getSize().y) - topOffset_);
+  TCanvas canvas("canvas", "canvas", static_cast<int>(width), static_cast<int>(height));
   canvas.SetCanvasSize(width, height);
 
   canvas.Divide(2);

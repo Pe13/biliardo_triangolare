@@ -208,7 +208,7 @@ Biliardo::Biliardo(const double l, const double r1, const double r2, const Bilia
     const std::array<std::string, 3> argNames = {"l", "r1", "r2"};
     const std::array<double *, 3> argList = {&l_, &r1_, &r2_};
 
-    for (int i = 0; i < 3; i++) {
+    for (long unsigned i = 0; i < 3; i++) {
       if (*argList[i] <= 0) {
         throw std::invalid_argument("Il parametro \"" + argNames[i] +
                                     "\" deve essere positivo; è stato fornito " + argNames[i] +
@@ -269,7 +269,7 @@ bool Biliardo::modify(const double l, const double r1, const double r2) {
     const std::array<std::string, 3> argNames = {"l", "r1", "r2"};
     const std::array<double *, 3> argList = {&l_, &r1_, &r2_};
 
-    for (int i = 0; i < 3; i++) {
+    for (long unsigned i = 0; i < 3; i++) {
       if (*argList[i] <= 0) {
         std::cerr << "Warning: il parametro \"" << argNames[i] << "\": " << *argList[i]
                   << " fornito non è positivo\n";
@@ -306,7 +306,7 @@ void Biliardo:: multipleLaunch(const unsigned int N, const double muY, const dou
 
   // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la
   // sequenza non dovrebbe mai ripetersi
-  rng_.seed(std::chrono::system_clock::now().time_since_epoch().count());
+  rng_.seed(static_cast<long unsigned>(std::chrono::system_clock::now().time_since_epoch().count()));
 
   if (async) {
     asyncLaunch_(N, histograms, yNormalDist, thetaNormalDist);

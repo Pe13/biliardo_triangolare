@@ -105,7 +105,7 @@ void App::modifyBiliardo(const double l, const double r1, const double r2) {
   assert(modificationResult);
   const BiliardoType biliardoType = biliardo_.type();  // salvo il tipo attuale
   // rigenero un lancio per ogni tipo di biliardo e rimuovo i vecchi istogrammi
-  for (int i = 2; i > -1; i--) {
+  for (long unsigned int i = 0; i < 3; i++) {
     singleLaunches_[i].clear();
     multipleLaunches_[i].clear();
     assert(biliardo_.changeType(static_cast<BiliardoType>(i)) == true);
