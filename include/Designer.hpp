@@ -62,7 +62,7 @@ class Designer {
   ~Designer() = default;
 
   void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window, const Gui& gui);
-  void changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui);
+  void changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui);
   void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
   void calcBordiBiliardo(const Biliardo& biliardo);
   void reRun(const std::vector<double>& points);

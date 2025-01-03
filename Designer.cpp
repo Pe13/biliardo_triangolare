@@ -158,13 +158,13 @@ void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histogr
   window.display();
 }
 
-void Designer::changeSize(const bt::Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui) {
+void Designer::changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui) {
   auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
                                         TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
   changeSize(biliardo, histograms, window, gui);
 }
 
-void Designer::changeBiliardo(const bt::Biliardo& biliardo, sf::RenderWindow& window) {
+void Designer::changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window) {
   window.draw(clearBiliardo_);
   calcBordiBiliardo(biliardo);
   calcClearBiliardo(biliardo);
