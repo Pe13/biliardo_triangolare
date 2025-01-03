@@ -20,7 +20,8 @@
 
 namespace bt {
 
-// dal source code di root https://root.cern.ch/doc/v626/classTPadPainter.html#ad4d9e7f89be8a04559e22f1f279b0fb6
+// dal source code di root
+// https://root.cern.ch/doc/v626/classTPadPainter.html#ad4d9e7f89be8a04559e22f1f279b0fb6
 void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
   if (gVirtualX->InheritsFrom("TGCocoa") && !gROOT->IsBatch() && canvas.GetCanvas() &&
       canvas.GetCanvas()->GetCanvasID() != -1) {
@@ -29,8 +30,8 @@ void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
     const UInt_t w = canvas.GetWw();
     const UInt_t h = canvas.GetWh();
 
-    const std::unique_ptr<unsigned char[]>
-        pixelData(gVirtualX->GetColorBits(static_cast<long unsigned>(canvas.GetCanvasID()), 0, 0, w, h));
+    const std::unique_ptr<unsigned char[]> pixelData(
+        gVirtualX->GetColorBits(static_cast<long unsigned>(canvas.GetCanvasID()), 0, 0, w, h));
 
     if (pixelData) {
       histoImage.create(w, h, pixelData.get());
@@ -42,16 +43,18 @@ void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
     }
     img->FromPad(&canvas);
     const std::unique_ptr<unsigned int[]> rgbaArray(img->GetRgbaArray());
-    histoImage.create(img->GetWidth(), img->GetHeight(), reinterpret_cast<sf::Uint8*>(rgbaArray.get()));
+    histoImage.create(img->GetWidth(), img->GetHeight(),
+                      reinterpret_cast<sf::Uint8*>(rgbaArray.get()));
   }
 }
 
 void Designer::calcFrame(const sf::Vector2u& size) {
   using namespace sf;
-  frame_.update((std::array<Vertex, 4>{Vertex(Vector2f(rightOffset_, 0), Color::White),
-                                       Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White),
-                                       Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
-                                       Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White)})
+  frame_.update((std::array<Vertex, 4>{
+                     Vertex(Vector2f(rightOffset_, 0), Color::White),
+                     Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White),
+                     Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
+                     Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White)})
                     .data());
 }
 
@@ -60,37 +63,43 @@ void Designer::calcClearBiliardo(const bt::Biliardo& biliardo) {
   const auto max = static_cast<float>(std::max(biliardo.r1(), biliardo.r2()));
   clearBiliardo_.update(
       (std::array<Vertex, 4>{
-           sf::Vertex(sf::Vector2f(
-                          static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_ + (particle_.getRadius() + 2)),
-                          simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
-                      sf::Color::Black),
-           sf::Vertex(sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
-                                   simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
-                      sf::Color::Black),
-           sf::Vertex(sf::Vector2f(
-                          static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_ + (particle_.getRadius() + 2)),
-                          simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
-                      sf::Color::Black),
-           sf::Vertex(sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
-                                   simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
-                      sf::Color::Black)})
+           sf::Vertex(
+               sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_ +
+                                               (particle_.getRadius() + 2)),
+                            simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
+               sf::Color::Black),
+           sf::Vertex(
+               sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
+                            simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
+               sf::Color::Black),
+           sf::Vertex(
+               sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_ +
+                                               (particle_.getRadius() + 2)),
+                            simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
+               sf::Color::Black),
+           sf::Vertex(
+               sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
+                            simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
+               sf::Color::Black)})
           .data());
 }
 
 void Designer::calcClearHisto(const sf::Vector2u& size) {
   using namespace sf;
   clearHisto_.update(
-      (std::array<Vertex, 4>{Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White),
-                             Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
-                             Vertex(Vector2f(static_cast<float>(size.x), static_cast<float>(size.y)), Color::White),
-                             Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White)})
+      (std::array<Vertex, 4>{
+           Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White),
+           Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
+           Vertex(Vector2f(static_cast<float>(size.x), static_cast<float>(size.y)), Color::White),
+           Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White)})
           .data());
 }
 
 void Designer::calcStep(const std::vector<double>& points) {
-  const double distance = std::sqrt(
-      (points[pointIndex_] - points[pointIndex_ + 2]) * (points[pointIndex_] - points[pointIndex_ + 2]) +
-      (points[pointIndex_ + 1] - points[pointIndex_ + 3]) * (points[pointIndex_ + 1] - points[pointIndex_ + 3]));
+  const double distance = std::sqrt((points[pointIndex_] - points[pointIndex_ + 2]) *
+                                        (points[pointIndex_] - points[pointIndex_ + 2]) +
+                                    (points[pointIndex_ + 1] - points[pointIndex_ + 3]) *
+                                        (points[pointIndex_ + 1] - points[pointIndex_ + 3]));
   // speedx = stepx * 30
   // speedx = step * ratio * 30
   // step = speedx / (ratio * 30)
@@ -133,14 +142,15 @@ Designer::Designer(sf::RenderWindow& window) {
   window.draw(frame_);
 }
 
-void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
-                          const Gui& gui) {
+void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms,
+                          sf::RenderWindow& window, const Gui& gui) {
   rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
   topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
   simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
   simulationHeight_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
 
-  window.setView(sf::View(sf::FloatRect(sf::Vector2f(0, 0), static_cast<sf::Vector2f>(window.getSize()))));
+  window.setView(
+      sf::View(sf::FloatRect(sf::Vector2f(0, 0), static_cast<sf::Vector2f>(window.getSize()))));
 
   calcFrame(window.getSize());
   calcClearHisto(window.getSize());
@@ -159,8 +169,9 @@ void Designer::changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histogr
 }
 
 void Designer::changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui) {
-  auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
-                                        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+  auto histograms = std::array<TH1D, 2>{
+      TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
+      TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
   changeSize(biliardo, histograms, window, gui);
 }
 
@@ -172,8 +183,9 @@ void Designer::changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window
 
 void Designer::calcBordiBiliardo(const Biliardo& biliardo) {
   // calcolo il rapporto (pixel / unità di misura della simulazione) ottimale
-  ratio_ = std::min(simulationWidth_ * 0.8f / static_cast<float>(biliardo.l()),
-                    simulationHeight_ * 0.4f / static_cast<float>(std::max(biliardo.r1(), biliardo.r2())));
+  ratio_ = std::min(
+      simulationWidth_ * 0.8f / static_cast<float>(biliardo.l()),
+      simulationHeight_ * 0.4f / static_cast<float>(std::max(biliardo.r1(), biliardo.r2())));
 
   // calcolo l'offset orizzontale per centrare il biliardo nel riquadro
   const float width = static_cast<float>(biliardo.l()) * ratio_;
@@ -186,16 +198,20 @@ void Designer::calcBordiBiliardo(const Biliardo& biliardo) {
     bordiBiliardo_.update(
         (std::array<sf::Vertex, 4>{
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 - biliardo.r1() * ratio_)),
+                 sf::Vector2f(simulationXOffset_,
+                              static_cast<float>(simulationHeight_ / 2 - biliardo.r1() * ratio_)),
                  sf::Color::White),
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 - biliardo.r2() * ratio_)),
-                        sf::Color::White),
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 + biliardo.r2() * ratio_)),
-                        sf::Color::White),
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 + biliardo.r1() * ratio_)),
+                 sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
+                              static_cast<float>(simulationHeight_ / 2 - biliardo.r2() * ratio_)),
+                 sf::Color::White),
+             sf::Vertex(
+                 sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
+                              static_cast<float>(simulationHeight_ / 2 + biliardo.r2() * ratio_)),
+                 sf::Color::White),
+             sf::Vertex(
+                 sf::Vector2f(simulationXOffset_,
+                              static_cast<float>(simulationHeight_ / 2 + biliardo.r1() * ratio_)),
                  sf::Color::White)})
             .data());
   } else {
@@ -206,18 +222,22 @@ void Designer::calcBordiBiliardo(const Biliardo& biliardo) {
     }
     bordiBiliardo_.update(
         (std::array<sf::Vertex, 4>{
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 - biliardo.r2() * ratio_)),
-                        sf::Color::White),
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 - biliardo.r1() * ratio_)),
+                 sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
+                              static_cast<float>(simulationHeight_ / 2 - biliardo.r2() * ratio_)),
                  sf::Color::White),
              sf::Vertex(
-                 sf::Vector2f(simulationXOffset_, static_cast<float>(simulationHeight_ / 2 + biliardo.r1() * ratio_)),
+                 sf::Vector2f(simulationXOffset_,
+                              static_cast<float>(simulationHeight_ / 2 - biliardo.r1() * ratio_)),
                  sf::Color::White),
-             sf::Vertex(sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
-                                     static_cast<float>(simulationHeight_ / 2 + biliardo.r2() * ratio_)),
-                        sf::Color::White)})
+             sf::Vertex(
+                 sf::Vector2f(simulationXOffset_,
+                              static_cast<float>(simulationHeight_ / 2 + biliardo.r1() * ratio_)),
+                 sf::Color::White),
+             sf::Vertex(
+                 sf::Vector2f(static_cast<float>(biliardo.l() * ratio_ + simulationXOffset_),
+                              static_cast<float>(simulationHeight_ / 2 + biliardo.r2() * ratio_)),
+                 sf::Color::White)})
             .data());
   }
 }
@@ -235,8 +255,10 @@ void Designer::reRun(const std::vector<double>& points) {
 void Designer::pause() { isPaused_ = !isPaused_; }
 
 void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
-  const auto width = static_cast<unsigned int>(static_cast<float>(window.getSize().x) - rightOffset_);
-  const auto height = static_cast<unsigned int>(static_cast<float>(window.getSize().y) - topOffset_);
+  const auto width =
+      static_cast<unsigned int>(static_cast<float>(window.getSize().x) - rightOffset_);
+  const auto height =
+      static_cast<unsigned int>(static_cast<float>(window.getSize().y) - topOffset_);
   TCanvas canvas("canvas", "canvas", static_cast<int>(width), static_cast<int>(height));
   canvas.SetCanvasSize(width, height);
 
@@ -256,8 +278,9 @@ void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& wind
 }
 
 void Designer::setCanvas(const Biliardo& biliardo, sf::RenderWindow& window) {
-  auto histograms = std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
-                                        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+  auto histograms = std::array<TH1D, 2>{
+      TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1()),
+      TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
   setCanvas(histograms, window);
 }
 
@@ -281,16 +304,18 @@ void Designer::operator()(const std::vector<double>& points, sf::RenderWindow& w
   } else if (isDrawing_) {
     contrail_.front().color = sf::Color::Black;
     window.draw(&contrail_.front(), 1, sf::Points);
-    contrail_.push_back(sf::Vertex(particle_.getPosition() + sf::Vector2f(5, 5), sf::Color(100, 100, 100)));
+    contrail_.push_back(
+        sf::Vertex(particle_.getPosition() + sf::Vector2f(5, 5), sf::Color(100, 100, 100)));
 
     particle_.setFillColor(sf::Color::Black);
     window.draw(particle_);
 
     particle_.setFillColor(sf::Color::White);
-    particle_.setPosition(
-        toSfmlCord(points[pointIndex_] * (1 - pathFraction_) + points[pointIndex_ + 2] * pathFraction_,
-                   points[pointIndex_ + 1] * (1 - pathFraction_) + points[pointIndex_ + 3] * pathFraction_) -
-        sf::Vector2f(5, 5));
+    particle_.setPosition(toSfmlCord(points[pointIndex_] * (1 - pathFraction_) +
+                                         points[pointIndex_ + 2] * pathFraction_,
+                                     points[pointIndex_ + 1] * (1 - pathFraction_) +
+                                         points[pointIndex_ + 3] * pathFraction_) -
+                          sf::Vector2f(5, 5));
     window.draw(particle_);
     window.draw(&contrail_.back(), 1, sf::Points);
 

@@ -18,12 +18,12 @@ TEST_CASE("Testing Biliardo constructor") {
   }
 
   SUBCASE("Valid instance") {
-    bt::Biliardo billiard(10.0, 2.0, 4.0, bt::open);
-    CHECK(billiard.l() == 10.0);
-    CHECK(billiard.r1() == 2.0);
-    CHECK(billiard.r2() == 4.0);
-    CHECK(billiard.type() == bt::open);
-    CHECK(doctest::Approx(billiard.theta()) == std::atan((4.0 - 2.0) / 10.0));
+    const bt::Biliardo biliardo(10.0, 2.0, 4.0, bt::open);
+    CHECK(biliardo.l() == 10.0);
+    CHECK(biliardo.r1() == 2.0);
+    CHECK(biliardo.r2() == 4.0);
+    CHECK(biliardo.type() == bt::open);
+    CHECK(doctest::Approx(biliardo.theta()) == std::atan((4.0 - 2.0) / 10.0));
   }
 
   SUBCASE("Negative parameters") {

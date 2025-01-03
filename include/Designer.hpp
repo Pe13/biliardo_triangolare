@@ -19,7 +19,6 @@
 namespace bt {
 
 class Designer {
-
   const float widthLeftFraction_{.3f};
   const float heightTopFraction_{.5f};
   float rightOffset_;
@@ -61,7 +60,8 @@ class Designer {
   Designer(sf::RenderWindow& window);
   ~Designer() = default;
 
-  void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms, sf::RenderWindow& window, const Gui& gui);
+  void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms,
+                  sf::RenderWindow& window, const Gui& gui);
   void changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui);
   void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
   void calcBordiBiliardo(const Biliardo& biliardo);
