@@ -111,7 +111,9 @@ void App::modifyBiliardo(const double l, const double r1, const double r2) {
   for (long unsigned int i = 0; i < 3; i++) {
     singleLaunches_[i].clear();
     multipleLaunches_[i].clear();
-    assert(biliardo_.changeType(static_cast<BiliardoType>(i)) == true);
+    [[maybe_unused]] const bool typeChangeResult =
+        biliardo_.changeType(static_cast<BiliardoType>(i));
+    assert(typeChangeResult);
     auto& newLaunch = newSingleLaunch();
     biliardo_.launchForDrawing(newLaunch);
   }
