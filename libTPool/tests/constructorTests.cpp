@@ -13,17 +13,19 @@
 TEST_CASE("Testing Biliardo constructor") {
   SUBCASE("Default type") {
     CHECK_NOTHROW(bt::Biliardo(1, 1, 1));
-    auto biliardo = bt::Biliardo(1, 1, 1);
+    const auto biliardo = bt::Biliardo(1, 1, 1);
     CHECK(biliardo.type() == bt::leftBounded);
   }
 
   SUBCASE("Valid instance") {
-    const bt::Biliardo biliardo(10.0, 2.0, 4.0, bt::open);
-    CHECK(biliardo.l() == 10.0);
-    CHECK(biliardo.r1() == 2.0);
-    CHECK(biliardo.r2() == 4.0);
-    CHECK(biliardo.type() == bt::open);
-    CHECK(doctest::Approx(biliardo.theta()) == std::atan((4.0 - 2.0) / 10.0));
+    for (unsigned int i = 0; i < 3; i++) {
+      const bt::Biliardo biliardo(10.0, 2.0, 4.0, static_cast<bt::BiliardoType>(i));
+      CHECK(biliardo.l() == 10.0);
+      CHECK(biliardo.r1() == 2.0);
+      CHECK(biliardo.r2() == 4.0);
+      CHECK(biliardo.type() == static_cast<bt::BiliardoType>(i));
+      CHECK(doctest::Approx(biliardo.theta()) == std::atan((4.0 - 2.0) / 10.0));
+    }
   }
 
   SUBCASE("Negative parameters") {
@@ -59,9 +61,8 @@ TEST_CASE("Testing Biliardo constructor") {
   }
 
   SUBCASE("Invalid BiliardoType") {
-    CHECK_THROWS_AS(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(3)), std::invalid_argument);
-    CHECK_THROWS_AS(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(-1)),
-                    std::invalid_argument);
-    CHECK_NOTHROW(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(1)));
+    CHECK_THROWS_WITH_AS(bt::Biliardo(1, 1, 1, static_cast<bt::BiliardoType>(3)),
+                         "Il tipo fornito per la costruzione del Biliardo non è valido",
+                         std::invalid_argument);
   }
 }

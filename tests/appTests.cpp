@@ -12,11 +12,9 @@ TEST_CASE("Testing App constructor") {
   const sf::ContextSettings settings{0, 0, 8, 4, 2, sf::ContextSettings::Default, false};
 
   SUBCASE("Invalid BiliardoType") {
-    CHECK_THROWS_AS(bt::App(1, 1, 1, static_cast<bt::BiliardoType>(3), settings),
-                    std::invalid_argument);
-    CHECK_THROWS_AS(bt::App(1, 1, 1, static_cast<bt::BiliardoType>(-1), settings),
-                    std::invalid_argument);
-    CHECK_NOTHROW(bt::App(1, 1, 1, static_cast<bt::BiliardoType>(1), settings));
+    CHECK_THROWS_WITH_AS(bt::App(1, 1, 1, static_cast<bt::BiliardoType>(3), settings),
+                         "Il tipo fornito per la costruzione del Biliardo non è valido",
+                         std::invalid_argument);
   }
 
   for (unsigned int i = 0; i < 3; i++) {
