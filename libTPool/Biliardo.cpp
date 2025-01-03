@@ -17,6 +17,11 @@
 
 namespace bt {
 
+bool operator==(const Biliardo &left, const Biliardo &right) {
+  return left.l_ == right.l_ && left.r1_ == right.r1_ && left.r2_ == right.r2_ &&
+         left.theta_ == right.theta_ && left.slope_ == right.slope_;
+}
+
 bool Biliardo::isOut_(const LastHit &lastHit) const {
   bool result{};
   switch (type_) {
@@ -302,7 +307,7 @@ bool Biliardo::launchForDrawing(std::vector<double> &output, std::optional<doubl
   return true;
 }
 
-void Biliardo:: multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
+void Biliardo::multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
                               const double muT, const double sigmaT,
                               std::array<TH1D, 2> &histograms, const bool async) {
   auto yNormalDist = std::normal_distribution<double>(muY, sigmaY);
@@ -310,7 +315,8 @@ void Biliardo:: multipleLaunch(const unsigned int N, const double muY, const dou
 
   // aggiorno il seed ad ogni chiamata così anche in caso di grandi generazioni di numeri la
   // sequenza non dovrebbe mai ripetersi
-  rng_.seed(static_cast<long unsigned>(std::chrono::system_clock::now().time_since_epoch().count()));
+  rng_.seed(
+      static_cast<long unsigned>(std::chrono::system_clock::now().time_since_epoch().count()));
 
   if (async) {
     asyncLaunch_(N, histograms, yNormalDist, thetaNormalDist);

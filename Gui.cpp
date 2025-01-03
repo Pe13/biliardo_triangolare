@@ -40,8 +40,9 @@ void Gui::newBiliardoBtnPressed(App* app) const {
       });
 
   if (hasChanged && !error) {
-    app->modifyBiliardo(newParameters[2].value(), newParameters[0].value(),
-                        newParameters[1].value());
+    [[maybe_unused]] const bool modificationResult = app->modifyBiliardo(
+        newParameters[2].value(), newParameters[0].value(), newParameters[1].value());
+    assert(modificationResult);
     sigmaYInput_->setDefaultText(tgui::String(
         app->biliardo().r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
   }
@@ -414,6 +415,5 @@ void Gui::restoreTextOnBiliardoChange(const std::vector<double>& singleLaunch) c
   setDefaultText();
   setSingleLaunchText(singleLaunch);
 }
-
 
 }  // namespace bt

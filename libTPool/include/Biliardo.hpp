@@ -25,6 +25,7 @@ struct LaunchParameters {
 };
 
 class Biliardo {
+  friend bool operator==(const Biliardo& left, const Biliardo& right);
   struct CollisionParameters {
     LastHit lastHit;
     double x;

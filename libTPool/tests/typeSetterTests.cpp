@@ -22,7 +22,7 @@ TEST_CASE("Testing Biliardo::changeType") {
   }
 
   SUBCASE("Testing that it correctly fails") {
-    auto type = biliardo.type();
+    const auto type = biliardo.type();
     CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
     CHECK(biliardo.type() == type);
   }

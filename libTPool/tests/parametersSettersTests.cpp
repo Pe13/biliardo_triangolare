@@ -49,18 +49,33 @@ TEST_CASE("Testing parameters setters") {
 
   SUBCASE("Invalid modifications") {
     bt::Biliardo biliardo{1, 1, 1};
+    const auto biliardoCopy = biliardo;
+
     CHECK_THROWS_WITH_AS(biliardo.l(-1),
                          "Il parametro \"l\" deve essere positivo; è stato fornito l = -1.000000",
                          std::invalid_argument);
+    CHECK(biliardo == biliardoCopy);
+
     CHECK_THROWS_WITH_AS(biliardo.r1(-1),
                          "Il parametro \"r1\" deve essere positivo; è stato fornito r1 = -1.000000",
                          std::invalid_argument);
+    CHECK(biliardo == biliardoCopy);
+
     CHECK_THROWS_WITH_AS(biliardo.r2(-1),
                          "Il parametro \"r2\" deve essere positivo; è stato fornito r2 = -1.000000",
                          std::invalid_argument);
+    CHECK(biliardo == biliardoCopy);
+
     CHECK_FALSE(biliardo.modify(-1, 1, 1));
+    CHECK(biliardo == biliardoCopy);
+
     CHECK_FALSE(biliardo.modify(1, -1, 1));
+    CHECK(biliardo == biliardoCopy);
+
     CHECK_FALSE(biliardo.modify(1, 1, -1));
+    CHECK(biliardo == biliardoCopy);
+
     CHECK_FALSE(biliardo.modify(1, -1, -1));
+    CHECK(biliardo == biliardoCopy);
   }
 }

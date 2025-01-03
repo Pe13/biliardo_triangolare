@@ -11,7 +11,6 @@
 #include <TVirtualX.h>
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
-#include <TGUI/Widgets/VerticalLayout.hpp>
 #include <array>
 #include <cmath>
 #include <stdexcept>

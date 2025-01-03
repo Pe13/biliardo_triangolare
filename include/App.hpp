@@ -19,7 +19,6 @@ namespace bt {
 class Gui;
 
 class App {
-
   Biliardo biliardo_;
 
   sf::RenderWindow window_;
@@ -30,9 +29,9 @@ class App {
   Gui gui_;
 
   std::array<std::vector<std::vector<double>>, 3> singleLaunches_;
-  std::array<size_t, 3> singleLaunchesIndex_{0, 0, 0};
+  std::array<size_t, 3> singleLaunchesIndexes_{0, 0, 0};
   std::array<std::vector<std::array<TH1D, 2>>, 3> multipleLaunches_;
-  std::array<size_t, 3> multipleLaunchesIndex_{0, 0, 0};
+  std::array<size_t, 3> multipleLaunchesIndexes_{0, 0, 0};
   std::array<std::vector<sf::Image>, 3> graphImages{{}};
 
   std::vector<double>& newSingleLaunch();
@@ -45,12 +44,14 @@ class App {
   ~App() = default;
   void start();
 
-  const Biliardo& biliardo() const {return biliardo_;}
+  const Designer& designer() const { return designer_; }
+
+  const Biliardo& biliardo() const { return biliardo_; }
   /**
    * @brief Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e
    * la parte grafica
    */
-  void modifyBiliardo(double l, double r1, double r2);
+  [[nodiscard]] bool modifyBiliardo(double l, double r1, double r2);
   [[nodiscard]] bool changeBiliardoType(BiliardoType type);
 
   void pause();
@@ -60,6 +61,17 @@ class App {
                                           std::optional<double> initialDirection = std::nullopt);
   const std::array<TH1D, 2>& multipleLaunch(unsigned int N, double muY, double sigmaY, double muT,
                                             double sigmaT, bool async = true);
+
+  const std::array<std::vector<std::vector<double>>, 3>& getSingleLaunches() const {
+    return singleLaunches_;
+  }
+  const std::array<size_t, 3>& getSingleLaunchesIndexes() const { return singleLaunchesIndexes_; }
+  const std::array<std::vector<std::array<TH1D, 2>>, 3>& getMultipleLaunches() const {
+    return multipleLaunches_;
+  }
+  const std::array<size_t, 3>& getMultipleLaunchesIndexes() const {
+    return multipleLaunchesIndexes_;
+  }
 
   bool nextLaunch();
   bool previousLaunch();

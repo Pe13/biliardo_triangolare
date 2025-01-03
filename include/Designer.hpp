@@ -8,7 +8,6 @@
 #include <TH1D.h>
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
-#include <TGUI/Widgets/VerticalLayout.hpp>
 #include <array>
 #include <boost/circular_buffer.hpp>
 #include <vector>
@@ -39,8 +38,8 @@ class Designer {
   sf::Sprite histoSprite_;
 
   bool isDrawing_{false};
-  bool hasCleared_{true};
   bool isPaused_{false};
+  bool hasCleared_{true};
 
   std::size_t pointIndex_{0};
   float pathFraction_{0};
@@ -59,6 +58,15 @@ class Designer {
  public:
   Designer(sf::RenderWindow& window);
   ~Designer() = default;
+
+  bool isDrawing() const { return isDrawing_; }
+  bool isPaused() const { return isPaused_; }
+  bool hasCleared() const { return hasCleared_; }
+
+  std::size_t pointIndex() const { return pointIndex_; }
+  float pathFraction() const { return pathFraction_; }
+  float step() const { return step_; }
+  const boost::circular_buffer<sf::Vertex>& contrail() const { return contrail_; }
 
   void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms,
                   sf::RenderWindow& window, const Gui& gui);
