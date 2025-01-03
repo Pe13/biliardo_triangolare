@@ -16,7 +16,7 @@
 
 namespace bt {
 
-enum BiliardoType: unsigned { open = 0, rightBounded = 1, leftBounded = 2 };
+enum BiliardoType : unsigned { open = 0, rightBounded = 1, leftBounded = 2 };
 enum LastHit { left, right, top, bottom };
 
 struct LaunchParameters {
@@ -134,8 +134,9 @@ class Biliardo {
   // chiamata.
   // Restituisce un vettore contenente solo informazioni riguardo l'uscita delle
   // particelle dal biliardo
-  void multipleLaunch(unsigned int N, double muY, double sigmaY, double muT, double sigmaT,
-                      std::array<TH1D, 2>& histograms, bool async = true);
+  [[nodiscard]] bool multipleLaunch(unsigned int N, double muY, double sigmaY, double muT,
+                                    double sigmaT, std::array<TH1D, 2>& histograms,
+                                    bool async = true);
 };
 
 }  // namespace bt

@@ -307,9 +307,20 @@ bool Biliardo::launchForDrawing(std::vector<double> &output, std::optional<doubl
   return true;
 }
 
-void Biliardo::multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
+bool Biliardo::multipleLaunch(const unsigned int N, const double muY, const double sigmaY,
                               const double muT, const double sigmaT,
                               std::array<TH1D, 2> &histograms, const bool async) {
+  if (sigmaY <= 0) {
+    std::cerr << "Warning: il parametro \"sigmaY\" deve essere positivo; è stato fornito sigmaY = " +
+        std::to_string(sigmaY);
+    return false;
+  }
+  if (sigmaT <= 0) {
+    std::cerr << "Warning: il parametro \"sigmaT\" deve essere positivo; è stato fornito sigmaY = " +
+        std::to_string(sigmaT);
+    return false;
+  }
+
   auto yNormalDist = std::normal_distribution<double>(muY, sigmaY);
   auto thetaNormalDist = std::normal_distribution<double>(muT, sigmaT);
 
@@ -323,6 +334,7 @@ void Biliardo::multipleLaunch(const unsigned int N, const double muY, const doub
   } else {
     syncLaunch_(N, histograms, yNormalDist, thetaNormalDist);
   }
+  return true;
 }
 
 }  // namespace bt
