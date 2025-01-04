@@ -279,8 +279,8 @@ bool Biliardo::modify(const double l, const double r1, const double r2) {
 
     for (long unsigned i = 0; i < 3; i++) {
       if (*argList[i] <= 0) {
-        std::cerr << "Warning: il parametro \"" << argNames[i] << "\": " << *argList[i]
-                  << " fornito non è positivo\n";
+        std::cerr << "Il parametro \"" + argNames[i] + "\" deve essere positivo; è stato fornito " +
+                         argNames[i] + " = " + std::to_string(*argList[i]);
       }
     }
     std::cerr << "Il biliardo non è stato modificato.\n";
