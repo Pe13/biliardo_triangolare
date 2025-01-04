@@ -184,22 +184,22 @@ class Gui {
   tgui::VerticalLayout::Ptr wrapper_{tgui::VerticalLayout::create()};
 
   // bottoni per cambiare tipo di biliardo
-  tgui::HorizontalLayout::Ptr biliardoButtonsWrapper_{tgui::HorizontalLayout::create()};
-  tgui::Button::Ptr biliardoApertoBtn_{tgui::Button::create("Biliardo\naperto")};
-  tgui::Button::Ptr biliardoChiusoDxBtn_{tgui::Button::create("Biliardo\nchiuso Dx")};
-  tgui::Button::Ptr biliardoChiusoSxBtn_{tgui::Button::create("Biliardo\nchiuso Sx")};
+  tgui::HorizontalLayout::Ptr poolButtonsWrapper_{tgui::HorizontalLayout::create()};
+  tgui::Button::Ptr openPoolBtn_{tgui::Button::create("Biliardo\naperto")};
+  tgui::Button::Ptr rightClosedPoolBtn_{tgui::Button::create("Biliardo\nchiuso Dx")};
+  tgui::Button::Ptr leftClosedPoolBtn_{tgui::Button::create("Biliardo\nchiuso Sx")};
 
   // bottone e campi per modificare il biliardo
-  tgui::HorizontalLayout::Ptr newBiliardoWrapper_{tgui::HorizontalLayout::create()};
-  tgui::VerticalLayout::Ptr leftNewBiliardoWrapper_{tgui::VerticalLayout::create()};
+  tgui::HorizontalLayout::Ptr newPoolWrapper_{tgui::HorizontalLayout::create()};
+  tgui::VerticalLayout::Ptr leftNewPoolWrapper_{tgui::VerticalLayout::create()};
   tgui::Label::Ptr r1Label_{tgui::Label::create("r1:")};
   tgui::EditBox::Ptr r1Input_{tgui::EditBox::create()};
   tgui::Label::Ptr r2Label_{tgui::Label::create("r2:")};
   tgui::EditBox::Ptr r2Input_{tgui::EditBox::create()};
-  tgui::VerticalLayout::Ptr rightNewBiliardoWrapper_{tgui::VerticalLayout::create()};
+  tgui::VerticalLayout::Ptr rightNewPoolWrapper_{tgui::VerticalLayout::create()};
   tgui::Label::Ptr lLabel_{tgui::Label::create("l:")};
   tgui::EditBox::Ptr lInput_{tgui::EditBox::create()};
-  tgui::Button::Ptr newBiliardoBtn_{tgui::Button::create("Conferma")};
+  tgui::Button::Ptr newPoolBtn_{tgui::Button::create("Conferma")};
 
   // bottone e campi per lanciare la singola particella
   tgui::HorizontalLayout::Ptr singleLaunchWrapper_{tgui::HorizontalLayout::create()};
@@ -246,7 +246,7 @@ class Gui {
   tgui::TextArea::Ptr leftText_{tgui::TextArea::create()};
   tgui::TextArea::Ptr rightText_{tgui::TextArea::create()};
 
-  void newBiliardoBtnPressed(App* app) const;
+  void newPoolBtnPressed(App* app) const;
   void singleLaunchBtnPressed(App* app) const;
   void multipleLaunchBtnPressed(App* app) const;
 
@@ -264,7 +264,7 @@ class Gui {
 
   void setSingleLaunchText(const std::vector<double>& launch) const;
   void setStatisticsText(const std::array<TH1D, 2>& histograms) const;
-  void restoreTextOnBiliardoChange(const std::vector<double>& singleLaunch) const;
+  void restoreTextOnPoolChange(const std::vector<double>& singleLaunch) const;
 };
 
 }  // namespace bt

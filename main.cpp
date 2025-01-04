@@ -2,7 +2,7 @@
 #include <SFML/Window/ContextSettings.hpp>
 
 #include "App.hpp"
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 
 int main() {
   tgui::Theme::setDefault("Black.txt");

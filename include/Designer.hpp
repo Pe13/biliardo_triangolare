@@ -12,7 +12,7 @@
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 #include "Gui.hpp"
 
 namespace bt {
@@ -30,8 +30,8 @@ class Designer {
   float simulationXOffset_;
 
   sf::VertexBuffer frame_{sf::VertexBuffer::Usage::Static};
-  sf::VertexBuffer bordiBiliardo_{sf::VertexBuffer::Usage::Static};
-  sf::VertexBuffer clearBiliardo_{sf::VertexBuffer::Usage::Static};
+  sf::VertexBuffer poolBorders_{sf::VertexBuffer::Usage::Static};
+  sf::VertexBuffer clearPool_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer clearHisto_{sf::VertexBuffer::Usage::Static};
 
   sf::Texture histoTexture_;
@@ -51,7 +51,7 @@ class Designer {
   sf::CircleShape particle_{4};
 
   void calcFrame(const sf::Vector2u& size);
-  void calcClearBiliardo(const Biliardo& biliardo);
+  void calcClearPool(const Pool& pool);
   void calcClearHisto(const sf::Vector2u& size);
   void calcStep(const std::vector<double>& points);
 
@@ -68,16 +68,16 @@ class Designer {
   float step() const { return step_; }
   const boost::circular_buffer<sf::Vertex>& contrail() const { return contrail_; }
 
-  void changeSize(const Biliardo& biliardo, std::array<TH1D, 2>& histograms,
-                  sf::RenderWindow& window, const Gui& gui);
-  void changeSize(const Biliardo& biliardo, sf::RenderWindow& window, const Gui& gui);
-  void changeBiliardo(const Biliardo& biliardo, sf::RenderWindow& window);
-  void calcBordiBiliardo(const Biliardo& biliardo);
+  void changeSize(const Pool& pool, std::array<TH1D, 2>& histograms, sf::RenderWindow& window,
+                  const Gui& gui);
+  void changeSize(const Pool& pool, sf::RenderWindow& window, const Gui& gui);
+  void changePool(const Pool& pool, sf::RenderWindow& window);
+  void calcPoolBorders(const Pool& pool);
   void reRun(const std::vector<double>& points);
   void pause();
 
   void setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window);
-  void setCanvas(const Biliardo& biliardo, sf::RenderWindow& window);
+  void setCanvas(const Pool& pool, sf::RenderWindow& window);
   void updateHisto(sf::RenderWindow& window) const;
 
   void operator()(const std::vector<double>& points, sf::RenderWindow& window);

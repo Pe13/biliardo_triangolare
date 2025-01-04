@@ -12,7 +12,7 @@
 #include <random>
 #include <vector>
 
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 
 static std::default_random_engine rng{
     static_cast<unsigned long long>(std::chrono::system_clock::now().time_since_epoch().count())};

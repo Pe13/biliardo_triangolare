@@ -5,5 +5,4 @@ add_executable(biliardoBenchmark
         LaunchingBenchmarks.cpp
         )
 
-#target_include_directories(biliardoBenchmark PRIVATE ../include)
 target_link_libraries(biliardoBenchmark PRIVATE TPool ROOT::Core ROOT::Hist benchmark::benchmark benchmark::benchmark_main)

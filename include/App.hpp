@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 #include "Designer.hpp"
 #include "Gui.hpp"
 
@@ -20,7 +20,7 @@ namespace bt {
 class Gui;
 
 class App {
-  Biliardo biliardo_;
+  Pool pool_;
 
   sf::RenderWindow window_;
   sf::Event event_{};
@@ -42,19 +42,19 @@ class App {
   void handleEvents();
 
  public:
-  App(double l, double r1, double r2, BiliardoType type, const sf::ContextSettings& settings);
+  App(double l, double r1, double r2, PoolType type, const sf::ContextSettings& settings);
   ~App() = default;
   void start();
 
   const Designer& designer() const { return designer_; }
 
-  const Biliardo& biliardo() const { return biliardo_; }
+  const Pool& pool() const { return pool_; }
   /**
    * @brief Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e
    * la parte grafica
    */
-  [[nodiscard]] bool modifyBiliardo(double l, double r1, double r2);
-  [[nodiscard]] bool changeBiliardoType(BiliardoType type);
+  [[nodiscard]] bool modifyPool(double l, double r1, double r2);
+  [[nodiscard]] bool changePoolType(PoolType type);
 
   void pause();
   void reRun();

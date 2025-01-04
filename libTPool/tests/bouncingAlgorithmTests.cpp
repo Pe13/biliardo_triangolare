@@ -4,16 +4,16 @@
 
 #include <cmath>
 
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 #include "doctest.h"
 
 class Bouncer {
-  const bt::Biliardo* biliardo_;
+  const bt::Pool* pool_;
   double m_;
 
  public:
-  explicit Bouncer(const bt::Biliardo& biliardo)
-      : biliardo_{&biliardo}, m_{(biliardo_->r2() - biliardo_->r1()) / biliardo_->l()} {}
+  explicit Bouncer(const bt::Pool& pool)
+      : pool_{&pool}, m_{(pool_->r2() - pool_->r1()) / pool_->l()} {}
 
   [[nodiscard]] double topBounce(const double m) const {
     if (m_ == 0) {
@@ -48,12 +48,12 @@ class Bouncer {
 
     SUBCASE("collideTop") {
       bouncedDir = topBounce(std::tan(angle));
-      biliardo_->collideTop(angleCopy);
+      pool_->collideTop(angleCopy);
     }
 
     SUBCASE("collideBottom") {
       bouncedDir = bottomBounce(std::tan(angle));
-      biliardo_->collideBottom(angleCopy);
+      pool_->collideBottom(angleCopy);
     }
 
     fixAngle(angleCopy);
@@ -63,26 +63,26 @@ class Bouncer {
 };
 
 TEST_CASE("Testing bouncing algorithm consistency") {
-  constexpr int biliardoCases = 21;
-  static_assert(biliardoCases % 2 == 1);
-  for (int i = -((biliardoCases - 1) / 2 - 1); i < (biliardoCases - 1) / 2 - 1; ++i) {
-    bt::Biliardo biliardo{1, 50. + 50. * static_cast<double>(i) / ((biliardoCases - 1) / 2), 50};
-    Bouncer bouncer{biliardo};
+  constexpr int poolCases = 21;
+  static_assert(poolCases % 2 == 1);
+  for (int i = -((poolCases - 1) / 2 - 1); i < (poolCases - 1) / 2 - 1; ++i) {
+    bt::Pool pool{1, 50. + 50. * static_cast<double>(i) / ((poolCases - 1) / 2), 50};
+    Bouncer bouncer{pool};
     constexpr int angleCases = 20;
     for (int j = 0; j < angleCases; j++) {
       double angle = -M_PI / 2 + M_PI * j / angleCases;
       SUBCASE("Checking that algorithm are involution functions") {
-        SUBCASE("bt:Biliardo::collideTop") {
+        SUBCASE("bt:Pool::collideTop") {
           double doubleBouncedAngle = angle;
-          biliardo.collideTop(doubleBouncedAngle);
-          biliardo.collideTop(doubleBouncedAngle);
+          pool.collideTop(doubleBouncedAngle);
+          pool.collideTop(doubleBouncedAngle);
           CHECK(doctest::Approx(angle) == doubleBouncedAngle);
         }
 
-        SUBCASE("bt:Biliardo::collideBottom") {
+        SUBCASE("bt:Pool::collideBottom") {
           double doubleBouncedAngle = angle;
-          biliardo.collideBottom(angle);
-          biliardo.collideBottom(angle);
+          pool.collideBottom(angle);
+          pool.collideBottom(angle);
           CHECK(doctest::Approx(angle) == doubleBouncedAngle);
         }
 

@@ -15,14 +15,14 @@
 
 namespace bt {
 
-void Gui::newBiliardoBtnPressed(App* app) const {
-  std::array<std::optional<double>, 3> newParameters{app->biliardo().r1(), app->biliardo().r2(),
-                                                     app->biliardo().l()};
+void Gui::newPoolBtnPressed(App* app) const {
+  std::array<std::optional<double>, 3> newParameters{app->pool().r1(), app->pool().r2(),
+                                                     app->pool().l()};
   bool hasChanged = false;
   bool error = false;
 
   forEachIndexed<tgui::EditBox>(
-      newBiliardoWrapper_->getWidgets().begin(), newBiliardoWrapper_->getWidgets().end(),
+      newPoolWrapper_->getWidgets().begin(), newPoolWrapper_->getWidgets().end(),
       [&newParameters, &hasChanged, &error](const tgui::EditBox::Ptr& inputBox,
                                             const unsigned int i) {
         if (const auto readValue = inputStringToDouble(inputBox->getText())) {
@@ -40,11 +40,11 @@ void Gui::newBiliardoBtnPressed(App* app) const {
       });
 
   if (hasChanged && !error) {
-    [[maybe_unused]] const bool modificationResult = app->modifyBiliardo(
+    [[maybe_unused]] const bool modificationResult = app->modifyPool(
         newParameters[2].value(), newParameters[0].value(), newParameters[1].value());
     assert(modificationResult);
     sigmaYInput_->setDefaultText(tgui::String(
-        app->biliardo().r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
+        app->pool().r1() / 5.));  // aggiorno il testo placeholder della sigmaY di default
   }
 }
 
@@ -54,7 +54,7 @@ void Gui::singleLaunchBtnPressed(App* app) const {
   bool failed = false;
 
   if (!heightInput_->getText().empty() &&
-      (!y.has_value() || std::abs(y.value()) >= app->biliardo().r1())) {
+      (!y.has_value() || std::abs(y.value()) >= app->pool().r1())) {
     heightInput_->getRenderer()->setTextColor(tgui::Color::Red);
     failed = true;
   }
@@ -76,7 +76,7 @@ void Gui::singleLaunchBtnPressed(App* app) const {
 void Gui::multipleLaunchBtnPressed(App* app) const {
   // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la
   // "e" e posso fare un controllo su un possibile overflow
-  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->biliardo().r1() / 5, 0,
+  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->pool().r1() / 5, 0,
                                                         M_PI / 8};
   const double& N = launchParameters[0].value();
   const double& muY = launchParameters[1].value();
@@ -134,30 +134,30 @@ void Gui::create() {
   wrapper_->getRenderer()->setPadding({0, 10});
 
   // bottoni per cambiare tipo di biliardo
-  wrapper_->add(biliardoButtonsWrapper_, "buttonsWrapper");
-  biliardoButtonsWrapper_->addSpace(.1f);
-  biliardoButtonsWrapper_->add(biliardoApertoBtn_, "biliardoAperto");
-  biliardoButtonsWrapper_->addSpace(.1f);
-  biliardoButtonsWrapper_->add(biliardoChiusoSxBtn_, "biliardoChiusoSx");
-  biliardoButtonsWrapper_->addSpace(.1f);
-  biliardoButtonsWrapper_->add(biliardoChiusoDxBtn_, "biliardoChiusoDx");
-  biliardoButtonsWrapper_->addSpace(.1f);
+  wrapper_->add(poolButtonsWrapper_, "buttonsWrapper");
+  poolButtonsWrapper_->addSpace(.1f);
+  poolButtonsWrapper_->add(openPoolBtn_, "biliardoAperto");
+  poolButtonsWrapper_->addSpace(.1f);
+  poolButtonsWrapper_->add(leftClosedPoolBtn_, "biliardoChiusoSx");
+  poolButtonsWrapper_->addSpace(.1f);
+  poolButtonsWrapper_->add(rightClosedPoolBtn_, "biliardoChiusoDx");
+  poolButtonsWrapper_->addSpace(.1f);
 
   // bottone e campi per modificare il biliardo
-  wrapper_->add(newBiliardoWrapper_, 2.f, "newBiliardoWrapper");
-  newBiliardoWrapper_->addSpace(.05f);
-  newBiliardoWrapper_->add(leftNewBiliardoWrapper_, .425f, "leftNewBiliardoWrapper");
-  leftNewBiliardoWrapper_->add(r1Label_, .7f, "r1Label");
-  leftNewBiliardoWrapper_->add(r1Input_, "r1Input");
-  leftNewBiliardoWrapper_->add(r2Label_, .7f, "r2Label");
-  leftNewBiliardoWrapper_->add(r2Input_, "r2Input");
-  newBiliardoWrapper_->addSpace(.05f);
-  newBiliardoWrapper_->add(rightNewBiliardoWrapper_, .425f, "rightNewBiliardoWrapper");
-  rightNewBiliardoWrapper_->add(lLabel_, .41f, "lLabel");
-  rightNewBiliardoWrapper_->add(lInput_, .588f, "lInput");
-  rightNewBiliardoWrapper_->addSpace(.2f);
-  rightNewBiliardoWrapper_->add(newBiliardoBtn_, .8f, "newBiliardoBtn");
-  newBiliardoWrapper_->addSpace(.05f);
+  wrapper_->add(newPoolWrapper_, 2.f, "newBiliardoWrapper");
+  newPoolWrapper_->addSpace(.05f);
+  newPoolWrapper_->add(leftNewPoolWrapper_, .425f, "leftNewBiliardoWrapper");
+  leftNewPoolWrapper_->add(r1Label_, .7f, "r1Label");
+  leftNewPoolWrapper_->add(r1Input_, "r1Input");
+  leftNewPoolWrapper_->add(r2Label_, .7f, "r2Label");
+  leftNewPoolWrapper_->add(r2Input_, "r2Input");
+  newPoolWrapper_->addSpace(.05f);
+  newPoolWrapper_->add(rightNewPoolWrapper_, .425f, "rightNewBiliardoWrapper");
+  rightNewPoolWrapper_->add(lLabel_, .41f, "lLabel");
+  rightNewPoolWrapper_->add(lInput_, .588f, "lInput");
+  rightNewPoolWrapper_->addSpace(.2f);
+  rightNewPoolWrapper_->add(newPoolBtn_, .8f, "newBiliardoBtn");
+  newPoolWrapper_->addSpace(.05f);
 
   wrapper_->addSpace(.02f);
 
@@ -258,15 +258,15 @@ void Gui::activate(App* app) const {
                          });
 
   // attivo le funzioni dei bottoni per cambiare tipo di biliardo
-  biliardoApertoBtn_->onPress(&App::changeBiliardoType, app, open);
-  biliardoChiusoDxBtn_->onPress(&App::changeBiliardoType, app, rightBounded);
-  biliardoChiusoSxBtn_->onPress(&App::changeBiliardoType, app, leftBounded);
+  openPoolBtn_->onPress(&App::changePoolType, app, open);
+  rightClosedPoolBtn_->onPress(&App::changePoolType, app, rightBounded);
+  leftClosedPoolBtn_->onPress(&App::changePoolType, app, leftBounded);
 
   // gestisco la modifica del biliardo
-  r1Input_->setDefaultText(tgui::String(app->biliardo().r1()));
-  r2Input_->setDefaultText(tgui::String(app->biliardo().r2()));
-  lInput_->setDefaultText(tgui::String(app->biliardo().l()));
-  newBiliardoBtn_->onPress(&Gui::newBiliardoBtnPressed, this, app);
+  r1Input_->setDefaultText(tgui::String(app->pool().r1()));
+  r2Input_->setDefaultText(tgui::String(app->pool().r2()));
+  lInput_->setDefaultText(tgui::String(app->pool().l()));
+  newPoolBtn_->onPress(&Gui::newPoolBtnPressed, this, app);
 
   // attivo i bottoni per navigare tra un lancio e l'altro
   previousLaunchBtn_->onPress(&App::previousLaunch, app);
@@ -280,7 +280,7 @@ void Gui::activate(App* app) const {
   // imposto i placeholder per gli editbox del lancio multiplo con i valori di default delle
   // distribuzioni normali
   muYInput_->setDefaultText("0");
-  sigmaYInput_->setDefaultText(tgui::String(app->biliardo().r1() / 5));
+  sigmaYInput_->setDefaultText(tgui::String(app->pool().r1() / 5));
   muTInput_->setDefaultText("0");
   sigmaTInput_->setDefaultText(tgui::String(M_PI / 8));
   numberInput_->setDefaultText("1'000'000");
@@ -410,7 +410,7 @@ void Gui::setStatisticsText(const std::array<TH1D, 2>& histograms) const {
       '\n'));
 }
 
-void Gui::restoreTextOnBiliardoChange(const std::vector<double>& singleLaunch) const {
+void Gui::restoreTextOnPoolChange(const std::vector<double>& singleLaunch) const {
   setDefaultText();
   setSingleLaunchText(singleLaunch);
 }

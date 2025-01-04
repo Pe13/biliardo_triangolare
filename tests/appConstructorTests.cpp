@@ -5,20 +5,20 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "App.hpp"
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 #include "doctest.h"
 #include "testsUtilities.hpp"
 
 TEST_SUITE("App constructor") {
-  TEST_CASE("Invalid BiliardoType") {
-    CHECK_THROWS_WITH_AS(bt::App(1, 1, 1, static_cast<bt::BiliardoType>(3), settings),
+  TEST_CASE("Invalid PoolType") {
+    CHECK_THROWS_WITH_AS(bt::App(1, 1, 1, static_cast<bt::PoolType>(3), settings),
                          "Il tipo fornito per la costruzione del Biliardo non è valido",
                          std::invalid_argument);
   }
 
-  TEST_CASE("Invalid Biliardo parameters") {
+  TEST_CASE("Invalid Pool parameters") {
     for (unsigned int i = 0; i < 3; i++) {
-      const auto type = static_cast<bt::BiliardoType>(i);
+      const auto type = static_cast<bt::PoolType>(i);
 
       SUBCASE("Negative parameters") {
         CHECK_THROWS_WITH_AS(
@@ -64,17 +64,17 @@ TEST_SUITE("App constructor") {
 
   TEST_CASE("Valid instance") {
     for (unsigned int i = 0; i < 3; i++) {
-      const auto type = static_cast<bt::BiliardoType>(i);
+      const auto type = static_cast<bt::PoolType>(i);
       const bt::App app(10.0, 2.0, 4.0, type, settings);
 
       // Testo che il biliardo sia stato modificato correttamente
       // Non uso l'operatore == tra biliardi per avere un riscontro più dettagliato nel caso
       // qualcosa dovesse andare storto
-      CHECK(app.biliardo().l() == 10.0);
-      CHECK(app.biliardo().r1() == 2.0);
-      CHECK(app.biliardo().r2() == 4.0);
-      CHECK(app.biliardo().type() == type);
-      CHECK(doctest::Approx(app.biliardo().theta()) == std::atan((4.0 - 2.0) / 10.0));
+      CHECK(app.pool().l() == 10.0);
+      CHECK(app.pool().r1() == 2.0);
+      CHECK(app.pool().r2() == 4.0);
+      CHECK(app.pool().type() == type);
+      CHECK(doctest::Approx(app.pool().theta()) == std::atan((4.0 - 2.0) / 10.0));
 
       // Controllo che tutti i lanci siano generati correttamente
       // Lanci singoli

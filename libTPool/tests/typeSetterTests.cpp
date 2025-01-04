@@ -4,26 +4,26 @@
 
 #include <stdexcept>
 
-#include "Biliardo.hpp"
+#include "Pool.hpp"
 #include "doctest.h"
 
-TEST_SUITE("Biliardo::changeType") {
+TEST_SUITE("Pool::changeType") {
   TEST_CASE("Testing valid modifications") {
-    auto biliardo = bt::Biliardo(1, 1, 1);
-    CHECK(biliardo.changeType(bt::leftBounded) == true);
-    CHECK(biliardo.type() == bt::leftBounded);
+    bt::Pool pool{1, 1, 1};
+    CHECK(pool.changeType(bt::leftBounded) == true);
+    CHECK(pool.type() == bt::leftBounded);
 
-    CHECK(biliardo.changeType(bt::rightBounded) == true);
-    CHECK(biliardo.type() == bt::rightBounded);
+    CHECK(pool.changeType(bt::rightBounded) == true);
+    CHECK(pool.type() == bt::rightBounded);
 
-    CHECK(biliardo.changeType(bt::open) == true);
-    CHECK(biliardo.type() == bt::open);
+    CHECK(pool.changeType(bt::open) == true);
+    CHECK(pool.type() == bt::open);
   }
 
   TEST_CASE("Testing invalid modifications") {
-    auto biliardo = bt::Biliardo(1, 1, 1);
-    const auto type = biliardo.type();
-    CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
-    CHECK(biliardo.type() == type);
+    bt::Pool pool{1, 1, 1};
+    const auto type = pool.type();
+    CHECK(pool.changeType(static_cast<bt::PoolType>(3)) == false);
+    CHECK(pool.type() == type);
   }
 }
