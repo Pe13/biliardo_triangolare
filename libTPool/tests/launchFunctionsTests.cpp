@@ -9,10 +9,9 @@
 #include "Biliardo.hpp"
 #include "doctest.h"
 
-TEST_CASE("Testing launch functions") {
-  bt::Biliardo biliardo{1, 1, 1, bt::open};
-
-  SUBCASE("Testing launchForDrawing parameters validation") {
+TEST_SUITE("Biliardo launch functions") {
+  TEST_CASE("Testing launchForDrawing parameters validation") {
+    bt::Biliardo biliardo{1, 1, 1, bt::open};
     std::vector<double> output{};
     SUBCASE("Valid parameters") {
       CHECK(biliardo.launchForDrawing(output) == true);
@@ -30,23 +29,22 @@ TEST_CASE("Testing launch functions") {
     }
   }
 
-  SUBCASE("Testing that multipleLaunch produces histograms with the right number of entries") {
+  TEST_CASE("Testing that multipleLaunch produces histograms with the right number of entries") {
+    bt::Biliardo biliardo{1, 1, 1, bt::open};
+
+    std::array<TH1D, 2> histograms{};
+    histograms[0] = TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1());
+    histograms[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
+
     SUBCASE("Async") {
-      std::array<TH1D, 2> histograms{};
-      histograms[0] = TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1());
-      histograms[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
-      biliardo.multipleLaunch(1e6, 0, biliardo.r1() / 5, 0, M_PI / 8, histograms);
-      CHECK(histograms[0].GetEntries() == 1e6);
-      CHECK(histograms[1].GetEntries() == 1e6);
+      REQUIRE(biliardo.multipleLaunch(1e6, 0., biliardo.r1() / 5, 0, M_PI / 8, histograms));
     }
 
     SUBCASE("Sync") {
-      std::array<TH1D, 2> histograms{};
-      histograms[0] = TH1D("", "Istogramma delle y di uscita", 1000, -biliardo.r1(), biliardo.r1());
-      histograms[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
-      biliardo.multipleLaunch(1e6, 0, biliardo.r1() / 5, 0, M_PI / 8, histograms, false);
-      CHECK(histograms[0].GetEntries() == 1e6);
-      CHECK(histograms[1].GetEntries() == 1e6);
+      REQUIRE(biliardo.multipleLaunch(1e6, 0., biliardo.r1() / 5, 0, M_PI / 8, histograms, false));
     }
+
+    CHECK(histograms[0].GetEntries() == 1e6);
+    CHECK(histograms[1].GetEntries() == 1e6);
   }
 }

@@ -7,10 +7,9 @@
 #include "Biliardo.hpp"
 #include "doctest.h"
 
-TEST_CASE("Testing Biliardo::changeType") {
-  auto biliardo = bt::Biliardo(1, 1, 1);
-
-  SUBCASE("Testing that it works") {
+TEST_SUITE("Biliardo::changeType") {
+  TEST_CASE("Testing valid modifications") {
+    auto biliardo = bt::Biliardo(1, 1, 1);
     CHECK(biliardo.changeType(bt::leftBounded) == true);
     CHECK(biliardo.type() == bt::leftBounded);
 
@@ -21,7 +20,8 @@ TEST_CASE("Testing Biliardo::changeType") {
     CHECK(biliardo.type() == bt::open);
   }
 
-  SUBCASE("Testing that it correctly fails") {
+  TEST_CASE("Testing invalid modifications") {
+    auto biliardo = bt::Biliardo(1, 1, 1);
     const auto type = biliardo.type();
     CHECK(biliardo.changeType(static_cast<bt::BiliardoType>(3)) == false);
     CHECK(biliardo.type() == type);

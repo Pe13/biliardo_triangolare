@@ -8,8 +8,8 @@
 #include "Biliardo.hpp"
 #include "doctest.h"
 
-TEST_CASE("Testing parameters setters") {
-  SUBCASE("Valid modifications") {
+TEST_SUITE("Biliardo parameters setters") {
+  TEST_CASE("Testing valid modifications") {
     constexpr double oldL = 1;
     constexpr double oldR1 = 2;
     constexpr double oldR2 = 3;
@@ -53,7 +53,7 @@ TEST_CASE("Testing parameters setters") {
     }
   }
 
-  SUBCASE("Invalid modifications") {
+  TEST_CASE("Testing invalid modifications") {
     bt::Biliardo biliardo{1, 1, 1};
     const auto biliardoCopy = biliardo;
 

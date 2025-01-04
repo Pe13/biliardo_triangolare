@@ -42,26 +42,23 @@ class Bouncer {
     }
   }
 
-  void checkAngle(double angle) const {
-    SUBCASE("collideTop") {
-      double bouncedDir = topBounce(std::tan(angle));
-      double bouncedAngle = std::atan(bouncedDir);
-      double angleCopy = angle;
-      biliardo_->collideTop(angleCopy);
-      fixAngle(angleCopy);
+  void checkAngle(const double angle) const {
+    double angleCopy = angle;
+    double bouncedDir{};
 
-      CHECK(doctest::Approx(bouncedAngle) == angleCopy);
+    SUBCASE("collideTop") {
+      bouncedDir = topBounce(std::tan(angle));
+      biliardo_->collideTop(angleCopy);
     }
 
     SUBCASE("collideBottom") {
-      double bouncedDir = bottomBounce(std::tan(angle));
-      double bouncedAngle = std::atan(bouncedDir);
-      double angleCopy = angle;
+      bouncedDir = bottomBounce(std::tan(angle));
       biliardo_->collideBottom(angleCopy);
-      fixAngle(angleCopy);
-
-      CHECK(doctest::Approx(bouncedAngle) == angleCopy);
     }
+
+    fixAngle(angleCopy);
+    const double bouncedAngle = std::atan(bouncedDir);
+    CHECK(doctest::Approx(bouncedAngle) == angleCopy);
   }
 };
 
@@ -90,13 +87,13 @@ TEST_CASE("Testing bouncing algorithm consistency") {
         }
 
         SUBCASE("Bouncer::topBounce") {
-          double doubleBouncedDir = bouncer.topBounce(bouncer.topBounce(std::tan(angle)));
+          const double doubleBouncedDir = bouncer.topBounce(bouncer.topBounce(std::tan(angle)));
           double doubleBouncedAngle = std::atan(doubleBouncedDir);
           CHECK(doctest::Approx(angle) == doubleBouncedAngle);
         }
 
         SUBCASE("Bouncer::bottomBounce") {
-          double doubleBouncedDir = bouncer.bottomBounce(bouncer.bottomBounce(std::tan(angle)));
+          const double doubleBouncedDir = bouncer.bottomBounce(bouncer.bottomBounce(std::tan(angle)));
           double doubleBouncedAngle = std::atan(doubleBouncedDir);
           CHECK(doctest::Approx(angle) == doubleBouncedAngle);
         }
