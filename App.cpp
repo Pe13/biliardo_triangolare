@@ -10,24 +10,26 @@
 #include <boost/format.hpp>
 #include <cassert>
 #include <ctime>
+#include <memory>
 #include <optional>
 
 #include "Biliardo.hpp"
 
 namespace bt {
 
-std::vector<double>& App::newSingleLaunch() {
-  singleLaunches_[biliardo_.type()].emplace_back();
+std::shared_ptr<std::vector<double>>& App::newSingleLaunch() {
+  singleLaunches_[biliardo_.type()].emplace_back(std::make_shared<std::vector<double>>());
   singleLaunchesIndexes_[biliardo_.type()] = singleLaunches_[biliardo_.type()].size() - 1;
   return singleLaunches_[biliardo_.type()].back();
 }
 
-std::array<TH1D, 2>& App::newHistograms() {
-  multipleLaunches_[biliardo_.type()].emplace_back();
+std::shared_ptr<std::array<TH1D, 2>>& App::newHistograms() {
+  multipleLaunches_[biliardo_.type()].emplace_back(std::make_shared<std::array<TH1D, 2>>());
   multipleLaunchesIndexes_[biliardo_.type()] = multipleLaunches_[biliardo_.type()].size() - 1;
   auto& histograms = multipleLaunches_[biliardo_.type()].back();
-  histograms[0] = TH1D("", "Istogramma delle y di uscita", 1000, -biliardo_.r1(), biliardo_.r1());
-  histograms[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
+  (*histograms)[0] =
+      TH1D("", "Istogramma delle y di uscita", 1000, -biliardo_.r1(), biliardo_.r1());
+  (*histograms)[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
   return histograms;
 }
 
@@ -54,7 +56,7 @@ void App::handleEvents() {
         } else {
           designer_.changeSize(
               biliardo_,
-              multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]],
+              *multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]],
               window_, gui_);
         }
         break;
@@ -82,11 +84,11 @@ App::App(const double l, const double r1, const double r2, const BiliardoType ty
         biliardo_.changeType(static_cast<BiliardoType>(i));
     assert(typeChangeResult);
     auto& newLaunch = newSingleLaunch();
-    biliardo_.launchForDrawing(newLaunch);
+    biliardo_.launchForDrawing(*newLaunch);
   }
   [[maybe_unused]] const bool typeChangeResult = biliardo_.changeType(type);
   assert(typeChangeResult);
-  gui_.setSingleLaunchText(singleLaunches_[biliardo_.type()][0]);
+  gui_.setSingleLaunchText(*singleLaunches_[biliardo_.type()][0]);
   designer_.calcBordiBiliardo(biliardo_);
   reRun();
 }
@@ -95,7 +97,8 @@ void App::start() {
   while (window_.isOpen()) {
     handleEvents();
     gui_.draw();
-    designer_(singleLaunches_[biliardo_.type()][singleLaunchesIndexes_[biliardo_.type()]], window_);
+    designer_(*singleLaunches_[biliardo_.type()][singleLaunchesIndexes_[biliardo_.type()]],
+              window_);
     window_.display();
   }
 }
@@ -116,7 +119,7 @@ bool App::modifyBiliardo(const double l, const double r1, const double r2) {
         biliardo_.changeType(static_cast<BiliardoType>(i));
     assert(typeChangeResult);
     auto& newLaunch = newSingleLaunch();
-    biliardo_.launchForDrawing(newLaunch);
+    biliardo_.launchForDrawing(*newLaunch);
   }
 
   [[maybe_unused]] const bool restoreTypeResult = biliardo_.changeType(actualBiliardoType);
@@ -124,7 +127,7 @@ bool App::modifyBiliardo(const double l, const double r1, const double r2) {
 
   // aggiorno la parte grafica
   designer_.changeBiliardo(biliardo_, window_);
-  gui_.restoreTextOnBiliardoChange(singleLaunches_[biliardo_.type()][0]);
+  gui_.restoreTextOnBiliardoChange(*singleLaunches_[biliardo_.type()][0]);
 
   // resetto gli indici a 0
   singleLaunchesIndexes_ = {0, 0, 0};
@@ -150,7 +153,7 @@ bool App::changeBiliardoType(const BiliardoType type) {
     designer_.setCanvas(biliardo_, window_);
   } else {
     designer_.setCanvas(
-        multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]], window_);
+        *multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]], window_);
   }
   return true;
 }
@@ -158,24 +161,42 @@ bool App::changeBiliardoType(const BiliardoType type) {
 void App::pause() { designer_.pause(); }
 
 void App::reRun() {
-  designer_.reRun(singleLaunches_[biliardo_.type()][singleLaunchesIndexes_[biliardo_.type()]]);
+  designer_.reRun(*singleLaunches_[biliardo_.type()][singleLaunchesIndexes_[biliardo_.type()]]);
 }
 
-const std::vector<double>& App::singleLaunch(const std::optional<double> initialY,
-                                             const std::optional<double> initialDirection) {
+std::weak_ptr<const std::vector<double>> App::singleLaunch(
+    const std::optional<double> initialY, const std::optional<double> initialDirection) {
+  const auto currentIndex = singleLaunchesIndexes_[biliardo_.type()];
+
   auto& newLaunch = newSingleLaunch();
-  biliardo_.launchForDrawing(newLaunch, initialY, initialDirection);
+
+  if (!biliardo_.launchForDrawing(*newLaunch, initialY, initialDirection)) {
+    std::cerr << "Warning: almeno uno dei parametri per il lancio singolo non è valido\n";
+    singleLaunches_[biliardo_.type()].pop_back();
+    singleLaunchesIndexes_[biliardo_.type()] = currentIndex;
+    return std::shared_ptr<std::vector<double>>();  // shared pointer nullo
+  }
 
   reRun();
   return newLaunch;
 }
 
-const std::array<TH1D, 2>& App::multipleLaunch(const unsigned int N, const double muY,
-                                               const double sigmaY, const double muT,
-                                               const double sigmaT, const bool async) {
+std::weak_ptr<const std::array<TH1D, 2>> App::multipleLaunch(const unsigned int N, const double muY,
+                                                             const double sigmaY, const double muT,
+                                                             const double sigmaT,
+                                                             const bool async) {
+  const auto currentIndex = multipleLaunchesIndexes_[biliardo_.type()];
+
   auto& histograms = newHistograms();
-  biliardo_.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, async);
-  designer_.setCanvas(histograms, window_);
+
+  if (!biliardo_.multipleLaunch(N, muY, sigmaY, muT, sigmaT, *histograms, async)) {
+    std::cerr << "Warning: almeno uno dei parametri per il lancio multiplo non è valido\n";
+    multipleLaunches_[biliardo_.type()].pop_back();
+    multipleLaunchesIndexes_[biliardo_.type()] = currentIndex;
+    return std::shared_ptr<std::array<TH1D, 2>>();  // shared pointer nullo
+  }
+
+  designer_.setCanvas(*histograms, window_);
   return histograms;
 }
 
@@ -202,7 +223,7 @@ bool App::nextHistogram() {
           multipleLaunches_[biliardo_.type()].size() - 1) {
     multipleLaunchesIndexes_[biliardo_.type()]++;
     designer_.setCanvas(
-        multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]], window_);
+        *multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]], window_);
     return true;
   }
   return false;
@@ -212,7 +233,7 @@ bool App::previousHistogram() {
   if (multipleLaunchesIndexes_[biliardo_.type()] != 0) {
     multipleLaunchesIndexes_[biliardo_.type()]--;
     designer_.setCanvas(
-        multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]], window_);
+        *multipleLaunches_[biliardo_.type()][multipleLaunchesIndexes_[biliardo_.type()]], window_);
     return true;
   }
   return false;
@@ -237,10 +258,10 @@ void App::saveHistogram(const std::string& filename) {
   canvas.Divide(2);
 
   canvas.cd(1);
-  histograms[0].Draw();
+  (*histograms)[0].Draw();
 
   canvas.cd(2);
-  histograms[1].Draw();
+  (*histograms)[1].Draw();
 
   if (filename.empty()) {
     const std::time_t t = std::time(nullptr);  // get time now

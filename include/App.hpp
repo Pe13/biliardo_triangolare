@@ -8,6 +8,7 @@
 #include <TH1D.h>
 
 #include <array>
+#include <memory>
 #include <vector>
 
 #include "Biliardo.hpp"
@@ -28,14 +29,15 @@ class App {
 
   Gui gui_;
 
-  std::array<std::vector<std::vector<double>>, 3> singleLaunches_;
+  // TODO Documentare la scelta del vector of vector
+  std::array<std::vector<std::shared_ptr<std::vector<double>>>, 3> singleLaunches_;
   std::array<size_t, 3> singleLaunchesIndexes_{0, 0, 0};
-  std::array<std::vector<std::array<TH1D, 2>>, 3> multipleLaunches_;
+  std::array<std::vector<std::shared_ptr<std::array<TH1D, 2>>>, 3> multipleLaunches_;
   std::array<size_t, 3> multipleLaunchesIndexes_{0, 0, 0};
   std::array<std::vector<sf::Image>, 3> graphImages{{}};
 
-  std::vector<double>& newSingleLaunch();
-  std::array<TH1D, 2>& newHistograms();
+  std::shared_ptr<std::vector<double>>& newSingleLaunch();
+  std::shared_ptr<std::array<TH1D, 2>>& newHistograms();
 
   void handleEvents();
 
@@ -57,16 +59,22 @@ class App {
   void pause();
   void reRun();
 
-  const std::vector<double>& singleLaunch(std::optional<double> initialY = std::nullopt,
-                                          std::optional<double> initialDirection = std::nullopt);
-  const std::array<TH1D, 2>& multipleLaunch(unsigned int N, double muY, double sigmaY, double muT,
-                                            double sigmaT, bool async = true);
+  // TODO Documentare la scelta del weak_ptr
+  [[nodiscard]] std::weak_ptr<const std::vector<double>> singleLaunch(
+      std::optional<double> initialY = std::nullopt,
+      std::optional<double> initialDirection = std::nullopt);
+  [[nodiscard]] std::weak_ptr<const std::array<TH1D, 2>> multipleLaunch(unsigned int N, double muY,
+                                                                        double sigmaY, double muT,
+                                                                        double sigmaT,
+                                                                        bool async = true);
 
-  const std::array<std::vector<std::vector<double>>, 3>& getSingleLaunches() const {
+  const std::array<std::vector<std::shared_ptr<std::vector<double>>>, 3>& getSingleLaunches()
+      const {
     return singleLaunches_;
   }
   const std::array<size_t, 3>& getSingleLaunchesIndexes() const { return singleLaunchesIndexes_; }
-  const std::array<std::vector<std::array<TH1D, 2>>, 3>& getMultipleLaunches() const {
+  const std::array<std::vector<std::shared_ptr<std::array<TH1D, 2>>>, 3>& getMultipleLaunches()
+      const {
     return multipleLaunches_;
   }
   const std::array<size_t, 3>& getMultipleLaunchesIndexes() const {

@@ -68,7 +68,9 @@ void Gui::singleLaunchBtnPressed(App* app) const {
     return;
   }
 
-  setSingleLaunchText(app->singleLaunch(y, t));
+  const auto launch = app->singleLaunch(y, t);
+  assert(!launch.expired());
+  setSingleLaunchText(*launch.lock());
 }
 
 void Gui::multipleLaunchBtnPressed(App* app) const {
@@ -126,7 +128,9 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
     return;
   }
 
-  setStatisticsText(app->multipleLaunch(N_, muY, sigmaY, muT, sigmaT));
+  const auto launch = app->multipleLaunch(N_, muY, sigmaY, muT, sigmaT);
+  assert(!launch.expired());
+  setStatisticsText(*launch.lock());
 }
 
 void Gui::create() {
