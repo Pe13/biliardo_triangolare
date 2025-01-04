@@ -312,12 +312,12 @@ bool Biliardo::multipleLaunch(const unsigned int N, const double muY, const doub
                               std::array<TH1D, 2> &histograms, const bool async) {
   if (sigmaY <= 0) {
     std::cerr << "Warning: il parametro \"sigmaY\" deve essere positivo; è stato fornito sigmaY = " +
-        std::to_string(sigmaY);
+        std::to_string(sigmaY) + '\n';
     return false;
   }
   if (sigmaT <= 0) {
     std::cerr << "Warning: il parametro \"sigmaT\" deve essere positivo; è stato fornito sigmaY = " +
-        std::to_string(sigmaT);
+        std::to_string(sigmaT) + '\n';
     return false;
   }
 
