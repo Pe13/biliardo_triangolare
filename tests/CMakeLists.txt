@@ -14,8 +14,9 @@ add_executable(App_test
                ../App.cpp
                ../Gui.cpp
                ../Designer.cpp
-               appTests.cpp
-               appModifyBiliardoTests.cpp)
+               appConstructorTests.cpp
+               appBiliardoModificationsTests.cpp
+               appLaunchesTests.cpp)
 
 add_dependencies(App_test TPool)
 target_include_directories(App_test PRIVATE ../include)

@@ -86,8 +86,7 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
 
   bool error = false;
 
-  // mi limito a verificare che gli input siano validi perché se non presenti ci sono dei valori di
-  // default
+  // Controllo che tutti i campi, se compilati, siano numeri validi
   forEachIndexed<tgui::EditBox>(
       multipleLaunchWrapper_->getWidgets().begin(), multipleLaunchWrapper_->getWidgets().end(),
       [&launchParameters, &error](const tgui::EditBox::Ptr& inputBox, const unsigned int i) {
@@ -100,20 +99,6 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
         }
       });
 
-  if (error) {
-    return;
-  }
-
-  unsigned int N_{};
-  try {
-    constexpr boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
-    N_ = safeDoubleToUInt(N);
-  } catch (std::bad_cast&) {  // tutte le eccezioni sollevate dal converter dovrebbero essere
-                              // sottoclassi di std::bad_cast
-    numberInput_->getRenderer()->setTextColor(tgui::Color::Red);
-    error = true;
-  }
-
   // controllo che le deviazioni standard non siano negative o nulle
   if (sigmaY <= 0) {
     sigmaYInput_->getRenderer()->setTextColor(tgui::Color::Red);
@@ -121,6 +106,16 @@ void Gui::multipleLaunchBtnPressed(App* app) const {
   }
   if (sigmaT <= 0) {
     sigmaTInput_->getRenderer()->setTextColor(tgui::Color::Red);
+    error = true;
+  }
+
+  // Converto N in unsigned int stando attento che non ci sia overflow
+  unsigned int N_{};
+  try {
+    constexpr boost::numeric::converter<unsigned int, double> safeDoubleToUInt;
+    N_ = safeDoubleToUInt(N);
+  } catch (std::bad_cast&) {
+    numberInput_->getRenderer()->setTextColor(tgui::Color::Red);
     error = true;
   }
 
