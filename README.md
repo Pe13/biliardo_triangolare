@@ -3,15 +3,16 @@
 
 ## Indice
 
-1. [Scelte progettuali e implementative](#scelte-progettuali-e-implementative)
-2. [Compilare, testare ed eseguire](#compilare-testare-ed-eseguire)
-3. [Come utilizzare il programma](#come-utilizzare-il-programma)
-4. [Risultati ottenuti](#risultati-ottenuti)
-5. [Strategie di test](#strategie-di-test)
+1. [Librerie utilizzate](#librerie-utilizzate)
+2. [Struttura del progetto](#struttura-del-progetto)
+3. [Funzionalità del programma](#funzionalità-del-programma)
+4. [Scelte implementative](#scelte-implementative)
+5. [Compilare, testare ed eseguire](#compilare-testare-ed-eseguire)
+6. [Come utilizzare il programma](#come-utilizzare-il-programma)
+7. [Risultati ottenuti](#risultati-ottenuti)
+8. [Strategie di test](#strategie-di-test)
 
-## Scelte progettuali e implementative
-
-### Librerie utilizzate
+## Librerie utilizzate
 
 - [SFML](https://github.com/SFML/SFML): libreria grafica per raffigurare immagini e intercettare eventi da tastiera e
   mouse
@@ -22,7 +23,7 @@
 - [doctest](https://github.com/doctest/doctest): libreria per la creazione di *unit test*
 - [benchmark](https://github.com/google/benchmark): libreria per effettuare benchmark simili a *unit test*
 
-### Struttura del progetto
+## Struttura del progetto
 
 Il progetto è diviso in due parti:
 
