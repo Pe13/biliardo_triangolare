@@ -19,7 +19,7 @@ class Bouncer {
     if (m_ == 0) {
       return -m;
     }
-    double _m_ = -1 / m_;  // coefficiente angolare della normale alla sponda superiore
+    const double _m_ = -1 / m_;  // coefficiente angolare della normale alla sponda superiore
     return (2 * _m_ + (_m_ * _m_ - 1) * m) / (1 - _m_ * _m_ + 2 * _m_ * m);
   }
 
@@ -27,7 +27,7 @@ class Bouncer {
     if (m_ == 0) {
       return -m;
     }
-    double _m_ = 1 / m_;  // coefficiente angolare della normale alla sponda superiore
+    const double _m_ = 1 / m_;  // coefficiente angolare della normale alla sponda superiore
     return (2 * _m_ + (_m_ * _m_ - 1) * m) / (1 - _m_ * _m_ + 2 * _m_ * m);
   }
 

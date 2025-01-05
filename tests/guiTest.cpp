@@ -13,14 +13,14 @@ TEST_CASE("Testing the string formatter for the user input") {
   using String = tgui::String;
   using namespace bt;
 
-  auto isCorrect = [](String& s) {
+  auto isCorrect = [](const String& s) {
       CHECK(format(s) == s.toLower());
   };
   
-  auto isWrong = [](String& s) {
+  auto isWrong = [](const String& s) {
     CHECK(format(s) == "");
   };
-  
+
   String s;
 
   s = "156378";
