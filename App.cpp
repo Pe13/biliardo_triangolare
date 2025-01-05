@@ -68,7 +68,7 @@ void App::handleEvents() {
 App::App(const double l, const double r1, const double r2, const PoolType type,
          const sf::ContextSettings& settings)
     : pool_(l, r1, r2, type),
-      window_{{1280, 720}, "Biliardo triangolare", sf::Style::Default, settings},
+      window_{{1440, 810}, "Biliardo triangolare", sf::Style::Default, settings},
       designer_(window_), gui_(window_, this) {
   window_.setPosition(sf::Vector2i(100, 100));
 
