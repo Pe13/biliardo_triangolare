@@ -33,6 +33,7 @@ bool Pool::isOut_(const LastHit &lastHit) const {
       break;
 
     default:
+      // non dovrebbe mai essere chiamato se non con i tre valori sopra elencati
       assert(false);
   }
   return result;
