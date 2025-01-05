@@ -67,7 +67,7 @@ TEST_SUITE("Pool constructor") {
 
     SUBCASE("Invalid PoolType") {
       CHECK_THROWS_WITH_AS(bt::Pool(1, 1, 1, static_cast<bt::PoolType>(3)),
-                           "Il tipo fornito per la costruzione del Biliardo non è valido",
+                           "Il tipo fornito per la costruzione del biliardo non è valido",
                            std::invalid_argument);
     }
   }

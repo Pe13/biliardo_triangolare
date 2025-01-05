@@ -12,7 +12,7 @@
 TEST_SUITE("App constructor") {
   TEST_CASE("Invalid PoolType") {
     CHECK_THROWS_WITH_AS(bt::App(1, 1, 1, static_cast<bt::PoolType>(3), settings),
-                         "Il tipo fornito per la costruzione del Biliardo non è valido",
+                         "Il tipo fornito per la costruzione del biliardo non è valido",
                          std::invalid_argument);
   }
 
