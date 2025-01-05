@@ -2,15 +2,15 @@
 include(CTest)
 
 # test gui
-add_executable(Gui_test guiTest.cpp)
+add_executable(gui_test guiTest.cpp)
 
-target_include_directories(Gui_test PRIVATE ../include)
-target_link_libraries(Gui_test PRIVATE TGUI::TGUI ROOT::Hist)
+target_include_directories(gui_test PRIVATE ../include)
+target_link_libraries(gui_test PRIVATE TGUI::TGUI ROOT::Hist)
 
-add_test(NAME Gui_test COMMAND Gui_test)
+add_test(NAME gui_test COMMAND gui_test)
 
 # test app
-add_executable(App_test
+add_executable(app_test
                ../App.cpp
                ../Gui.cpp
                ../Designer.cpp
@@ -18,8 +18,8 @@ add_executable(App_test
                appBiliardoModificationsTests.cpp
                appLaunchesTests.cpp)
 
-add_dependencies(App_test TPool)
-target_include_directories(App_test PRIVATE ../include)
-target_link_libraries(App_test PRIVATE TPool ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI)
+add_dependencies(app_test tpool)
+target_include_directories(app_test PRIVATE ../include)
+target_link_libraries(app_test PRIVATE tpool ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI)
 
-add_test(NAME App_test COMMAND App_test)
+add_test(NAME app_test COMMAND app_test)

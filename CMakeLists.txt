@@ -33,7 +33,7 @@ find_package(Boost 1.35 COMPONENTS container REQUIRED)
 find_package(TBB REQUIRED)
 
 # compila il backend
-add_subdirectory(libTPool)
+add_subdirectory(TPool)
 
 # crea l'app per il frontend
 add_executable(biliardo_triangolare
@@ -41,9 +41,9 @@ add_executable(biliardo_triangolare
                Designer.cpp
                Gui.cpp)
 
-add_dependencies(biliardo_triangolare TPool)
+add_dependencies(biliardo_triangolare tpool)
 target_include_directories(biliardo_triangolare PRIVATE include)
-target_link_libraries(biliardo_triangolare PRIVATE TPool ROOT::Core ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI TBB::tbb)
+target_link_libraries(biliardo_triangolare PRIVATE tpool ROOT::Core ROOT::Hist ROOT::Gpad sfml-graphics TGUI::TGUI TBB::tbb)
 
 # copia le texture nella directory di build
 add_custom_command(

@@ -106,6 +106,8 @@ class Pool {
 
  public:
   /**
+   * @brief Costruttore della lasse Pool
+   *
    * @param l Valore della lunghezza del biliardo.
    * @param r1 Valore della distanza delle due estremità sinistre dall'asse X (semi-apertura
    * sinistra).
