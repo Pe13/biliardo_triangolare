@@ -255,13 +255,13 @@ void App::saveHistogram(const std::string& filename) const {
     const std::time_t t = std::time(nullptr);  // get time now
     std::tm now{};
     localtime_r(&t, &now);
-    canvas.SaveSource((boost::format("grafico_%1%_%2%_%3%__%4%_%5%_%6%.root") % now.tm_mday %
+    canvas.SaveSource((boost::format("grafico_%1%_%2%_%3%__%4%_%5%_%6%.cxx") % now.tm_mday %
                        (now.tm_mon + 1) % (now.tm_year + 1900) % now.tm_hour % now.tm_min %
                        now.tm_sec)
                           .str()
                           .c_str());
   } else {
-    canvas.SaveSource((filename + ".c++").c_str());
+    canvas.SaveSource((filename + ".cxx").c_str());
   }
 }
 

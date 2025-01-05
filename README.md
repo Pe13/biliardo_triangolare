@@ -78,8 +78,7 @@ Nell'ordine con il quale compaiono nell'immagine:
 
 ### La classe Pool
 
-La classe Pool, al contrario di quanto ci si potrebbe aspettare (e di ciò che avveniva in un precedente momento
-dello sviluppo) non utilizza il polimorfismo dinamico per gestire i tre tipi di configurazione simulati dal
+La classe Pool non utilizza il polimorfismo dinamico per gestire i tre tipi di configurazione simulati dal
 programma. <br>
 Il motivo è che i vantaggi legati alla possibilità di riferirsi ai puntatori delle sottoclassi con dei puntatori della
 classe madre non verrebbero sfruttati, visto che viene creata una singola istanza della classe Pool;
@@ -119,7 +118,7 @@ cmake .. [-DCMAKE_BUILD_TYPE=<Build-type>] -DBUILD_BENCHMARK=TRUE \
   -DBUILD_TESTING=TRUE [-DROOT_DIR=<path/to/ROOTConfig.cmake>]
 ```
 
-Compilando in `RELEASE` (default) mode si otterranno significativi miglioramenti nei lanci multipli soprattutto
+Compilando in `RELEASE` mode si otterranno significativi miglioramenti nei lanci multipli soprattutto
 all'aumentare del numero di particelle generate, se la forma del biliardo comporta molti rimbalzi per lancio.  
 Per non compilare test e benchmark omettere i parametri o impostarli su `FALSE`.  
 In base al tipo di installazione di ROOT, potrebbe non essere necessario specificare il parametro `ROOT_DIR`.
@@ -137,13 +136,12 @@ I binari generati si troveranno nella cartella `build` e nelle sue sottocartelle
 cartella `build`):
 
 - `biliardo_triangolare`: applicazione con interfaccia grafica (programma principale).
-- `tests/App_test`: test della classe `App`.
-- `tests/Gui_test`: test della classe `Gui` (in realtà viene testato solo la funzione libera di validazione dell'input
-  dell'utente).
-- `libtpool/libtpool.a` libreria statica che espone le funzionalità per eseguire le simulazioni nel biliardo
+- `tests/app_test`: test della classe `App`.
+- `tests/format_test`: test della funzione di validazione dell'input dell'utente.
+- `TPool/libtpool.a` libreria statica che espone le funzionalità per eseguire le simulazioni nel biliardo
   triangolare.
-- `libtpool/tests/tpool_test`: test della classe `Pool`.
-- `libtpool/benchmark/poolBenchmark`: benchmark per le funzioni di lancio delle particelle e riempimento degli
+- `TPool/tests/tpool_test`: test della classe `Pool`.
+- `TPool/benchmark/poolBenchmark`: benchmark per le funzioni di lancio delle particelle e riempimento degli
   istogrammi.
 
 ## Come utilizzare il programma biliardo_triangolare
@@ -153,6 +151,7 @@ Ogni campo di testo è sottoposto ad un controllo di validità dell'input al mom
 conferma (o simili), se questo dovesse rilevare un errore (e.g. una deviazione standard negativa oppure una stringa mal
 formata), il valore non sarà cancellato ma colorato di rosso. <br>
 Sono formati validi:
+
 - 100 / +100 / -100 / 100.
 - 100.2 / 100,2
 - .100 / ,100
@@ -166,53 +165,45 @@ gli fps rimangono fissi a 30), per via di come è implementato.
 
 ## Risultati ottenuti
 
+Si è studiato il comportamento delle distribuzioni in uscita dal biliardo fissando i parametri `r1 = 2` e `r2 = 10` e
+facendo variare `l` ed anche `N` per risolvere meglio alcuni effetti.
+
+Risultati `l = 2`, `N = 1e6`:
+![l=2](images/l=2.png)
+
+Risultati `l = 10`, `N = 1e7`:
+![l=10](images/l=10.png)
+
+Risultati `l = 15`, `N = 1e7`:
+![l=15](images/l=15.png)
+
+Risultati `l =20`, `N = 1e8`:
+![l=20](images/l=20.png)
+
+Risultati `l = 40`, `N = 1e8`:
+![l=40](images/l=40.png)
+
+Risultati `l = 40`, `N = 5e8`:
+![l=60](images/l=60.png)
+
+Con lunghezze molto piccole le distribuzioni sono praticamente invariate.
+Al crescere della lunghezza si nota come sia sempre più difficile risolvere la distribuzione delle y che si appiattisce
+su una distribuzione uniforme, mentre la distribuzione degli angoli di uscita tende ad una forma "a gradini"
+con due punte distinte in cima.
+
+È interessante notare come il cambio del tipo di biliardo, in questo caso chiuso a dx possa influenzare le distribuzioni
+in uscita.
+
+Risultati chiudendo a destra il biliardo `l = 40`, `N = 5e8`:
+![risultati biliardo chiuso a destra](images/right_bounded.png)
+
 ## Strategie di test
 
-# Appendice
+Per tutti i costruttori e i setter delle classi `App` e `Pool` sono stati scritti dei test quasi omni comprensivi che
+controllano che questi funzionino correttamente sia in caso di parametri corretti che errati. <br>
+Per quanto possibile si sono testati anche i metodi di lancio controllando che fossero in grado di verificare
+correttamente la validità dei parametri e, nel caso dei metodi di `App`, per assicurarsi che aggiornassero correttamente
+gli indici e che generassero `weak_ptr` validi fino alla distruzione dei lanci.
 
-## Vecchio codice problematico
-
-```c++
-// include/Biliardo.hpp
-class Biliardo {
- protected:
-  virtual void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                                         std::vector<double>& output) const = 0;
-  ...
-};
-
-// include/BiliardoChiusoDx.hpp
-class BiliardoChiusoDx : public Biliardo {
-  ...
-  void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                                 std::vector<double>& output) const override;
-  ...
-};
-
-// BiliardoChiusoDx.cpp
-void BiliardoChiusoDx::registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                                             std::vector<double>& output) const {
-  output.push_back(0);
-  output.push_back(c);
-  output.push_back(dir);
-}
-
-// include/BiliardoChiusoSx.hpp
-class BiliardoChiusoSx : public Biliardo {
- protected:
-  void registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                             std::vector<double>& output) const override;
-  ...
-};
-
-// BiliardoChiusoSx.cpp
-void BiliardoChiusoSx::registerLeftCollision(double& x, double& y, const double& c, double& dir, LastHit& lastHit,
-                                             std::vector<double>& output) const {
-  collideLeft(dir);
-  x = 0;
-  y = c;
-  output.push_back(x);
-  output.push_back(y);
-  lastHit = left;
-}
-```
+È stata testata anche la funzione `format` responsabile di validare gli input dell'utente, controllando che invalidasse
+tutte le possibili stringhe mal formate.
