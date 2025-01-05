@@ -11,9 +11,9 @@
 #include <memory>
 #include <vector>
 
-#include "Pool.hpp"
 #include "Designer.hpp"
 #include "Gui.hpp"
+#include "Pool.hpp"
 
 namespace bt {
 
@@ -49,10 +49,7 @@ class App {
   const Designer& designer() const { return designer_; }
 
   const Pool& pool() const { return pool_; }
-  /**
-   * @brief Deve essere chiamato quando le dimensioni del biliardo variano per aggiornare i lanci e
-   * la parte grafica
-   */
+
   [[nodiscard]] bool modifyPool(double l, double r1, double r2);
   [[nodiscard]] bool changePoolType(PoolType type);
 
@@ -60,9 +57,44 @@ class App {
   void reRun();
 
   // TODO Documentare la scelta del weak_ptr
-  [[nodiscard]] std::weak_ptr<const std::vector<double>> singleLaunch(
+  /**
+   * @brief Crea e riproduce un nuovo lancio di una singola particella nel biliardo attuale.
+   * Se i parametri non hanno valore, esso viene generato secondo una distribuzione uniforme sul
+   * range valido.
+   * Ritorna un weak_ptr che punta al lancio stesso, che viene invalidato nel caso in cui
+   * quest'ultimo venga distrutto a seguito di una modifica ai parametri del biliardo. Se si vuole
+   * prevenire la distruzione del lancio basta conservare lo shared_ptr ottenuto dal weak_ptr.
+   *
+   * @param initialY Ordinata iniziale della particella.
+   * @param initialDirection Direzione iniziale della particella.
+   *
+   * @return Un weak_ptr che punta al lancio creato, se i parametri passati non sono validi contiene
+   * un nullptr.
+   */
+  std::weak_ptr<const std::vector<double>> singleLaunch(
       std::optional<double> initialY = std::nullopt,
       std::optional<double> initialDirection = std::nullopt);
+
+  /**
+   * @brief Crea e raffigura gli istogrammi con le occorrenze di ordinate e direzioni di uscita del
+   * lancio di N particelle nel biliardo attuale.
+   * Ritorna un weak_ptr che punta agli istogrammi creati, che viene invalidato nel caso in cui
+   * questi vengano distrutti a seguito di una modifica ai parametri del biliardo.
+   * Se si vuole prevenire la distruzione del lancio basta conservare lo shared_ptr ottenuto dal
+   * weak_ptr.
+   *
+   * @param N Numero di particelle che si vogliono lanciare.
+   * @param muY Media della distribuzione gaussiana per generare le ordinate di partenza.
+   * @param sigmaY Deviazione standard della distribuzione gaussiana per generare le ordinate di
+   * partenza.
+   * @param muT Media della distribuzione gaussiana per generare le ordinate di partenza.
+   * @param sigmaT Deviazione standard della distribuzione gaussiana per generare le ordinate di
+   * partenza.
+   * @param async Booleano per determinare se eseguire l'algoritmo parallelo o sequenziale.
+   *
+   * @return Un weak_ptr che punta agli istogrammi creati, se i parametri passati non sono validi
+   * contiene un nullptr.
+   */
   [[nodiscard]] std::weak_ptr<const std::array<TH1D, 2>> multipleLaunch(unsigned int N, double muY,
                                                                         double sigmaY, double muT,
                                                                         double sigmaT,
@@ -92,7 +124,7 @@ class App {
    * @param filename Nome del file che si vuole generare (senza estensione). Se lasciato vuoto il
    * nome sarà dato in base alla data e ora attuale
    */
-  void saveHistogram(const std::string& filename = "");
+  void saveHistogram(const std::string& filename = "") const;
 };
 
 }  // namespace bt

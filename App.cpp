@@ -27,8 +27,7 @@ std::shared_ptr<std::array<TH1D, 2>>& App::newHistograms() {
   multipleLaunches_[pool_.type()].emplace_back(std::make_shared<std::array<TH1D, 2>>());
   multipleLaunchesIndexes_[pool_.type()] = multipleLaunches_[pool_.type()].size() - 1;
   auto& histograms = multipleLaunches_[pool_.type()].back();
-  (*histograms)[0] =
-      TH1D("", "Istogramma delle y di uscita", 1000, -pool_.r1(), pool_.r1());
+  (*histograms)[0] = TH1D("", "Istogramma delle y di uscita", 1000, -pool_.r1(), pool_.r1());
   (*histograms)[1] = TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2);
   return histograms;
 }
@@ -55,8 +54,7 @@ void App::handleEvents() {
           designer_.changeSize(pool_, window_, gui_);
         } else {
           designer_.changeSize(
-              pool_,
-              *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+              pool_, *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
               window_, gui_);
         }
         break;
@@ -80,8 +78,7 @@ App::App(const double l, const double r1, const double r2, const PoolType type,
 
   // inizializzo tutti i vector di lanci singoli
   for (long unsigned int i = 0; i < 3; i++) {
-    [[maybe_unused]] const bool typeChangeResult =
-        pool_.changeType(static_cast<PoolType>(i));
+    [[maybe_unused]] const bool typeChangeResult = pool_.changeType(static_cast<PoolType>(i));
     assert(typeChangeResult);
     auto& newLaunch = newSingleLaunch();
     pool_.launchForDrawing(*newLaunch);
@@ -97,8 +94,7 @@ void App::start() {
   while (window_.isOpen()) {
     handleEvents();
     gui_.draw();
-    designer_(*singleLaunches_[pool_.type()][singleLaunchesIndexes_[pool_.type()]],
-              window_);
+    designer_(*singleLaunches_[pool_.type()][singleLaunchesIndexes_[pool_.type()]], window_);
     window_.display();
   }
 }
@@ -115,8 +111,7 @@ bool App::modifyPool(const double l, const double r1, const double r2) {
   for (long unsigned int i = 0; i < 3; i++) {
     singleLaunches_[i].clear();
     multipleLaunches_[i].clear();
-    [[maybe_unused]] const bool typeChangeResult =
-        pool_.changeType(static_cast<PoolType>(i));
+    [[maybe_unused]] const bool typeChangeResult = pool_.changeType(static_cast<PoolType>(i));
     assert(typeChangeResult);
     auto& newLaunch = newSingleLaunch();
     pool_.launchForDrawing(*newLaunch);
@@ -152,8 +147,8 @@ bool App::changePoolType(const PoolType type) {
   if (multipleLaunches_[pool_.type()].empty()) {
     designer_.setCanvas(pool_, window_);
   } else {
-    designer_.setCanvas(
-        *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]], window_);
+    designer_.setCanvas(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+                        window_);
   }
   return true;
 }
@@ -219,11 +214,10 @@ bool App::previousLaunch() {
 
 bool App::nextHistogram() {
   if (!multipleLaunches_[pool_.type()].empty() &&
-      multipleLaunchesIndexes_[pool_.type()] !=
-          multipleLaunches_[pool_.type()].size() - 1) {
+      multipleLaunchesIndexes_[pool_.type()] != multipleLaunches_[pool_.type()].size() - 1) {
     multipleLaunchesIndexes_[pool_.type()]++;
-    designer_.setCanvas(
-        *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]], window_);
+    designer_.setCanvas(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+                        window_);
     return true;
   }
   return false;
@@ -232,25 +226,19 @@ bool App::nextHistogram() {
 bool App::previousHistogram() {
   if (multipleLaunchesIndexes_[pool_.type()] != 0) {
     multipleLaunchesIndexes_[pool_.type()]--;
-    designer_.setCanvas(
-        *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]], window_);
+    designer_.setCanvas(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+                        window_);
     return true;
   }
   return false;
 }
 
-void App::saveHistogram(const std::string& filename) {
+void App::saveHistogram(const std::string& filename) const {
   if (multipleLaunches_[pool_.type()].empty()) {
     return;
   }
 
-  auto& histograms =
-      multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]];
-
-  // for (const auto& h : histograms) {
-  //   h.GetKurtosis();
-  //   h.GetSkewness();
-  // }
+  auto& histograms = multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]];
 
   auto canvas = TCanvas();
   canvas.SetCanvasSize(1920, 826);
