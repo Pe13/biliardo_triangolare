@@ -20,7 +20,7 @@
 namespace bt {
 
 // dal source code di root
-// https://root.cern.ch/doc/v626/classTPadPainter.html#ad4d9e7f89be8a04559e22f1f279b0fb6
+// https://root.cern.ch/doc/v626/TPadPainter_8cxx_source.html#l00560
 void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
   if (gVirtualX->InheritsFrom("TGCocoa") && !gROOT->IsBatch() && canvas.GetCanvas() &&
       canvas.GetCanvas()->GetCanvasID() != -1) {
