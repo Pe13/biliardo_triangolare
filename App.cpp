@@ -99,7 +99,6 @@ void App::start() {
   }
 }
 
-// TODO documentare l'uso di [[maybe_unused]]
 bool App::modifyPool(const double l, const double r1, const double r2) {
   if (!pool_.modify(l, r1, r2)) {
     return false;

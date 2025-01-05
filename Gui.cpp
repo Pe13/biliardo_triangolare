@@ -2,8 +2,6 @@
 // Created by paolo on 29/08/2023.
 //
 
-// TODO Far aderire le label ai campi cui si riferiscono, non a quelli sopra
-
 #include "Gui.hpp"
 
 #include <TH1D.h>
