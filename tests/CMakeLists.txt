@@ -2,12 +2,12 @@
 include(CTest)
 
 # test gui
-add_executable(test_gui guiTest.cpp)
+add_executable(Gui_test guiTest.cpp)
 
-target_include_directories(test_gui PRIVATE ../include)
-target_link_libraries(test_gui PRIVATE TGUI::TGUI ROOT::Hist)
+target_include_directories(Gui_test PRIVATE ../include)
+target_link_libraries(Gui_test PRIVATE TGUI::TGUI ROOT::Hist)
 
-add_test(NAME test_gui COMMAND test_gui)
+add_test(NAME Gui_test COMMAND Gui_test)
 
 # test app
 add_executable(App_test
