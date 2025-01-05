@@ -3,23 +3,18 @@
 //
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
+#include <TGUI/String.hpp>
 
 #include "Gui.hpp"
-
-#include <TGUI/String.hpp>
+#include "doctest.h"
 
 TEST_CASE("Testing the string formatter for the user input") {
   using String = tgui::String;
   using namespace bt;
 
-  auto isCorrect = [](const String& s) {
-      CHECK(format(s) == s.toLower());
-  };
-  
-  auto isWrong = [](const String& s) {
-    CHECK(format(s) == "");
-  };
+  auto isCorrect = [](const String& s) { CHECK(format(s) == s.toLower()); };
+
+  auto isWrong = [](const String& s) { CHECK(format(s) == ""); };
 
   String s;
 
@@ -82,5 +77,4 @@ TEST_CASE("Testing the string formatter for the user input") {
 
   s = "a3829";
   isWrong(s);
-
 }

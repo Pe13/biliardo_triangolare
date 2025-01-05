@@ -93,7 +93,8 @@ TEST_CASE("Testing bouncing algorithm consistency") {
         }
 
         SUBCASE("Bouncer::bottomBounce") {
-          const double doubleBouncedDir = bouncer.bottomBounce(bouncer.bottomBounce(std::tan(angle)));
+          const double doubleBouncedDir =
+              bouncer.bottomBounce(bouncer.bottomBounce(std::tan(angle)));
           double doubleBouncedAngle = std::atan(doubleBouncedDir);
           CHECK(doctest::Approx(angle) == doubleBouncedAngle);
         }

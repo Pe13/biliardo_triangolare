@@ -1,5 +1,5 @@
-#include <TGUI/Core.hpp>
 #include <SFML/Window/ContextSettings.hpp>
+#include <TGUI/Core.hpp>
 
 #include "App.hpp"
 #include "Pool.hpp"

@@ -76,8 +76,7 @@ void Gui::singleLaunchBtnPressed(App* app) const {
 void Gui::multipleLaunchBtnPressed(App* app) const {
   // dichiaro e gestisco N come un float fino alla fine perché se no non funziona la sintassi con la
   // "e" e posso fare un controllo su un possibile overflow
-  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->pool().r1() / 5, 0,
-                                                        M_PI / 8};
+  std::array<std::optional<double>, 5> launchParameters{1e6, 0, app->pool().r1() / 5, 0, M_PI / 8};
   const double& N = launchParameters[0].value();
   const double& muY = launchParameters[1].value();
   const double& sigmaY = launchParameters[2].value();

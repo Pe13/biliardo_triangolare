@@ -9,7 +9,9 @@
 
 #include "benchmark/benchmark.h"
 
-static void disableCout([[maybe_unused]] const benchmark::State &state) { std::cout.setstate(std::ios_base::failbit); }
+static void disableCout([[maybe_unused]] const benchmark::State &state) {
+  std::cout.setstate(std::ios_base::failbit);
+}
 
 static void enableCout([[maybe_unused]] const benchmark::State &state) { std::cout.clear(); }
 

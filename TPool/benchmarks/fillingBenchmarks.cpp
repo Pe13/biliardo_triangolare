@@ -24,11 +24,14 @@ static void fillHistogramsAsync(benchmark::State &state) {
                              TH1D("", "Istogramma degli angoli di uscita", 1000, -1, 1)};
 
     std::vector<std::array<double, 2>> v(1e7);
-    std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> { return {dist(rng), dist(rng)}; });
+    std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> {
+      return {dist(rng), dist(rng)};
+    });
 
     std::for_each(v.begin(), v.end(), [&](const auto &arr) {
-      std::for_each(std::execution::par_unseq, arr.begin(), arr.end(),
-                    [&](const auto &item) { histograms[static_cast<long unsigned int>(&item - arr.data())].Fill(item); });
+      std::for_each(std::execution::par_unseq, arr.begin(), arr.end(), [&](const auto &item) {
+        histograms[static_cast<long unsigned int>(&item - arr.data())].Fill(item);
+      });
     });
   }
 }
@@ -40,7 +43,9 @@ static void fillHistogramsSync(benchmark::State &state) {
                              TH1D("", "Istogramma degli angoli di uscita", 1000, -1, 1)};
 
     std::vector<std::array<double, 2>> v(1e7);
-    std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> { return {dist(rng), dist(rng)}; });
+    std::generate(v.begin(), v.end(), [&]() -> std::array<double, 2> {
+      return {dist(rng), dist(rng)};
+    });
 
     std::for_each(v.begin(), v.end(), [&](const auto &arr) {
       histograms[0].Fill(arr[0]);

@@ -95,8 +95,7 @@ TEST_CASE("Testing App::changePoolType") {
         const auto newPoolType = static_cast<bt::PoolType>(j);
         const auto originalStep = app.designer().step();
 
-        [[maybe_unused]] const bool poolCopyChangeTypeResult =
-            poolCopy.changeType(newPoolType);
+        [[maybe_unused]] const bool poolCopyChangeTypeResult = poolCopy.changeType(newPoolType);
         assert(poolCopyChangeTypeResult);
 
         CHECK(app.changePoolType(newPoolType) == true);

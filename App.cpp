@@ -147,8 +147,8 @@ bool App::changePoolType(const PoolType type) {
   if (multipleLaunches_[pool_.type()].empty()) {
     designer_.drawEmptyHistograms(pool_, window_);
   } else {
-    designer_.drawHistograms(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
-                        window_);
+    designer_.drawHistograms(
+        *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]], window_);
   }
   return true;
 }
@@ -216,8 +216,8 @@ bool App::nextHistogram() {
   if (!multipleLaunches_[pool_.type()].empty() &&
       multipleLaunchesIndexes_[pool_.type()] != multipleLaunches_[pool_.type()].size() - 1) {
     multipleLaunchesIndexes_[pool_.type()]++;
-    designer_.drawHistograms(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
-                        window_);
+    designer_.drawHistograms(
+        *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]], window_);
     return true;
   }
   return false;
@@ -226,8 +226,8 @@ bool App::nextHistogram() {
 bool App::previousHistogram() {
   if (multipleLaunchesIndexes_[pool_.type()] != 0) {
     multipleLaunchesIndexes_[pool_.type()]--;
-    designer_.drawHistograms(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
-                        window_);
+    designer_.drawHistograms(
+        *multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]], window_);
     return true;
   }
   return false;
