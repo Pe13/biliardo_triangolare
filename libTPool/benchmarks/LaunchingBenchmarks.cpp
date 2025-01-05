@@ -2,14 +2,11 @@
 // Created by paolo on 27/08/2024.
 //
 
-// TODO Testare l'algoritmo di rimbalzo
-
 #include <TH1D.h>
 #include <benchmark/benchmark.h>
 
 #include <array>
 #include <random>
-#include <vector>
 
 #include "Pool.hpp"
 #include "toggleCout.hpp"
@@ -46,54 +43,76 @@ static void setupOpen([[maybe_unused]] const benchmark::State &state) {
 
 static void launchParticlesAsyncLeftBounded(benchmark::State &state) {
   for (auto _ : state) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+    std::array histograms = {
+        TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    [[maybe_unused]] const bool multipleLaunchResult = pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, true);
+    [[maybe_unused]] const bool multipleLaunchResult =
+        pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, true);
     assert(multipleLaunchResult);
   }
 }
-BENCHMARK(launchParticlesAsyncLeftBounded)->Setup(setupLeftBounded)->Teardown(enableCout)->MinTime(5.0);
+BENCHMARK(launchParticlesAsyncLeftBounded)
+    ->Setup(setupLeftBounded)
+    ->Teardown(enableCout)
+    ->MinTime(5.0);
 
 static void launchParticlesSyncLeftBounded(benchmark::State &state) {
   for (auto _ : state) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+    std::array histograms = {
+        TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    [[maybe_unused]] const bool multipleLaunchResult = pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, false);
+    [[maybe_unused]] const bool multipleLaunchResult =
+        pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, false);
     assert(multipleLaunchResult);
   }
 }
-BENCHMARK(launchParticlesSyncLeftBounded)->Setup(setupLeftBounded)->Teardown(enableCout)->MinTime(5.0);
+BENCHMARK(launchParticlesSyncLeftBounded)
+    ->Setup(setupLeftBounded)
+    ->Teardown(enableCout)
+    ->MinTime(5.0);
 
 static void launchParticlesAsyncRightBounded(benchmark::State &state) {
   for (auto _ : state) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+    std::array histograms = {
+        TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    [[maybe_unused]] const bool multipleLaunchResult = pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, true);
+    [[maybe_unused]] const bool multipleLaunchResult =
+        pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, true);
     assert(multipleLaunchResult);
   }
 }
-BENCHMARK(launchParticlesAsyncRightBounded)->Setup(setupRightBounded)->Teardown(enableCout)->MinTime(5.);
+BENCHMARK(launchParticlesAsyncRightBounded)
+    ->Setup(setupRightBounded)
+    ->Teardown(enableCout)
+    ->MinTime(5.);
 
 static void launchParticlesSyncRightBounded(benchmark::State &state) {
   for (auto _ : state) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+    std::array histograms = {
+        TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    [[maybe_unused]] const bool multipleLaunchResult = pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, false);
+    [[maybe_unused]] const bool multipleLaunchResult =
+        pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, false);
     assert(multipleLaunchResult);
   }
 }
-BENCHMARK(launchParticlesSyncRightBounded)->Setup(setupRightBounded)->Teardown(enableCout)->MinTime(5.);
+BENCHMARK(launchParticlesSyncRightBounded)
+    ->Setup(setupRightBounded)
+    ->Teardown(enableCout)
+    ->MinTime(5.);
 
 static void launchParticlesAsyncOpen(benchmark::State &state) {
   for (auto _ : state) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+    std::array histograms = {
+        TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    [[maybe_unused]] const bool multipleLaunchResult = pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, true);
+    [[maybe_unused]] const bool multipleLaunchResult =
+        pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, true);
     assert(multipleLaunchResult);
   }
 }
@@ -101,10 +120,12 @@ BENCHMARK(launchParticlesAsyncOpen)->Setup(setupOpen)->Teardown(enableCout)->Min
 
 static void launchParticlesSyncOpen(benchmark::State &state) {
   for (auto _ : state) {
-    std::array histograms = {TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
-                             TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+    std::array histograms = {
+        TH1D("", "Istogramma delle y di uscita", 1000, -r1, r1),
+        TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
 
-    [[maybe_unused]] const bool multipleLaunchResult = pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, false);
+    [[maybe_unused]] const bool multipleLaunchResult =
+        pool.multipleLaunch(N, muY, sigmaY, muT, sigmaT, histograms, false);
     assert(multipleLaunchResult);
   }
 }

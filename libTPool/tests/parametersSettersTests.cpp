@@ -3,7 +3,6 @@
 //
 
 #include <cmath>
-#include <stdexcept>
 
 #include "Pool.hpp"
 #include "doctest.h"
