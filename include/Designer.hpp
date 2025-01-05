@@ -12,8 +12,8 @@
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
-#include "Pool.hpp"
 #include "Gui.hpp"
+#include "Pool.hpp"
 
 namespace bt {
 
@@ -26,24 +26,24 @@ class Designer {
   float simulationWidth_;
   float simulationHeight_;
 
-  float ratio_;
-  float simulationXOffset_;
+  float ratio_{};  // rapporto pixel / unità di misura della simulazione
+  float simulationXOffset_{};
 
   sf::VertexBuffer frame_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer poolBorders_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer clearPool_{sf::VertexBuffer::Usage::Static};
   sf::VertexBuffer clearHisto_{sf::VertexBuffer::Usage::Static};
 
-  sf::Texture histoTexture_;
-  sf::Sprite histoSprite_;
+  sf::Texture histoTexture_{};
+  sf::Sprite histoSprite_{};
 
   bool isDrawing_{false};
   bool isPaused_{false};
   bool hasCleared_{true};
 
   std::size_t pointIndex_{0};
-  float pathFraction_{0};
-  float step_{0};
+  float pathFraction_{0};  // frazione della distanza tra 2 urti percorsa attualmente
+  float step_{0};          // frazione della distanza tra 2 urti da percorrere in un frame
   const float speed_{10};  // pixel / s
 
   boost::circular_buffer<sf::Vertex> contrail_{100};
@@ -76,9 +76,8 @@ class Designer {
   void reRun(const std::vector<double>& points);
   void pause();
 
-  void setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window);
-  void setCanvas(const Pool& pool, sf::RenderWindow& window);
-  void updateHisto(sf::RenderWindow& window) const;
+  void drawHistograms(std::array<TH1D, 2>& histograms, sf::RenderWindow& window);
+  void drawEmptyHistograms(const Pool& pool, sf::RenderWindow& window);
 
   void operator()(const std::vector<double>& points, sf::RenderWindow& window);
 

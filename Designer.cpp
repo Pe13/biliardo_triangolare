@@ -49,72 +49,62 @@ void saveCanvasOnImage(sf::Image& histoImage, TCanvas& canvas) {
 
 void Designer::calcFrame(const sf::Vector2u& size) {
   using namespace sf;
-  frame_.update((std::array<Vertex, 4>{
-                     Vertex(Vector2f(rightOffset_, 0), Color::White),
-                     Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White),
-                     Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
-                     Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White)})
+  frame_.update(std::array<Vertex, 4>{
+      Vertex(Vector2f(rightOffset_, 0), Color::White),
+      Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White),
+      Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
+      Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White)}
                     .data());
 }
 
-void Designer::calcClearPool(const bt::Pool& pool) {
-  using namespace sf;
+void Designer::calcClearPool(const Pool& pool) {
   const auto max = static_cast<float>(std::max(pool.r1(), pool.r2()));
-  clearPool_.update(
-      (std::array<Vertex, 4>{
-           sf::Vertex(
-               sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_ +
-                                               (particle_.getRadius() + 2)),
-                            simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
-               sf::Color::Black),
-           sf::Vertex(
-               sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
-                            simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
-               sf::Color::Black),
-           sf::Vertex(
-               sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_ +
-                                               (particle_.getRadius() + 2)),
-                            simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
-               sf::Color::Black),
-           sf::Vertex(
-               sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
-                            simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
-               sf::Color::Black)})
-          .data());
+  clearPool_.update(std::array<sf::Vertex, 4>{
+      sf::Vertex(sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_ +
+                                                 (particle_.getRadius() + 2)),
+                              simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
+                 sf::Color::Black),
+      sf::Vertex(sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
+                              simulationHeight_ / 2.f - max * ratio_ - (particle_.getRadius() + 2)),
+                 sf::Color::Black),
+      sf::Vertex(sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_ +
+                                                 (particle_.getRadius() + 2)),
+                              simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
+                 sf::Color::Black),
+      sf::Vertex(sf::Vector2f(simulationXOffset_ - (particle_.getRadius() + 2),
+                              simulationHeight_ / 2.f + max * ratio_ + (particle_.getRadius() + 2)),
+                 sf::Color::Black)}
+                        .data());
 }
 
 void Designer::calcClearHisto(const sf::Vector2u& size) {
   using namespace sf;
-  clearHisto_.update(
-      (std::array<Vertex, 4>{
-           Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White),
-           Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
-           Vertex(Vector2f(static_cast<float>(size.x), static_cast<float>(size.y)), Color::White),
-           Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White)})
-          .data());
+  clearHisto_.update(std::array<Vertex, 4>{
+      Vertex(Vector2f(static_cast<float>(size.x), topOffset_), Color::White),
+      Vertex(Vector2f(rightOffset_, topOffset_), Color::White),
+      Vertex(Vector2f(static_cast<float>(size.x), static_cast<float>(size.y)), Color::White),
+      Vertex(Vector2f(rightOffset_, static_cast<float>(size.y)), Color::White)}
+                         .data());
 }
 
 void Designer::calcStep(const std::vector<double>& points) {
-  const double distance = std::sqrt((points[pointIndex_] - points[pointIndex_ + 2]) *
-                                        (points[pointIndex_] - points[pointIndex_ + 2]) +
-                                    (points[pointIndex_ + 1] - points[pointIndex_ + 3]) *
-                                        (points[pointIndex_ + 1] - points[pointIndex_ + 3]));
-  // speedx = stepx * 30
-  // speedx = step * ratio * 30
-  // step = speedx / (ratio * 30)
-  // frac = step / dist = speedx / (ratio * 30 * dist)
+  const double& x1 = points[pointIndex_];
+  const double& y1 = points[pointIndex_ + 1];
+  const double& x2 = points[pointIndex_ + 2];
+  const double& y2 = points[pointIndex_ + 3];
+  const double distance = std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+
+  // frazione della distanza tra 2 urti da percorrere in un frame
   step_ = static_cast<float>(static_cast<double>(speed_) / (distance * ratio_));
 }
 
-Designer::Designer(sf::RenderWindow& window) {
+Designer::Designer(sf::RenderWindow& window)
+    : rightOffset_{widthLeftFraction_ * static_cast<float>(window.getSize().x)},
+      topOffset_{heightTopFraction_ * static_cast<float>(window.getSize().y)},
+      simulationWidth_{(1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x)},
+      simulationHeight_{heightTopFraction_ * static_cast<float>(window.getSize().y)} {
   // rimuovo le statistics box dai grafici dato che le indico tutte sulla sinistra
-  //  gStyle->SetOptStat(0);
-  gStyle->SetOptStat("ksrme");
-  gStyle->SetStatW(.30f);
-  gStyle->SetStatH(.30f);
-
-  //  gStyle->SetStatFontSize(.06);
-  //  gStyle->SetStatFont(62);
+  gStyle->SetOptStat(0);
 
   frame_.create(4);
   frame_.setPrimitiveType(sf::Lines);
@@ -131,11 +121,6 @@ Designer::Designer(sf::RenderWindow& window) {
 
   particle_.setFillColor(sf::Color::White);
   particle_.setPointCount(10);
-
-  rightOffset_ = widthLeftFraction_ * static_cast<float>(window.getSize().x);
-  topOffset_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
-  simulationWidth_ = (1.f - widthLeftFraction_) * static_cast<float>(window.getSize().x);
-  simulationHeight_ = heightTopFraction_ * static_cast<float>(window.getSize().y);
 
   calcFrame(window.getSize());
   window.draw(frame_);
@@ -161,16 +146,16 @@ void Designer::changeSize(const Pool& pool, std::array<TH1D, 2>& histograms,
   window.clear(sf::Color::Black);
   window.draw(poolBorders_);
   histoSprite_.setPosition(rightOffset_, topOffset_);
-  setCanvas(histograms, window);
+  drawHistograms(histograms, window);
   window.draw(frame_);
 
   window.display();
 }
 
 void Designer::changeSize(const Pool& pool, sf::RenderWindow& window, const Gui& gui) {
-  auto histograms = std::array<TH1D, 2>{
-      TH1D("", "Istogramma delle y di uscita", 1000, -pool.r1(), pool.r1()),
-      TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+  auto histograms =
+      std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -pool.r1(), pool.r1()),
+                          TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
   changeSize(pool, histograms, window, gui);
 }
 
@@ -182,9 +167,8 @@ void Designer::changePool(const Pool& pool, sf::RenderWindow& window) {
 
 void Designer::calcPoolBorders(const Pool& pool) {
   // calcolo il rapporto (pixel / unità di misura della simulazione) ottimale
-  ratio_ = std::min(
-      simulationWidth_ * 0.8f / static_cast<float>(pool.l()),
-      simulationHeight_ * 0.4f / static_cast<float>(std::max(pool.r1(), pool.r2())));
+  ratio_ = std::min(simulationWidth_ * 0.8f / static_cast<float>(pool.l()),
+                    simulationHeight_ * 0.4f / static_cast<float>(std::max(pool.r1(), pool.r2())));
 
   // calcolo l'offset orizzontale per centrare il biliardo nel riquadro
   const float width = static_cast<float>(pool.l()) * ratio_;
@@ -194,50 +178,40 @@ void Designer::calcPoolBorders(const Pool& pool) {
   // ordino i Vertex nel buffer in base all'ordine in cui devono essere disegnati
   if (pool.type() == rightBounded) {
     poolBorders_.setPrimitiveType(sf::LineStrip);
-    poolBorders_.update(
-        (std::array<sf::Vertex, 4>{
-             sf::Vertex(
-                 sf::Vector2f(simulationXOffset_,
-                              static_cast<float>(simulationHeight_ / 2 - pool.r1() * ratio_)),
-                 sf::Color::White),
-             sf::Vertex(
-                 sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
-                              static_cast<float>(simulationHeight_ / 2 - pool.r2() * ratio_)),
-                 sf::Color::White),
-             sf::Vertex(
-                 sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
-                              static_cast<float>(simulationHeight_ / 2 + pool.r2() * ratio_)),
-                 sf::Color::White),
-             sf::Vertex(
-                 sf::Vector2f(simulationXOffset_,
-                              static_cast<float>(simulationHeight_ / 2 + pool.r1() * ratio_)),
-                 sf::Color::White)})
-            .data());
+    poolBorders_.update(std::array<sf::Vertex, 4>{
+        sf::Vertex(sf::Vector2f(simulationXOffset_,
+                                static_cast<float>(simulationHeight_ / 2 - pool.r1() * ratio_)),
+                   sf::Color::White),
+        sf::Vertex(sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
+                                static_cast<float>(simulationHeight_ / 2 - pool.r2() * ratio_)),
+                   sf::Color::White),
+        sf::Vertex(sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
+                                static_cast<float>(simulationHeight_ / 2 + pool.r2() * ratio_)),
+                   sf::Color::White),
+        sf::Vertex(sf::Vector2f(simulationXOffset_,
+                                static_cast<float>(simulationHeight_ / 2 + pool.r1() * ratio_)),
+                   sf::Color::White)}
+                            .data());
   } else {
     if (pool.type() == open) {
       poolBorders_.setPrimitiveType(sf::Lines);
     } else {
       poolBorders_.setPrimitiveType(sf::LineStrip);
     }
-    poolBorders_.update(
-        (std::array<sf::Vertex, 4>{
-             sf::Vertex(
-                 sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
-                              static_cast<float>(simulationHeight_ / 2 - pool.r2() * ratio_)),
-                 sf::Color::White),
-             sf::Vertex(
-                 sf::Vector2f(simulationXOffset_,
-                              static_cast<float>(simulationHeight_ / 2 - pool.r1() * ratio_)),
-                 sf::Color::White),
-             sf::Vertex(
-                 sf::Vector2f(simulationXOffset_,
-                              static_cast<float>(simulationHeight_ / 2 + pool.r1() * ratio_)),
-                 sf::Color::White),
-             sf::Vertex(
-                 sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
-                              static_cast<float>(simulationHeight_ / 2 + pool.r2() * ratio_)),
-                 sf::Color::White)})
-            .data());
+    poolBorders_.update(std::array<sf::Vertex, 4>{
+        sf::Vertex(sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
+                                static_cast<float>(simulationHeight_ / 2 - pool.r2() * ratio_)),
+                   sf::Color::White),
+        sf::Vertex(sf::Vector2f(simulationXOffset_,
+                                static_cast<float>(simulationHeight_ / 2 - pool.r1() * ratio_)),
+                   sf::Color::White),
+        sf::Vertex(sf::Vector2f(simulationXOffset_,
+                                static_cast<float>(simulationHeight_ / 2 + pool.r1() * ratio_)),
+                   sf::Color::White),
+        sf::Vertex(sf::Vector2f(static_cast<float>(pool.l() * ratio_ + simulationXOffset_),
+                                static_cast<float>(simulationHeight_ / 2 + pool.r2() * ratio_)),
+                   sf::Color::White)}
+                            .data());
   }
 }
 
@@ -253,7 +227,8 @@ void Designer::reRun(const std::vector<double>& points) {
 
 void Designer::pause() { isPaused_ = !isPaused_; }
 
-void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
+void Designer::drawHistograms(std::array<TH1D, 2>& histograms, sf::RenderWindow& window) {
+  // creo la canvas
   const auto width =
       static_cast<unsigned int>(static_cast<float>(window.getSize().x) - rightOffset_);
   const auto height =
@@ -263,31 +238,30 @@ void Designer::setCanvas(std::array<TH1D, 2>& histograms, sf::RenderWindow& wind
 
   canvas.Divide(2);
 
+  // disegno l'istogramma sulla canvas
   canvas.cd(1);
   histograms[0].Draw();  // non const
   canvas.cd(2);
   histograms[1].Draw();
 
+  // creo la texture a partire dalla canvas e la assegno allo sprite
   sf::Image histoImage;
   saveCanvasOnImage(histoImage, canvas);
   histoTexture_.loadFromImage(histoImage);
   histoSprite_.setTexture(histoTexture_, true);
 
-  updateHisto(window);
-}
-
-void Designer::setCanvas(const Pool& pool, sf::RenderWindow& window) {
-  auto histograms = std::array<TH1D, 2>{
-      TH1D("", "Istogramma delle y di uscita", 1000, -pool.r1(), pool.r1()),
-      TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
-  setCanvas(histograms, window);
-}
-
-void Designer::updateHisto(sf::RenderWindow& window) const {
+  // disegno lo sprite e aggiorno il tutto
   window.draw(clearHisto_);
   window.draw(histoSprite_);
   window.draw(frame_);
   window.display();
+}
+
+void Designer::drawEmptyHistograms(const Pool& pool, sf::RenderWindow& window) {
+  auto histograms =
+      std::array<TH1D, 2>{TH1D("", "Istogramma delle y di uscita", 1000, -pool.r1(), pool.r1()),
+                          TH1D("", "Istogramma degli angoli di uscita", 1000, -M_PI / 2, M_PI / 2)};
+  drawHistograms(histograms, window);
 }
 
 void Designer::operator()(const std::vector<double>& points, sf::RenderWindow& window) {

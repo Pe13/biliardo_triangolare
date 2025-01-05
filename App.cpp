@@ -80,7 +80,7 @@ App::App(const double l, const double r1, const double r2, const PoolType type,
   for (long unsigned int i = 0; i < 3; i++) {
     [[maybe_unused]] const bool typeChangeResult = pool_.changeType(static_cast<PoolType>(i));
     assert(typeChangeResult);
-    auto& newLaunch = newSingleLaunch();
+    const auto& newLaunch = newSingleLaunch();
     pool_.launchForDrawing(*newLaunch);
   }
   [[maybe_unused]] const bool typeChangeResult = pool_.changeType(type);
@@ -113,7 +113,7 @@ bool App::modifyPool(const double l, const double r1, const double r2) {
     multipleLaunches_[i].clear();
     [[maybe_unused]] const bool typeChangeResult = pool_.changeType(static_cast<PoolType>(i));
     assert(typeChangeResult);
-    auto& newLaunch = newSingleLaunch();
+    const auto& newLaunch = newSingleLaunch();
     pool_.launchForDrawing(*newLaunch);
   }
 
@@ -130,7 +130,7 @@ bool App::modifyPool(const double l, const double r1, const double r2) {
 
   reRun();  // faccio partire la nuova simulazione
 
-  designer_.setCanvas(pool_, window_);  // pulisco il grafico
+  designer_.drawEmptyHistograms(pool_, window_);  // pulisco il grafico
   return true;
 }
 
@@ -145,9 +145,9 @@ bool App::changePoolType(const PoolType type) {
   designer_.calcPoolBorders(pool_);
   reRun();
   if (multipleLaunches_[pool_.type()].empty()) {
-    designer_.setCanvas(pool_, window_);
+    designer_.drawEmptyHistograms(pool_, window_);
   } else {
-    designer_.setCanvas(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+    designer_.drawHistograms(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
                         window_);
   }
   return true;
@@ -163,7 +163,7 @@ std::weak_ptr<const std::vector<double>> App::singleLaunch(
     const std::optional<double> initialY, const std::optional<double> initialDirection) {
   const auto currentIndex = singleLaunchesIndexes_[pool_.type()];
 
-  auto& newLaunch = newSingleLaunch();
+  const auto& newLaunch = newSingleLaunch();
 
   if (!pool_.launchForDrawing(*newLaunch, initialY, initialDirection)) {
     std::cerr << "Warning: almeno uno dei parametri per il lancio singolo non è valido\n";
@@ -182,7 +182,7 @@ std::weak_ptr<const std::array<TH1D, 2>> App::multipleLaunch(const unsigned int 
                                                              const bool async) {
   const auto currentIndex = multipleLaunchesIndexes_[pool_.type()];
 
-  auto& histograms = newHistograms();
+  const auto& histograms = newHistograms();
 
   if (!pool_.multipleLaunch(N, muY, sigmaY, muT, sigmaT, *histograms, async)) {
     std::cerr << "Warning: almeno uno dei parametri per il lancio multiplo non è valido\n";
@@ -191,7 +191,7 @@ std::weak_ptr<const std::array<TH1D, 2>> App::multipleLaunch(const unsigned int 
     return std::shared_ptr<std::array<TH1D, 2>>();  // shared pointer nullo
   }
 
-  designer_.setCanvas(*histograms, window_);
+  designer_.drawHistograms(*histograms, window_);
   return histograms;
 }
 
@@ -216,7 +216,7 @@ bool App::nextHistogram() {
   if (!multipleLaunches_[pool_.type()].empty() &&
       multipleLaunchesIndexes_[pool_.type()] != multipleLaunches_[pool_.type()].size() - 1) {
     multipleLaunchesIndexes_[pool_.type()]++;
-    designer_.setCanvas(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+    designer_.drawHistograms(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
                         window_);
     return true;
   }
@@ -226,7 +226,7 @@ bool App::nextHistogram() {
 bool App::previousHistogram() {
   if (multipleLaunchesIndexes_[pool_.type()] != 0) {
     multipleLaunchesIndexes_[pool_.type()]--;
-    designer_.setCanvas(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
+    designer_.drawHistograms(*multipleLaunches_[pool_.type()][multipleLaunchesIndexes_[pool_.type()]],
                         window_);
     return true;
   }
