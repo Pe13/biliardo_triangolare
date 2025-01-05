@@ -17,11 +17,6 @@
 
 namespace bt {
 
-bool operator==(const Pool &left, const Pool &right) {
-  return left.l_ == right.l_ && left.r1_ == right.r1_ && left.r2_ == right.r2_ &&
-         left.theta_ == right.theta_ && left.slope_ == right.slope_;
-}
-
 bool Pool::isOut_(const LastHit &lastHit) const {
   bool result{};
   switch (type_) {
@@ -104,6 +99,7 @@ void Pool::launchForHistograms_(Particle &particle) const {
   double x{0};
 
   while (!findNextCollision_(lastHit, x, particle.y, particle.direction)) {
+    // devo solo chiamare findNextCollision_ finché non ritorna true
   }
 }
 void Pool::multipleLaunch_(const unsigned int N, std::array<TH1D, 2> &histograms,

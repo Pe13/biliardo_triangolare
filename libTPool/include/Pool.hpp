@@ -25,8 +25,6 @@ struct LaunchParameters {
 };
 
 class Pool {
-  friend bool operator==(const Pool& left, const Pool& right);
-
   // Creo una struct apposita al posto di usare un semplice std::array<double, 2> perché
   // quest'ultimo è un aggregato e per questo non potrei costruirlo con emplace_back
   struct Particle {
@@ -103,7 +101,7 @@ class Pool {
    * Riempie un vettore con le posizioni di tutti gli urti tra la particella e i bordi del biliardo;
    * le direzioni, nell'ordine, finale e iniziale sono, gli ultimi due elementi dell'output.
    *
-   * @param output il vettore che viene riempito con il risultato del lancio.
+   * @param output Vettore che viene riempito con il risultato del lancio.
    * @param initialY Altezza iniziale della particella (compresa tra (-r1; r1)).
    * @param initialDirection Direzione iniziale della particella (compresa tra (-PI/2; PI/2)).
    *
@@ -135,6 +133,11 @@ class Pool {
   [[nodiscard]] bool r1(double r1);
   [[nodiscard]] bool r2(double r2);
   [[nodiscard]] bool modify(double l, double r1, double r2);
+
+  friend bool operator==(const Pool& left, const Pool& right) {
+    return left.l_ == right.l_ && left.r1_ == right.r1_ && left.r2_ == right.r2_ &&
+           left.theta_ == right.theta_ && left.slope_ == right.slope_;
+  }
 
   void collideTop(double& angle) const { angle = 2 * theta_ - angle; }
   void collideBottom(double& angle) const { angle = -2 * theta_ - angle; }
