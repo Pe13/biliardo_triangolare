@@ -25,6 +25,7 @@ namespace bt {
  * @brief Formatta le stringe di input numerici in modo da invalidarle o renderle comprensibili al
  * metodo std::stod
  * @param str Stringa da formattare (non viene modificata)
+ *
  * @return La stringa formattata ma in formato std::string così da poter essere usata con i metodi
  * tipo std::stod. Oppure una stringa vuota nel caso non sia valida
  */

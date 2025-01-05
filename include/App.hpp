@@ -29,7 +29,6 @@ class App {
 
   Gui gui_;
 
-  // TODO Documentare la scelta del vector of vector
   std::array<std::vector<std::shared_ptr<std::vector<double>>>, 3> singleLaunches_;
   std::array<size_t, 3> singleLaunchesIndexes_{0, 0, 0};
   std::array<std::vector<std::shared_ptr<std::array<TH1D, 2>>>, 3> multipleLaunches_;
@@ -56,7 +55,6 @@ class App {
   void pause();
   void reRun();
 
-  // TODO Documentare la scelta del weak_ptr
   /**
    * @brief Crea e riproduce un nuovo lancio di una singola particella nel biliardo attuale.
    * Se i parametri non hanno valore, esso viene generato secondo una distribuzione uniforme sul
