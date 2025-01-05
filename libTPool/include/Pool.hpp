@@ -19,11 +19,6 @@ namespace bt {
 enum PoolType : unsigned { open = 0, rightBounded = 1, leftBounded = 2 };
 enum LastHit { left, right, top, bottom };
 
-struct LaunchParameters {
-  std::optional<double> initialY;
-  std::optional<double> initialDirection;
-};
-
 class Pool {
   // Creo una struct apposita al posto di usare un semplice std::array<double, 2> perché
   // quest'ultimo è un aggregato e per questo non potrei costruirlo con emplace_back
